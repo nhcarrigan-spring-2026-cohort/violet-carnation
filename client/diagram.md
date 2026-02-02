@@ -1,3 +1,4 @@
+```mermaid
 graph LR
     A[APP] --> B(Volunteers)
     A[APP] --> C(Institutions)
@@ -12,3 +13,4 @@ graph LR
 
     J -- Send a --> K
     E -- review project--> H
+```
