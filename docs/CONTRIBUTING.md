@@ -27,6 +27,7 @@ For others interested in adding to this project, feel free to reach out to one o
 
 - [Discord](#discord)
 - [GitHub](#github)
+- [Team Leads](#team-leads)
 
 [Troubleshooting](#troubleshooting)
 
@@ -290,7 +291,7 @@ Example:
 </div>
 ```
 
-#### Component/Function Naming:
+#### Component/Function Naming
 
 **Components:**
 
@@ -301,7 +302,7 @@ Example:
 
 - Name functions by what they do: `calculateMatchScore()` not `doThing()`
 
-#### Comments:
+#### Comments
 
 - Write comments for **why**, not **what**
 - Complex logic = explain your thinking
@@ -328,8 +329,8 @@ Use clear, plural nouns for resources.
 const { data: volunteers, isLoading, error } = useVolunteers();
 
 // Handle loading and error states
-if (isLoading) return;
-if (error) return;
+if (isLoading) return <LoadingSpinner />;
+if (error) return <ErrorMessage error={error} />;
 ```
 
 **FastAPI route example:**
@@ -355,9 +356,16 @@ All main project communication happens in the **#violet-carnation** channel on t
 ### GitHub
 
 - Assign issues so others know which are taken
-- Comment on issues youre working on
+- Comment on issues you're working on
 - Tag team members in PR reviews: `@username`
 - Use PR descriptions to explain changes
+
+### Team Leads
+
+Questions? Contact:
+
+- **Brad** - [@bradtaniguchi](https://github.com/bradtaniguchi)
+- **Sky** - [@sylkylacole](https://github.com/sylkylacole)
 
 ---
 
@@ -365,4 +373,4 @@ All main project communication happens in the **#violet-carnation** channel on t
 
 ## Troubleshooting
 
-[!IMPORTANT] Will update when have something to troubleshoot
+> **Note:** This section will be updated as common issues are discovered during development.
