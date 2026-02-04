@@ -1,0 +1,36 @@
+INSERT INTO Projects (
+    id,
+    name,
+    taskDescription,
+    isRemote,
+    location,
+    hoursWeek,
+    startDate,
+    expectedEndDate,
+    expertiseAreas,
+    specializationArea,
+    language,
+    requiredEducation,
+    requiredSkillExperience,
+    requiredDrivingLicense,
+    livingConditions,
+    url
+  )
+VALUES (
+    3,
+    'Management of the Asia and Pacific Dashboard',
+    'Under the direct supervision of the Regional Planning, Monitoring and Evaluation Advisor, UNFPA Asia Pacific Regional Office, the UN Volunteer will be responsible for the management of the Asia and Pacific Dashboard, which includes the following tasks :\n\n\u2022 Data Harmonization\no Conduct a comprehensive assessment of reporting requirements and data needs for internal and external communication of UNFPA APRO and COs, consulting with relevant regional advisors and M&E staff from Country Offices (COs).\no Collaborate with COs to identify key indicators and data points to be reported.\no Identify linkages and integrate data from other platforms to the extent needed and feasible, such as financing data.\no Guide COs with development and/or use of data collection forms for agreed indicators, focusing on higher level results indicators. \no Propose a methodology for data harmonization and aggregation from diverse country-level systems, considering potential data discrepancies and varying reporting frequencies. \no Determine the necessary data security protocols and user access levels for regional users, including periodicity of data generation and quality assurance processes. \n\n\u2022 Dashboard Engineering \no With support from UNFPA HQ \u2013 Information Technology Solutions Office develop a detailed design of the web-based regional dashboard.\no Structure the dashboard for easy data visualization, analysis, and reporting of aggregated regional data.\no Incorporate geographical mapping functionalities to visualize data by country, sub-region, or regional.\no Design intuitive visualization elements (e.g., interactive charts, graphs, heatmaps, progress bars) to present complex data in an easily understandable format.\no Design functionalities to provide qualitative information, e.g. human face stories on impact, photos and other sources of data tailored for diverse stakeholders. \no Outline a data backup, archiving, and network security plan.\n\n\n\u2022 Managing the regional dashboard of results:\no Maintain regular communication and support Country Offices with timely results reporting in the regional dashboard.\no Support quality assurance of data entered into the dashboard.\no Conduct trend and other data analyses of the dashboard data to promote utilization of results evidence by APRO and Country Offices for programming, decision-making, communication and resource mobilization. \no Troubleshoot any technical challenges in consultation with relevant business units and UNFPA HQ.\no Facilitate knowledge sharing among Country Offices and support documentation of promising and innovative practices, lessons learned.\n\nKey performance indicators :\n\n\u2022\tThe regional results dashboard is functional and updated with credible and timely data\n\u2022\tTimely and good quality knowledge products, reports, tools as indicated above\n\u2022\tDocumentation of good practices and lessons learned from COs\n',
+    FALSE,
+    'Thailand',
+    40,
+    "2026-03-01T00:00:00",
+    "2027-03-01T00:00:00",
+    "Communication-EN, Information technology-EN, Social work-EN, business administration, procurement, supply management or technical field is required.",
+    "public health, social sciences, gender or development studies, or a related field.",
+    "English",
+    "Master's degree",
+    "Programme planning, monitoring and evaluation\n\u2022\tQualitative and quantitative research methodologies\n\u2022\tDeveloping results information systems\n\u2022\tExcellent oral and written skills; excellent drafting, formulation, reporting skills\n\u2022\tExcellent computer / information systems skills (DHIS2, google-based applications, data analyses software)\n\u2022\tFamiliarity with GenAI is an asset\n\u2022\tAccuracy, attention to details and professionalism in document production and editing\n\u2022\tExcellent interpersonal skills; culturally and socially sensitive; ability to work inclusively and collaboratively \n\u2022\tSelf-motivated, ability to work with minimum supervision; ability to work with tight deadline",
+    FALSE,
+    "The duty station will be Bangkok, Thailand. Bangkok is a highly developed modern city with excellent accommodation that includes single house, apartments etc. The cost of living in Bangkok perhaps compared to some of the other capital cities in Asia is relatively high but still low compared to the Europe and North America. Health facilities and services are among the best in Asia and often many people from various countries visit Bangkok for seeking medical services. Travel to and from Bangkok is easy as there are many daily flights connecting Bangkok with major cities in the world. ",
+    "https://app.unv.org/opportunities/1784888021266491"
+  );

@@ -1,0 +1,15 @@
+[{
+  "id": 1,
+  "roleId": 2, 
+  "name": "Juan Pérez",
+  "location": "Perú",
+  "education": "Bachelor"
+},
+{
+    "id": 2,
+  "roleId": 1, 
+  "name": "UN-HABITAT",
+  "location": "Kenya",
+  "education": "NULL"
+}
+]
