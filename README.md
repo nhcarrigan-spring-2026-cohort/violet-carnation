@@ -30,6 +30,13 @@ The idea: A lot of people want to volunteer but don't know where to start. Meanw
 
 Think about what makes someone actually follow through on volunteering. It's not just finding an opportunity — it's finding the right opportunity. Someone who loves animals shouldn't see tutoring gigs first. Someone who can only help on weekends needs to filter by availability. How do you make the matching feel personal, not like a job board?
 
+## Github Project board
+
+To help organize and make the most of github itself, we will have a project board to help organize the issues for this project. 
+
+Project can be found here:
+https://github.com/orgs/nhcarrigan-spring-2026-cohort/projects/12/views/1
+
 ## Helpful resources
 
 ### learning Next.js
