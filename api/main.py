@@ -19,16 +19,16 @@ app = FastAPI(lifespan=lifespan)
 
 
 # Helper/demo endpoints below
-@app.get("/")
+@app.get("/api")
 async def root():
     return {"message": "Hello World"}
 
 
-@app.get("/check")
+@app.get("/api/check")
 async def check():
     return {"content:": "I work, from Next.js too... how cool?"}
 
 
 # include nested routers here 
-app.include_router(users_router)
+app.include_router(users_router, prefix="/api")
 
