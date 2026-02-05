@@ -173,7 +173,7 @@ Expected output:
 
 Press `CTRL+C`
 
-7. to deactivate the virtual environment, or get rid of `(venv)` in your prompt:
+7. to deactivate the virtual environment, or get rid of `(.venv)` in your prompt:
 
 ```bash
   deactivate
@@ -181,10 +181,10 @@ Press `CTRL+C`
 
 ### Verifying Your Virtual Environment
 
-After activating, you should see `(venv)` in your terminal prompt:
+After activating, you should see `(.venv)` in your terminal prompt:
 
 ```bash
-(venv) user@machine:~/project/backend$
+(.venv) user@machine:~/project/backend$
 ```
 
 To verify the venv is active:
@@ -193,7 +193,7 @@ To verify the venv is active:
   which python3
 ```
 
-**Should output:** `/path/to/your/project/backend/venv/bin/python3`  
+**Should output:** `/path/to/your/project/backend/.venv/bin/python3`  
 **If it shows:** `/usr/bin/python3` → venv is **NOT** active, run activate command again
 
 ## Project Structure
