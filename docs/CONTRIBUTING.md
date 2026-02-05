@@ -120,7 +120,7 @@ This is harmless and doesn't affect functionality. You can:
 
 ```bash
   cd api
-  python3 -m venv venv
+  python3 -m venv .venv
 ```
 
 (assumes you're at project root)
@@ -130,7 +130,7 @@ This is harmless and doesn't affect functionality. You can:
    **Linux/Mac:**
 
 ```bash
-  source venv/bin/activate
+  source .venv/bin/activate
 ```
 
 **Windows:**
@@ -172,6 +172,12 @@ Expected output:
 6. **Stop the server:**
 
 Press `CTRL+C`
+
+7. to deactivate the virtual environment, or get rid of `(venv)` in your prompt:
+
+```bash
+  deactivate
+```
 
 ### Verifying Your Virtual Environment
 
@@ -287,7 +293,7 @@ Example:
 
 ```tsx
 <div className="flex items-center gap-4 p-6 bg-white rounded-lg shadow-md">
-	<h2 className="text-xl font-semibold">Volunteer Profile</h2>
+  <h2 className="text-xl font-semibold">Volunteer Profile</h2>
 </div>
 ```
 
