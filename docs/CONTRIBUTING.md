@@ -136,10 +136,10 @@ This is harmless and doesn't affect functionality. You can:
 **Windows:**
 
 ```bash
-  venv\Scripts\activate
+  .venv\Scripts\activate
 ```
 
-You _should_ see `(venv)` appear in your terminal prompt.
+You _should_ see `(.venv)` appear in your terminal prompt.
 
 3. **Install backend dependencies:**
 
