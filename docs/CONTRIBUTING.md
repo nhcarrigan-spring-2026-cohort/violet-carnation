@@ -173,11 +173,13 @@ Expected output:
 
 Press `CTRL+C`
 
-7. to deactivate the virtual environment, or get rid of `(.venv)` in your prompt:
+7. **Deactivate virtual environment:**
 
 ```bash
   deactivate
 ```
+
+You should no longer se `(.venv)` in your terminal prompt.
 
 ### Verifying Your Virtual Environment
 
@@ -293,7 +295,7 @@ Example:
 
 ```tsx
 <div className="flex items-center gap-4 p-6 bg-white rounded-lg shadow-md">
-  <h2 className="text-xl font-semibold">Volunteer Profile</h2>
+	<h2 className="text-xl font-semibold">Volunteer Profile</h2>
 </div>
 ```
 
