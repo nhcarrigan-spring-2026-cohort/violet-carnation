@@ -43,3 +43,7 @@ next-env.d.ts
 
 #lock-json
 *-lock.json
+
+# python bitcode
+*/__pycache__/*
+*.pyc
