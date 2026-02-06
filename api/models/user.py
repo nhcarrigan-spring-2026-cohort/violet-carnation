@@ -1,4 +1,4 @@
-from pydantic import BaseModel
+from pydantic import BaseModel, PositiveInt
 
 
 class UserIn(BaseModel):
@@ -6,5 +6,5 @@ class UserIn(BaseModel):
 
 
 class User(BaseModel):
-    id: int
+    id: PositiveInt
     name: str

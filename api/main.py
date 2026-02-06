@@ -3,6 +3,7 @@ from fastapi import FastAPI
 
 from db import init_db
 from routes.users import router as users_router
+from routes.organization import router as organization_router
 
 @asynccontextmanager
 async def lifespan(app: FastAPI):
@@ -31,4 +32,5 @@ async def check():
 
 # include nested routers here 
 app.include_router(users_router, prefix="/api")
+app.include_router(organization_router, prefix="/api")
 
