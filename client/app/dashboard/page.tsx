@@ -1,9 +1,7 @@
-import React from 'react'
+import React from "react";
 
 const EventDashboard = () => {
-  return (
-    <div>EventDashboard</div>
-  )
-}
+	return <div>EventDashboard</div>;
+};
 
-export default EventDashboard
+export default EventDashboard;

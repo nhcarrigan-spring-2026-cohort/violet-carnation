@@ -1,12 +1,7 @@
-import React from 'react'
+import React from "react";
 
-const EditEvent
- = () => {
-  return (
-    <div>EditEvent
-      
-    </div>
-  )
-}
+const EditEvent = () => {
+	return <div>EditEvent</div>;
+};
 
-export default EditEvent
+export default EditEvent;
