@@ -1,31 +1,23 @@
 from pathlib import Path
-import sqlite3
+from typing import Annotated
+from fastapi import Depends
+from sqlmodel import Session, SQLModel, create_engine
 
-DATABASE_PATH = Path(__file__).resolve().parent / "app.db"
+DATABSE_PATH = Path(__file__).resolve().parent / "app.db"
 
+#
+# Configuration parameters
+#
 
-def init_db() -> None:
-    """
-    Initialize the database by creating necessary tables.
+sql_url = f"sqlite:///{DATABSE_PATH}"
+connect_args = {"check_same_thread": False}
+engine = create_engine(sql_url, connect_args=connect_args)
 
-    At the time of writing, this only creates the 'users' table as an example schema.
-    """
-    with sqlite3.connect(DATABASE_PATH) as conn:
-        conn.execute(
-            """
-            CREATE TABLE IF NOT EXISTS users (
-                id INTEGER PRIMARY KEY,
-                name TEXT NOT NULL
-            )
-            """
-        )
-        conn.commit()
+def create_db_and_tables():
+    SQLModel.metadata.create_all(engine)
 
+def get_session():
+    with Session(engine) as session:
+        yield session
 
-def get_connection():
-    conn = sqlite3.connect(DATABASE_PATH)
-    conn.row_factory = sqlite3.Row
-    try:
-        yield conn
-    finally:
-        conn.close()
+SessionDep = Annotated[Session, Depends(get_session)]

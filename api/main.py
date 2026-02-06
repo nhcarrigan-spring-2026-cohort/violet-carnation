@@ -1,34 +1,32 @@
-from contextlib import asynccontextmanager
-from fastapi import FastAPI
+# instruccion to connect fastapi to sqlite in https://fastapi.tiangolo.com/tutorial/sql-databases/#install-sqlmodel
+from typing import Annotated
+from datetime import datetime
+from fastapi import FastAPI, Depends, HTTPException, Query
+from sqlmodel import Session, select
+from db import create_db_and_tables, SessionDep, engine
+from routes import users
+
+#
+# API
+#
 
 from db import init_db
 from routes.users import router as users_router
 
-@asynccontextmanager
-async def lifespan(app: FastAPI):
-    """
-    Lifespan context manager to initialize the database when the app starts.
+app.include_router(users.router)
 
-    This appears to be blocking, unsure if init_db should be async, as it should be blocking
-    otherwise without a DB connection the server is useless.
-    """
-    init_db()
-    yield
+#
+# When app starts, create tables
+#
 
-app = FastAPI(lifespan=lifespan)
+@app.on_event("startup")
+def on_startup():
+    create_db_and_tables()
 
+#
+# Home
+#
 
-# Helper/demo endpoints below
-@app.get("/api")
+@app.get("/")
 async def root():
-    return {"message": "Hello World"}
-
-
-@app.get("/api/check")
-async def check():
-    return {"content:": "I work, from Next.js too... how cool?"}
-
-
-# include nested routers here 
-app.include_router(users_router, prefix="/api")
-
+    return {"message": "Wellcome to Volunteer Match-Up"}
