@@ -173,11 +173,13 @@ Expected output:
 
 Press `CTRL+C`
 
-7. to deactivate the virtual environment, or get rid of `(.venv)` in your prompt:
+7. **Deactivate virtual environment:**
 
 ```bash
   deactivate
 ```
+
+You should no longer see `(.venv)` in your terminal prompt.
 
 ### Verifying Your Virtual Environment
 
