@@ -9,9 +9,7 @@ from routes import users
 #
 # API
 #
-
-from db import init_db
-from routes.users import router as users_router
+app = FastAPI()
 
 app.include_router(users.router)
 
