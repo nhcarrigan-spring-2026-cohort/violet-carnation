@@ -47,3 +47,5 @@ next-env.d.ts
 # python bitcode
 */__pycache__/*
 *.pyc
+
+.venv
