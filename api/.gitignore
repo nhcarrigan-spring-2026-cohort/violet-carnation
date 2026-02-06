@@ -1,2 +1,5 @@
 __pycache__
 .venv
+
+# local database file
+app.db
