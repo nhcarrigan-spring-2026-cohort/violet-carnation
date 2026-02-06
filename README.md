@@ -1,57 +1,72 @@
-# violet-carnation
+# Violet-Carnation - Volunteer Matching Platform
 
-Repository for Team Violet Carnation - Spring 2026 Cohort
+> Spring 2026 freeCodeCamp Cohort Project
 
-## Team Members
-
-Leadership
-
-- <https://github.com/bradtaniguchi>
-- <https://github.com/sylkylacole>
-
-Participants
-
-- <https://github.com/frankgomezdev>
-- <https://github.com/D-Johnson89>
-- <https://github.com/ofthewildfire>
-- <https://github.com/tenaciousLoki>
-- <https://github.com/masudulalam>
-- <https://github.com/urmilbhatt>
-- <https://github.com/gerardoRmrz>
-- <https://github.com/TiffanyClark>
-- <https://github.com/felixicity>
+A platform that connects volunteers with nonprofit organizations based on skills, interests, availability, and location.
 
 ## Project Spec
 
-**Matching Platform**
-"I want to help but where do I start?"
+**The Problem:**  
+People want to volunteer but don't know where to start. Nonprofits need help but struggle to find reliable volunteers.
 
-The idea: A lot of people want to volunteer but don't know where to start. Meanwhile, nonprofits desperately need help but struggle to find reliable volunteers. This platform bridges that gap — matching people with volunteer opportunities based on their skills, interests, availability, and location.
+**Our Solution:**  
+A matching platform that makes finding the _right_ volunteer opportunity feel personal, not like a generic job board. Someone who loves animals sees animal-focused opportunities first. Someone available only on weekends can filter accordingly.
 
-Think about what makes someone actually follow through on volunteering. It's not just finding an opportunity — it's finding the right opportunity. Someone who loves animals shouldn't see tutoring gigs first. Someone who can only help on weekends needs to filter by availability. How do you make the matching feel personal, not like a job board?
+## Tech Stack
 
-## Github Project board
+**Frontend:**
 
-To help organize and make the most of github itself, we will have a project board to help organize the issues for this project. 
+- Next.js (React)
+- Tailwind CSS
+- TypeScript
 
-Project can be found here:
-https://github.com/orgs/nhcarrigan-spring-2026-cohort/projects/12/views/1
+**Backend:**
 
-## Helpful resources
+- FastAPI (Python)
+- SQLite
 
-### learning Next.js
+**Tools:**
 
-- [nextjs tutorial for beginners](https://www.youtube.com/watch?v=ZVnjOPwW4ZA)
-- [quick tutorial for nextjs](https://www.youtube.com/watch?v=Sklc_fQBmcs&pp=ygUTbmV4dGpzIGZyZWVjb2RlY2FtcA%3D%3D)
+- GitHub Projects for task management
+- Discord for team communication
 
-### learning FastAPI
+## Getting Started
 
-- [fCC FastAPI course for beginners](https://www.youtube.com/watch?v=tLKKmouUams)
-- [another FastAPI course for beginners, longer](https://www.youtube.com/watch?v=7t2alSnE2-I&t=13860s)
+See [CONTRIBUTING.md](./docs/CONTRIBUTING.md) for setup instructions.
 
-### Local development tutorials
+**Quick Links:**
 
-- [Setting up VS Code for web development](https://www.freecodecamp.org/news/how-to-set-up-vs-code-for-web-development/)
-- [Configuring Visual Studio Code for Python development](https://www.freecodecamp.org/news/how-to-configure-visual-studio-code-for-python-development/)
+- [Project Board](https://github.com/orgs/nhcarrigan-spring-2026-cohort/projects/12/views/1)
+- [Learning Resources](./docs/RESOURCES.md)
 
-**note** you could also use [PyCharm from Jetbrains](https://www.jetbrains.com/pycharm/download/) for Python development, but since half the project is in Next.js its more recommended to use VSCode.
+## Team
+
+### Leadership
+
+- [@bradtaniguchi](https://github.com/bradtaniguchi)
+- [@sylkylacole](https://github.com/sylkylacole)
+
+### Participants
+
+- [@frankgomezdev](https://github.com/frankgomezdev)
+- [@D-Johnson89](https://github.com/D-Johnson89)
+- [@ofthewildfire](https://github.com/ofthewildfire)
+- [@tenaciousLoki](https://github.com/tenaciousLoki)
+- [@masudulalam](https://github.com/masudulalam)
+- [@urmilbhatt](https://github.com/urmilbhatt)
+- [@gerardoRmrz](https://github.com/gerardoRmrz)
+- [@TiffanyClark](https://github.com/TiffanyClark)
+- [@felixicity](https://github.com/felixicity)
+
+## Project Timeline
+
+**Hackathon Duration:** Spring 2026 Cohort  
+**Status:** In active development
+
+## Contributing
+
+This project is currently limited to Spring 2026 Cohort participants. See [CONTRIBUTING.md](./docs/CONTRIBUTING.md) for development guidelines.
+
+---
+
+Built with ❤️ by Team Violet Carnation
