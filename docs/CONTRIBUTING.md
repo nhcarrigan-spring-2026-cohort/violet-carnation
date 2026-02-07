@@ -179,6 +179,8 @@ Press `CTRL+C`
   deactivate
 ```
 
+You should no longer see `(.venv)` in your terminal prompt.
+
 ### Verifying Your Virtual Environment
 
 After activating, you should see `(.venv)` in your terminal prompt:
