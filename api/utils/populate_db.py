@@ -140,7 +140,7 @@ def insert_users_data(users_data):
     except Exception as e:
         print(f"❌ Error: {e}")
         conn.rollback()
-
+ 
 def verify_data():
     """Verify correct data insertion"""
     cursor.execute("SELECT COUNT(*) FROM Users")
