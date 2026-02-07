@@ -1,41 +1,21 @@
+import os
 import sqlite3
 from faker import Faker
 import hashlib
 import random
 from datetime import datetime, timedelta
 
+from db_schema import DB_SCHEMA
+
 # Faker init
 fake = Faker()
 
 # SQLite connection
-conn = sqlite3.connect('../app.db')
+conn = sqlite3.connect('app.db')
 cursor = conn.cursor()
 
-# Create DB if doesn't exists
-create_table_query = '''
-CREATE TABLE IF NOT EXISTS Users (
-    user_id INTEGER PRIMARY KEY AUTOINCREMENT,
-    email TEXT NOT NULL UNIQUE,
-    password_hash TEXT NOT NULL,
-    first_name TEXT NOT NULL,
-    last_name TEXT NOT NULL,
-    phone TEXT,
-    birth_date TEXT,
-    gender TEXT CHECK(gender IN ('Male', 'Female', 'Other', 'Prefer not to say')) DEFAULT 'Prefer not to say',
-    identification_number TEXT UNIQUE,
-    country TEXT,
-    city TEXT,
-    address TEXT,
-    profile_picture TEXT,
-    education TEXT,
-    skills TEXT,
-    availability TEXT CHECK(availability IN ('Full-time', 'Part-time', 'Weekends', 'Evenings')) DEFAULT 'Part-time',
-    active INTEGER DEFAULT 1,
-    registration_date TIMESTAMP DEFAULT CURRENT_TIMESTAMP
-)
-'''
 
-cursor.execute(create_table_query)
+cursor.executescript(DB_SCHEMA)
 
 def generate_password_hash(password):
     """Generate a hash MD5 for password"""
@@ -150,7 +130,7 @@ def verify_data():
     cursor.execute("SELECT * FROM Users LIMIT 5")
     sample_records = cursor.fetchall()
     
-    print("\n📋 Show 5 records:")
+    print("\n📋 Showing 5 records:")
     for record in sample_records:
         print(f"ID: {record[0]}, Email: {record[1]}, Name: {record[3]} {record[4]}, Active: {record[17]}")
 
