@@ -4,7 +4,17 @@ from pydantic import BaseModel, PositiveInt
 class Role(BaseModel):
     user_id: PositiveInt
     organization_id: PositiveInt
-    permission_level: Literal['admin', 'volunteer']
+    permission_level: Literal["admin", "volunteer"]
+
+
+class RoleCreate(BaseModel):
+    user_id: PositiveInt
+    permission_level: Literal["admin", "volunteer"]
+
+
+class RoleUpdate(BaseModel):
+    user_id: PositiveInt
+    permission_level: Literal["admin", "volunteer"]
   
 class RoleAndUser(BaseModel):
     """
@@ -15,4 +25,4 @@ class RoleAndUser(BaseModel):
     user_id: PositiveInt
     organization_id: PositiveInt
     name: str
-    permission_level: Literal['admin', 'volunteer']
+    permission_level: Literal["admin", "volunteer"]
