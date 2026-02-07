@@ -13,7 +13,6 @@ class RoleCreate(BaseModel):
 
 
 class RoleUpdate(BaseModel):
-    user_id: PositiveInt
     permission_level: Literal["admin", "volunteer"]
   
 class RoleAndUser(BaseModel):

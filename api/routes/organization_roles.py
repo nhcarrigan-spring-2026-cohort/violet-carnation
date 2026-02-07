@@ -130,9 +130,10 @@ def remove_organization_user(
     )
 
 
-@router.put("", response_model=RoleAndUser)
+@router.put("/{user_id}", response_model=RoleAndUser)
 def update_organization_user_role(
     organization_id: int,
+    user_id: int,
     payload: RoleUpdate,
     conn: sqlite3.Connection = Depends(get_connection),
 ):
@@ -141,7 +142,9 @@ def update_organization_user_role(
 
     :param organization_id: the organization to update the user in
     :type organization_id: int
-    :param payload: the user to update and new permission level
+    :param user_id: the user to update
+    :type user_id: int
+    :param payload: the new permission level
     :type payload: RoleUpdate
     :param conn: the connection to the database
     :type conn: sqlite3.Connection
@@ -153,7 +156,7 @@ def update_organization_user_role(
         JOIN users u ON r.user_id = u.id
         WHERE r.organization_id = ? AND r.user_id = ?
         """,
-        (organization_id, payload.user_id),
+        (organization_id, user_id),
     ).fetchone()
     if row is None:
         raise HTTPException(status_code=status.HTTP_404_NOT_FOUND, detail="User not found")
@@ -164,7 +167,7 @@ def update_organization_user_role(
         SET permission_level = ?
         WHERE organization_id = ? AND user_id = ?
         """,
-        (payload.permission_level, organization_id, payload.user_id),
+        (payload.permission_level, organization_id, user_id),
     )
     conn.commit()
 
