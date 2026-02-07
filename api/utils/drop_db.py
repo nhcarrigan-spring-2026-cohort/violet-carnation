@@ -16,6 +16,7 @@ def drop_db():
       raise FileNotFoundError(f"No app.db file found, see CONTRIBUTING.md for instructions on how to initialize the database, or just run the dev server to get a not-populate DB")
 
   conn = sqlite3.connect(db_path)
+  conn.execute("PRAGMA foreign_keys = ON;")
   conn.executescript(DROP_DB_SQL)
   conn.commit()
   conn.close()

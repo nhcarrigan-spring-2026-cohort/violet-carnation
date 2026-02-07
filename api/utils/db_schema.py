@@ -22,15 +22,26 @@ CREATE TABLE IF NOT EXISTS users (
     registration_date TIMESTAMP DEFAULT CURRENT_TIMESTAMP
 );
 CREATE TABLE IF NOT EXISTS organizations (
-    id INTEGER PRIMARY KEY,
-    name TEXT NOT NULL
+    organization_id INTEGER PRIMARY KEY AUTOINCREMENT,
+    name TEXT NOT NULL,
+    description TEXT,
+    created_by_user_id INTEGER NOT NULL,
+    FOREIGN KEY (created_by_user_id) REFERENCES users(user_id)
+        ON UPDATE CASCADE
+        ON DELETE RESTRICT
 );
 CREATE TABLE IF NOT EXISTS roles (
     user_id INTEGER NOT NULL,
     organization_id INTEGER NOT NULL,
     permission_level TEXT NOT NULL,
     CHECK (permission_level IN ('admin', 'volunteer')),
-    PRIMARY KEY (user_id, organization_id)
+    PRIMARY KEY (user_id, organization_id),
+    FOREIGN KEY (user_id) REFERENCES users(user_id)
+        ON UPDATE CASCADE
+        ON DELETE RESTRICT,
+    FOREIGN KEY (organization_id) REFERENCES organizations(organization_id)
+        ON UPDATE CASCADE
+        ON DELETE CASCADE
 );
 """
 
