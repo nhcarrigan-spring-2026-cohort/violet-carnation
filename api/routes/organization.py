@@ -9,22 +9,41 @@ from routes.organization_roles import router as organization_roles_router
 router = APIRouter(prefix="/organization", tags=["organization"])
 
 @router.get("", response_model=list[Organization])
-def list_organizations(conn: sqlite3.Connection = Depends(get_connection)):
+def list_organizations(
+    conn: sqlite3.Connection = Depends(get_connection),
+    skip: int = 0,
+    limit: int = 10,
+    query: str | None = None,
+):
     """
-    List all organizations.
-
-    TODO: add pagination, filtering, and searching.
+    List organizations with pagination and optional search query.
 
     :param conn: the connection to the database
     :type conn: sqlite3.Connection
+    :param skip: number of records to skip for pagination, defaults to 0
+    :type skip: int, optional
+    :param limit: maximum number of records to return, defaults to 10
+    :type limit: int, optional
+    :param query: optional search query to filter organizations by name or description, defaults to None
+    :type query: str | None, optional
     """
-    rows = conn.execute(
-        """
+    base_sql = """
         SELECT organization_id, name, description, created_by_user_id
         FROM organizations
-        ORDER BY organization_id
+    """
+    params: list[object] = []
+    if query:
+        base_sql += """
+            WHERE lower(name) LIKE ?
+               OR lower(description) LIKE ?
         """
-    ).fetchall()
+        term = f"%{query.lower()}%"
+        params.extend([term, term])
+
+    base_sql += " ORDER BY organization_id LIMIT ? OFFSET ?"
+    params.extend([limit, skip])
+
+    rows = conn.execute(base_sql, params).fetchall()
 
     return [
         Organization(
