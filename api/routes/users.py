@@ -2,7 +2,7 @@ import sqlite3
 
 from fastapi import APIRouter, Depends, HTTPException, status
 
-from models.user import UserIn
+from models.user import Availability, UserIn
 from db import get_connection
 from models import User
 
@@ -15,9 +15,12 @@ def list_users(
     skip: int = 0,
     limit: int = 10,
     query: str | None = None,
+    availability: Availability | None = None,
 ):
     """
-    List users with pagination and optional search query.
+    List users with pagination, optional search query and the ability to filter by specific properties, currently supporting:
+
+    - availability
 
     :param conn: the connection to the database
     :type conn: sqlite3.Connection
@@ -30,18 +33,25 @@ def list_users(
     """
 
     base_sql = """
-        SELECT user_id, email, first_name, last_name
+        SELECT user_id, email, first_name, last_name, availability
         FROM users
     """
     params: list[object] = []
+    conditions: list[str] = []
+
     if query:
-        base_sql += """
-            WHERE lower(email) LIKE ?
-               OR lower(first_name) LIKE ?
-               OR lower(last_name) LIKE ?
-        """
+        conditions.append(
+            "(lower(email) LIKE ? OR lower(first_name) LIKE ? OR lower(last_name) LIKE ?)"
+        )
         term = f"%{query.lower()}%"
         params.extend([term, term, term])
+
+    if availability:
+        conditions.append("availability = ?")
+        params.append(availability)
+
+    if conditions:
+        base_sql += " WHERE " + " AND ".join(conditions)
 
     base_sql += " ORDER BY user_id LIMIT ? OFFSET ?"
     params.extend([limit, skip])
@@ -53,6 +63,7 @@ def list_users(
             email=row["email"],
             first_name=row["first_name"],
             last_name=row["last_name"],
+            availability=row["availability"],
         )
         for row in rows
     ]
@@ -70,7 +81,7 @@ def get_user(user_id: int, conn: sqlite3.Connection = Depends(get_connection)):
     :type conn: sqlite3.Connection
     """
     row = conn.execute(
-        "SELECT user_id, email, first_name, last_name FROM users WHERE user_id = ?",
+        "SELECT user_id, email, first_name, last_name, availability FROM users WHERE user_id = ?",
         (user_id,),
     ).fetchone()
     if row is None:
@@ -80,6 +91,7 @@ def get_user(user_id: int, conn: sqlite3.Connection = Depends(get_connection)):
         email=row["email"],
         first_name=row["first_name"],
         last_name=row["last_name"],
+        availability=row["availability"],
     )
 
 
