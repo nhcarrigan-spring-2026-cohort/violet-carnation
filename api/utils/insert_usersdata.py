@@ -56,4 +56,4 @@ def execute_insert_users_data(NUM_RECORDS):
     
     # Close connection
     conn.close()
-    print("\nProcess complete. Connection close.")
+    print("\nProcess complete. Connection close.\n")

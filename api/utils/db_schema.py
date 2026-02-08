@@ -23,7 +23,24 @@ CREATE TABLE IF NOT EXISTS users (
 );
 CREATE TABLE IF NOT EXISTS organizations (
     id INTEGER PRIMARY KEY,
-    name TEXT NOT NULL
+    admin_user_id INTEGER NOT NULL,
+    name TEXT,
+    public_name TEXT,
+    email TEXT,
+    phone TEXT,
+    country TEXT, 
+    city TEXT, 
+    address TEXT,
+    sector TEXT, 
+    mission TEXT, 
+    vision TEXT, 
+    logo_url TEXT, 
+    description TEXT, 
+    website TEXT, 
+    social_media TEXT, 
+    verified INTEGER, 
+    active INTEGER, 
+    registration_date TIMESTAMP DEFAULT CURRENT_TIMESTAMP
 );
 CREATE TABLE IF NOT EXISTS roles (
     user_id INTEGER NOT NULL,
@@ -32,6 +49,8 @@ CREATE TABLE IF NOT EXISTS roles (
     CHECK (permission_level IN ('admin', 'volunteer')),
     PRIMARY KEY (user_id, organization_id)
 );
+
+
 """
 
 
