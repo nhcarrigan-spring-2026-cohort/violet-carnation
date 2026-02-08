@@ -5,7 +5,7 @@ from fastapi import APIRouter, Depends, HTTPException, status
 from db import get_connection
 from models import RoleAndUser, RoleCreate, RoleUpdate
 
-router = APIRouter(prefix="", tags=["organization_users"])
+router = APIRouter(prefix="")
 
 
 @router.get("", response_model=list[RoleAndUser])
