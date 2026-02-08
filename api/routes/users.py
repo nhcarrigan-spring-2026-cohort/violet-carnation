@@ -2,13 +2,14 @@ import sqlite3
 
 from fastapi import APIRouter, Depends, HTTPException, status
 
+from models.user import UserIn
 from db import get_connection
-from models import User, UserIn, UserPublic
+from models import User
 
 router = APIRouter(prefix="/users", tags=["users"])
 
 
-@router.get("", response_model=list[UserPublic])
+@router.get("", response_model=list[User])
 def list_users(
     conn: sqlite3.Connection = Depends(get_connection),
     skip: int = 0,
@@ -47,7 +48,7 @@ def list_users(
 
     rows = conn.execute(base_sql, params).fetchall()
     return [
-        UserPublic(
+        User(
             user_id=row["user_id"],
             email=row["email"],
             first_name=row["first_name"],
@@ -57,7 +58,7 @@ def list_users(
     ]
 
 
-@router.get("/{user_id}", response_model=UserPublic)
+@router.get("/{user_id}", response_model=User)
 def get_user(user_id: int, conn: sqlite3.Connection = Depends(get_connection)):
     """
     Get a single user by their user ID. This should be mostly used for the current logged in user to get
@@ -74,7 +75,7 @@ def get_user(user_id: int, conn: sqlite3.Connection = Depends(get_connection)):
     ).fetchone()
     if row is None:
         raise HTTPException(status_code=status.HTTP_404_NOT_FOUND, detail="User not found")
-    return UserPublic(
+    return User(
         user_id=row["user_id"],
         email=row["email"],
         first_name=row["first_name"],
@@ -89,11 +90,21 @@ def create_user(payload: UserIn, conn: sqlite3.Connection = Depends(get_connecti
     This will change completely/get deleted once auth is implemented, as part of a registration flow, as
     that will create a user in the database
     
+    TODO: document how to handle duplicate emails, which will result in an error currently. 
     :param payload: Description
     :type payload: UserIn
     :param conn: Description
     :type conn: sqlite3.Connection
     """
-    cursor = conn.execute("INSERT INTO users (name) VALUES (?)", (payload.name,))
+    cursor = conn.execute(
+        "INSERT INTO users (email, first_name, last_name, availability) VALUES (?, ?, ?, ?)",
+        (payload.email, payload.first_name, payload.last_name, payload.availability)
+    )
     conn.commit()
-    return User(user_id=cursor.lastrowid, name=payload.name)
+    return User(
+        user_id=cursor.lastrowid,
+        email=payload.email,
+        first_name=payload.first_name,
+        last_name=payload.last_name,
+        availability=payload.availability
+    )
