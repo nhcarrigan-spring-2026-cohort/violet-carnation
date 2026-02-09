@@ -32,6 +32,13 @@ CREATE TABLE IF NOT EXISTS roles (
     CHECK (permission_level IN ('admin', 'volunteer')),
     PRIMARY KEY (user_id, organization_id)
 );
+CREATE TABLE IF NOT EXISTS event_registrations (
+    user_id INTEGER NOT NULL,
+    event_id INTEGER NOT NULL, 
+    organization_id INTEGER NOT NULL,
+    registration_time TEXT NOT NULL,
+    PRIMARY KEY (user_id, organization_id, event_id)
+);
 """
 
 
