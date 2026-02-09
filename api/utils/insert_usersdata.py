@@ -1,6 +1,8 @@
+import os
 import sqlite3
 from db_schema import DB_SCHEMA
 from genarate_users_data import generate_user_data
+
 
 # SQLite connection
 conn = sqlite3.connect('app.db')

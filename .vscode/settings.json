@@ -4,7 +4,7 @@
     {
       "previewLimit": 50,
       "driver": "SQLite",
-      "name": "app",
+      "name": "appdb",
       "database": "app.db"
     }
   ]

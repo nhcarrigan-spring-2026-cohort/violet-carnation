@@ -22,25 +22,10 @@ CREATE TABLE IF NOT EXISTS users (
     registration_date TIMESTAMP DEFAULT CURRENT_TIMESTAMP
 );
 CREATE TABLE IF NOT EXISTS organizations (
-    id INTEGER PRIMARY KEY,
-    admin_user_id INTEGER NOT NULL,
+    organization_id INTEGER PRIMARY KEY,
+    created_by_user_id INTEGER NOT NULL,
     name TEXT,
-    public_name TEXT,
-    email TEXT,
-    phone TEXT,
-    country TEXT, 
-    city TEXT, 
-    address TEXT,
-    sector TEXT, 
-    mission TEXT, 
-    vision TEXT, 
-    logo_url TEXT, 
-    description TEXT, 
-    website TEXT, 
-    social_media TEXT, 
-    verified INTEGER, 
-    active INTEGER, 
-    registration_date TIMESTAMP DEFAULT CURRENT_TIMESTAMP
+    description TEXT
 );
 CREATE TABLE IF NOT EXISTS roles (
     user_id INTEGER NOT NULL,
