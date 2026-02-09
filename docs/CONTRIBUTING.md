@@ -149,6 +149,10 @@ You _should_ see `(.venv)` appear in your terminal prompt.
 
 4. **Run development server:**
 
+**note** first time setup you should seed the database, you don't have to but it will make testing easier.
+Skip down to "Seeding the Database" section below for instructions on how to do that, then come back here to run the
+backend api.
+
 ```bash
   uvicorn main:app --reload
 ```
@@ -197,6 +201,26 @@ To verify the venv is active:
 
 **Should output:** `/path/to/your/project/backend/.venv/bin/python3`  
 **If it shows:** `/usr/bin/python3` → venv is **NOT** active, run activate command again
+
+### Seeding the Database
+
+For first time setup use the following command to seed the database from the `api` folder, after running the above steps.
+
+```bash
+  python utils/populate_db.py
+```
+
+**note** if you get an error related to columns not existing, or changes, see the next section to drop the database
+
+### Dropping the Database
+
+If there are schema changes, the easiest thing to do is drop the database and re-seed it. You can do this with the following command from the `api` folder:
+
+```bash
+  python utils/drop_db.py
+```
+
+Then use the above populate db command to re-initialize the database and seed it with fake data.
 
 ## Project Structure
 

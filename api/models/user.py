@@ -1,10 +1,10 @@
-from pydantic import BaseModel
 
+from pydantic import BaseModel, PositiveInt
 
 class UserIn(BaseModel):
     name: str
 
 
 class User(BaseModel):
-    id: int
+    id: PositiveInt
     name: str
