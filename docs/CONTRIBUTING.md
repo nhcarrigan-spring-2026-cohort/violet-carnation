@@ -95,6 +95,12 @@ Choose your preferred method:
 
 ```bash
   npm run dev
+  # or
+  yarn dev
+  # or
+  pnpm dev
+  # or
+  bun dev
 ```
 
 Frontend should now be running at http://localhost:3000
@@ -136,10 +142,16 @@ This is harmless and doesn't affect functionality. You can:
 **Windows:**
 
 ```bash
-  .venv\Scripts\activate
+  source .venv\Scripts\activate
 ```
 
-You _should_ see `(.venv)` appear in your terminal prompt.
+**PowerShell:**
+
+```bash
+  .venv/Scripts/Activate.ps1
+```
+
+You _should_ see `(.venv)` appear in your terminal prompt, to see how to verify your virtual environment is active, click [here](#verifying-your-virtual-environment).
 
 3. **Install backend dependencies:**
 
@@ -195,12 +207,23 @@ After activating, you should see `(.venv)` in your terminal prompt:
 
 To verify the venv is active:
 
+**Linux/Mac:**
+
 ```bash
   which python3
 ```
 
-**Should output:** `/path/to/your/project/backend/.venv/bin/python3`  
+**Should output:** `/path/to/your/project/backend/.venv/bin/python3`
 **If it shows:** `/usr/bin/python3` → venv is **NOT** active, run activate command again
+
+**Windows:**
+
+```bash
+  Get-Command python
+```
+
+**Should output:** `Path : C:\path\to\project\api\venv\Scripts\python.exe`  
+**If it shows:** `C:\Users\username\AppData\Local\Programs\Python\...` → venv is **NOT** active, run activate command again
 
 ### Seeding the Database
 
@@ -319,7 +342,7 @@ Example:
 
 ```tsx
 <div className="flex items-center gap-4 p-6 bg-white rounded-lg shadow-md">
-  <h2 className="text-xl font-semibold">Volunteer Profile</h2>
+	<h2 className="text-xl font-semibold">Volunteer Profile</h2>
 </div>
 ```
 
