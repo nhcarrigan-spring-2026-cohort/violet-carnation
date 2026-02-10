@@ -5,7 +5,7 @@ from fastapi import APIRouter, Depends, HTTPException, status
 from db import get_connection
 from models import EventRegistrationIn
 
-router = APIRouter(prefix="/event-registrations")
+router = APIRouter(prefix="/event-registrations", tags=["event_registrations"])
 
 
 @router.get("", response_model=list[EventRegistrationIn])
