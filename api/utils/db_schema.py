@@ -36,6 +36,7 @@ CREATE TABLE IF NOT EXISTS event_registrations (
     organization_id INTEGER NOT NULL,
     registration_time TEXT NOT NULL,
     PRIMARY KEY (user_id, organization_id, event_id)
+);
 CREATE TABLE IF NOT EXISTS events (
     id INTEGER PRIMARY KEY AUTOINCREMENT,
     name TEXT NOT NULL, 
