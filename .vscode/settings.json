@@ -1,5 +1,7 @@
 {
   "python-envs.pythonProjects": [],
+  // for auto format on save
+  "editor.formatOnSave": true,
   "sqltools.connections": [
     {
       "previewLimit": 50,
@@ -7,5 +9,6 @@
       "name": "appdb",
       "database": "app.db"
     }
-  ]
+  ],
+  "cSpell.words": ["fastapi"]
 }

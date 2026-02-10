@@ -19,6 +19,9 @@
     "mtxr.sqltools",
 
     // network related packages
-    "humao.rest-client"
+    "humao.rest-client",
+
+    // general package for spell check
+    "streetsidesoftware.code-spell-checker"
   ]
 }
