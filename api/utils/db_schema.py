@@ -4,35 +4,40 @@ DB_SCHEMA = """
 CREATE TABLE IF NOT EXISTS users (
     user_id INTEGER PRIMARY KEY AUTOINCREMENT,
     email TEXT NOT NULL UNIQUE,
-    password_hash TEXT NOT NULL,
     first_name TEXT NOT NULL,
     last_name TEXT NOT NULL,
-    phone TEXT,
-    birth_date TEXT,
-    gender TEXT CHECK(gender IN ('Male', 'Female', 'Other', 'Prefer not to say')) DEFAULT 'Prefer not to say',
-    identification_number TEXT UNIQUE,
-    country TEXT,
-    city TEXT,
-    address TEXT,
-    profile_picture TEXT,
-    education TEXT,
-    skills TEXT,
-    availability TEXT CHECK(availability IN ('Full-time', 'Part-time', 'Weekends', 'Evenings')) DEFAULT 'Part-time',
-    active INTEGER DEFAULT 1,
-    registration_date TIMESTAMP DEFAULT CURRENT_TIMESTAMP
+    availability TEXT CHECK(availability IN ('Full-time', 'Part-time', 'Weekends', 'Evenings')) DEFAULT 'Part-time'
 );
 CREATE TABLE IF NOT EXISTS organizations (
-    organization_id INTEGER PRIMARY KEY,
+    organization_id INTEGER PRIMARY KEY AUTOINCREMENT,
+    name TEXT NOT NULL,
+    description TEXT,
     created_by_user_id INTEGER NOT NULL,
-    name TEXT,
-    description TEXT
+    FOREIGN KEY (created_by_user_id) REFERENCES users(user_id)
+        ON UPDATE CASCADE
+        ON DELETE RESTRICT
 );
 CREATE TABLE IF NOT EXISTS roles (
     user_id INTEGER NOT NULL,
     organization_id INTEGER NOT NULL,
     permission_level TEXT NOT NULL,
     CHECK (permission_level IN ('admin', 'volunteer')),
-    PRIMARY KEY (user_id, organization_id)
+    PRIMARY KEY (user_id, organization_id),
+    FOREIGN KEY (user_id) REFERENCES users(user_id)
+        ON UPDATE CASCADE
+        ON DELETE RESTRICT,
+    FOREIGN KEY (organization_id) REFERENCES organizations(organization_id)
+        ON UPDATE CASCADE
+        ON DELETE CASCADE
+);
+CREATE TABLE IF NOT EXISTS events (
+    id INTEGER PRIMARY KEY AUTOINCREMENT,
+    name TEXT NOT NULL, 
+    description TEXT NOT NULL, 
+    location TEXT NOT NULL, 
+    time TEXT NOT NULL,
+    organization_id INTEGER NOT NULL,
+    FOREIGN KEY (organization_id) REFERENCES organizations(id)
 );
 """
 
@@ -42,4 +47,5 @@ DROP_DB_SQL = """
 DROP TABLE IF EXISTS users;
 DROP TABLE IF EXISTS organizations;
 DROP TABLE IF EXISTS roles;
+DROP TABLE IF EXISTS events;
 """
