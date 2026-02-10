@@ -5,7 +5,7 @@ from fastapi import APIRouter, Depends, HTTPException, status
 from db import get_connection
 from models import RoleAndUser, RoleCreate, RoleUpdate
 
-router = APIRouter(prefix="", tags=["organization_users"])
+router = APIRouter(prefix="")
 
 
 @router.get("", response_model=list[RoleAndUser])
@@ -48,7 +48,9 @@ def add_organization_user(
     conn: sqlite3.Connection = Depends(get_connection),
 ):
     """
-    Add a user to an organization by creating a role record.
+    Add a user to an organization by creating a role record. This can currently be done by anyone, even those not in the organization. 
+
+    Later this will change to only be able to be performed by admins of the organization and the user themselves, where the user themselves can just make themselves a volunteer.
 
     :param organization_id: the organization to add the user to
     :type organization_id: int
@@ -87,14 +89,15 @@ def add_organization_user(
     )
 
 
-@router.delete("/{user_id}", response_model=RoleAndUser)
+@router.delete("/{user_id}", response_model=RoleAndUser, summary="Remove a user from an organization")
 def remove_organization_user(
     organization_id: int,
     user_id: int,
     conn: sqlite3.Connection = Depends(get_connection),
 ):
     """
-    Remove a user from an organization by deleting their role record.
+    Remove a user from an organization by deleting their role connecting the user and the organization. This can only be performed by users within the organization with the role of admin, or
+    the user themselves. This endpoint returns the role and user that was removed, which can be used to display a confirmation message to the user.
 
     :param organization_id: the organization to remove the user from
     :type organization_id: int
@@ -103,6 +106,9 @@ def remove_organization_user(
     :param conn: the connection to the database
     :type conn: sqlite3.Connection
     """
+
+    # TODO: verify the user making the request has permissions to remove this user, either by being an admin or the user themselves. This will require auth, which is not yet implemented, so for now this endpoint is unprotected.
+
     row = conn.execute(
         """
         SELECT r.user_id, r.organization_id, r.permission_level, u.name
@@ -130,7 +136,7 @@ def remove_organization_user(
     )
 
 
-@router.put("/{user_id}", response_model=RoleAndUser)
+@router.put("/{user_id}", response_model=RoleAndUser, summary="Update a user's role in an organization")
 def update_organization_user_role(
     organization_id: int,
     user_id: int,
