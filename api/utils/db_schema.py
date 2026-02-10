@@ -34,8 +34,6 @@ CREATE TABLE IF NOT EXISTS roles (
     CHECK (permission_level IN ('admin', 'volunteer')),
     PRIMARY KEY (user_id, organization_id)
 );
-
-
 """
 
 
