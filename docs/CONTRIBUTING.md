@@ -95,12 +95,6 @@ Choose your preferred method:
 
 ```bash
   npm run dev
-  # or
-  yarn dev
-  # or
-  pnpm dev
-  # or
-  bun dev
 ```
 
 Frontend should now be running at http://localhost:3000
