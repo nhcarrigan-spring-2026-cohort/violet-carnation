@@ -5,6 +5,7 @@ from db import init_db
 from routes.users import router as users_router
 from routes.organization import router as organization_router
 
+
 @asynccontextmanager
 async def lifespan(app: FastAPI):
     """
@@ -15,6 +16,7 @@ async def lifespan(app: FastAPI):
     """
     init_db()
     yield
+
 
 app = FastAPI(lifespan=lifespan)
 
@@ -30,7 +32,6 @@ async def check():
     return {"content:": "I work, from Next.js too... how cool?"}
 
 
-# include nested routers here 
+# include nested routers here
 app.include_router(users_router, prefix="/api")
 app.include_router(organization_router, prefix="/api")
-

@@ -12,10 +12,10 @@ router = APIRouter(prefix="/users", tags=["users"])
 def list_users(conn: sqlite3.Connection = Depends(get_connection)):
     """
     Returns all users listed by the ID. This should be used to "search" for users to invite into an organization/event.
-    
+
     TODO: pagination, search, filtering by user attributes which don't exist.
-    
-    
+
+
     :param conn: the connection to the database
     :type conn: sqlite3.Connection
     """
@@ -28,7 +28,7 @@ def get_user(user_id: int, conn: sqlite3.Connection = Depends(get_connection)):
     """
     Get a single user by their user ID. This should be mostly used for the current logged in user to get
     their own information, but again might change.
-    
+
     :param user_id: Description
     :type user_id: int
     :param conn: the connection to the database
@@ -39,17 +39,19 @@ def get_user(user_id: int, conn: sqlite3.Connection = Depends(get_connection)):
         (user_id,),
     ).fetchone()
     if row is None:
-        raise HTTPException(status_code=status.HTTP_404_NOT_FOUND, detail="User not found")
+        raise HTTPException(
+            status_code=status.HTTP_404_NOT_FOUND, detail="User not found"
+        )
     return User(id=row["id"], name=row["name"])
 
 
 @router.post("", response_model=User, status_code=status.HTTP_201_CREATED)
 def create_user(payload: UserIn, conn: sqlite3.Connection = Depends(get_connection)):
     """
-    TEMPORARY endpoint to create a new user in the database. 
+    TEMPORARY endpoint to create a new user in the database.
     This will change completely/get deleted once auth is implemented, as part of a registration flow, as
     that will create a user in the database
-    
+
     :param payload: Description
     :type payload: UserIn
     :param conn: Description

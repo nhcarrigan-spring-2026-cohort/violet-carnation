@@ -9,10 +9,12 @@ router = APIRouter(prefix="", tags=["organization_users"])
 
 
 @router.get("", response_model=list[RoleAndUser])
-def list_organization_users(organization_id: int, conn: sqlite3.Connection = Depends(get_connection)):
+def list_organization_users(
+    organization_id: int, conn: sqlite3.Connection = Depends(get_connection)
+):
     """
     List all users in an organization, along with their role. This is used to manage users in an organization, and to display the list of users in an organization.
-    
+
     TODO: add pagination/filtering against role
 
     :param organization_id: the ID of the organization to list users for
@@ -62,7 +64,9 @@ def add_organization_user(
         (payload.user_id,),
     ).fetchone()
     if user_row is None:
-        raise HTTPException(status_code=status.HTTP_404_NOT_FOUND, detail="User not found")
+        raise HTTPException(
+            status_code=status.HTTP_404_NOT_FOUND, detail="User not found"
+        )
 
     try:
         conn.execute(
@@ -113,7 +117,9 @@ def remove_organization_user(
         (organization_id, user_id),
     ).fetchone()
     if row is None:
-        raise HTTPException(status_code=status.HTTP_404_NOT_FOUND, detail="User not found")
+        raise HTTPException(
+            status_code=status.HTTP_404_NOT_FOUND, detail="User not found"
+        )
 
     # TODO: verify the organization creator cannot be removed.
     conn.execute(
@@ -159,7 +165,9 @@ def update_organization_user_role(
         (organization_id, user_id),
     ).fetchone()
     if row is None:
-        raise HTTPException(status_code=status.HTTP_404_NOT_FOUND, detail="User not found")
+        raise HTTPException(
+            status_code=status.HTTP_404_NOT_FOUND, detail="User not found"
+        )
 
     conn.execute(
         """

@@ -1,7 +1,15 @@
 {
   "python-envs.pythonProjects": [],
-  // for auto format on save
-  "editor.formatOnSave": true,
+  // for auto format on save for typescript using prettier, and black for python
+  "[typescript]": {
+    "editor.formatOnSave": true,
+    "editor.defaultFormatter": "esbenp.prettier-vscode"
+  },
+  "[python]": {
+    "editor.formatOnSave": true,
+    "editor.defaultFormatter": "ms-python.black-formatter"
+  },
+
   "sqltools.connections": [
     {
       "previewLimit": 50,
@@ -10,5 +18,5 @@
       "database": "app.db"
     }
   ],
-  "cSpell.words": ["fastapi"]
+  "cSpell.words": ["fastapi", "uvicorn", "venv"]
 }

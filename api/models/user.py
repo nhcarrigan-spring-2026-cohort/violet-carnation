@@ -1,5 +1,5 @@
-
 from pydantic import BaseModel, PositiveInt
+
 
 class UserIn(BaseModel):
     name: str
