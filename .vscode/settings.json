@@ -1,3 +1,11 @@
 {
-  "python-envs.pythonProjects": []
+  "python-envs.pythonProjects": [],
+  "sqltools.connections": [
+    {
+      "previewLimit": 50,
+      "driver": "SQLite",
+      "name": "appdb",
+      "database": "app.db"
+    }
+  ]
 }

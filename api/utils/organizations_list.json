@@ -1,0 +1,22 @@
+[
+  { "short_name": "GRC", "name": "Global Reach Collective" },
+  { "short_name": "HI", "name": "The Helios Initiative" },
+  { "short_name": "UFI", "name": "Unity Front International" },
+  { "short_name": "AAN", "name": "Aegis Aid Network" },
+  { "short_name": "VR", "name": "Veritas Relief" },
+  { "short_name": "CTA", "name": "The Common Thread Alliance" },
+  { "short_name": "HAB", "name": "Hands Across Borders" },
+  { "short_name": "SS", "name": "Solidarity Sphere" },
+  { "short_name": "KAC", "name": "Kinship Aid Corps" },
+  { "short_name": "HLI", "name": "Heartland International" },
+  { "short_name": "HHG", "name": "Horizon Humanitarian Group" },
+  { "short_name": "PAF", "name": "Polaris Aid Foundation" },
+  { "short_name": "UP", "name": "The Uplift Project" },
+  { "short_name": "NDO", "name": "New Dawn Outreach" },
+  { "short_name": "PI", "name": "Promise International" },
+  { "short_name": "CRCo", "name": "Crisis Response Coalition" },
+  { "short_name": "VF", "name": "Vital Foundations" },
+  { "short_name": "SSW", "name": "Shelter & Sustenance Worldwide" },
+  { "short_name": "GVC", "name": "Global Volunteer Corps" },
+  { "short_name": "IRA", "name": "International Restoration Agency" }
+]
