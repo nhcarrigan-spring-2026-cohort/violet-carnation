@@ -3,3 +3,5 @@ __pycache__
 
 # local database file
 app.db
+
+.ruff_cache

@@ -18,5 +18,20 @@
       "database": "app.db"
     }
   ],
-  "cSpell.words": ["fastapi", "uvicorn", "venv"]
+  "cSpell.words": [
+    "fastapi",
+    "frankgomezdev",
+    "masudulalam",
+    "ofthewildfire",
+    "pycache",
+    "sylkylacole",
+    "urmilbhatt",
+    "uvicorn",
+    "venv"
+  ],
+
+  // auto approve these commands, this covers common usecases.
+  "chat.tools.terminal.autoApprove": {
+    "sqlite3": true
+  }
 }
