@@ -97,11 +97,8 @@ def update_event(
     )
 
 
-
-    # return {"message": 'Not implemented'}
-
 # Destroy event
-@router.delete("/{event_id}", status_code=204)
+@router.delete("/{event_id}", status_code=status.HTTP_204_NO_CONTENT)
 def delete_event(event_id: int, conn=Depends(get_connection)):
     row = conn.execute(
         """
