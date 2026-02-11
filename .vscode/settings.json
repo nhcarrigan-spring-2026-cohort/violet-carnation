@@ -1,7 +1,7 @@
 {
   "python-envs.pythonProjects": [],
   // for auto format on save for typescript using prettier, and black for python
-  "[typescript]": {
+  "[typescriptreact]": {
     "editor.formatOnSave": true,
     "editor.defaultFormatter": "esbenp.prettier-vscode"
   },
@@ -19,6 +19,7 @@
     }
   ],
   "cSpell.words": [
+    "executescript",
     "fastapi",
     "frankgomezdev",
     "masudulalam",

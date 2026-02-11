@@ -3,7 +3,7 @@
 This directory contains code for the client-side of a full stack app. This front-end app is a nextjs app written in typescript.
 It is designed as a simple 1 month project with developers of multiple different levels of skill.
 
-This is a sub folder, with a sibling folder called `api` which containers the server-side code.
+This is a sub folder, with a sibling folder called `api` which contains the server-side code.
 
 ## Technology used
 

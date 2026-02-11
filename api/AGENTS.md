@@ -3,7 +3,7 @@
 This directory contains code for the client-side of a full stack app. This front-end app is a nextjs app written in typescript.
 It is designed as a simple 1 month project with developers of multiple different levels of skill.
 
-This is a sub folder, with a sibling folder called `api` which containers the server-side code.
+This is a sub folder, with a sibling folder called `client` which contains the client-side code.
 
 This directory contains code for the back-end of a full stack app. This back-end app is a fastapi app written in python, backed with a sqlite database.
 It is designed as a simple 1 month project with developers of multiple different levels of skill.
@@ -11,7 +11,7 @@ It is designed as a simple 1 month project with developers of multiple different
 ## Technology used
 
 - python 3.12
-- fastapi 0.140.0
+- fastapi 0.113.0
 - sqlite 3.40.1
 
 ## Other resources

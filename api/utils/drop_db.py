@@ -14,7 +14,7 @@ def drop_db():
     # sanity check that there is even a database file to drop
     if not os.path.isfile(db_path):
         raise FileNotFoundError(
-            f"No app.db file found, see CONTRIBUTING.md for instructions on how to initialize the database, or just run the dev server to get a not-populate DB"
+            "No app.db file found. See CONTRIBUTING.md for instructions on how to initialize the database, or run the dev server to create a populated database."
         )
 
     conn = sqlite3.connect(db_path)

@@ -15,7 +15,7 @@
     "mikestead.dotenv",
 
     // database related packages
-    // **NOTE** I have trouble running this on my WLS2 windows instance
+    // **NOTE** I have trouble running this on my WSL2 windows instance
     "mtxr.sqltools",
 
     // network related packages

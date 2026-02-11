@@ -1,10 +1,7 @@
 import json
 import sqlite3
 
-
 from faker import Faker
-import random
-from datetime import datetime, timedelta
 
 # Faker init
 fake = Faker()
@@ -12,7 +9,7 @@ fake = Faker()
 
 def get_admin_users():
     """
-    Thsi query is to ensure to match the admin user from Roles with created_by_user_id
+    This query is to ensure to match the admin user from Roles with created_by_user_id
     """
     conn = sqlite3.connect("app.db")
     cursor = conn.cursor()
@@ -36,7 +33,6 @@ def generate_organizations_data(org_list_file):
         orgs_list = json.load(file)
 
     orgs_data = []
-    admin_number = 5  # This number will be use to generate random admin user ids
 
     for k in range(len(orgs_list)):
         created_by_user_id = admin_users[k][0]
