@@ -6,4 +6,4 @@ It is designed as a simple 1 month project with developers of multiple different
 ## General guidance
 
 - don't perform any actions from the root folder, instead cd into either the `client` or `api` folder to run commands for the front-end and back-end respectively.
-- the contributing docs has general guidance and is available at [CONTRIBUTING.md](../docs/CONTRIBUTING.md) - general guidelines for contributing to the project, including code style and commit message conventions and how to run the project.
+- the contributing docs has general guidance and is available at [CONTRIBUTING.md](./docs/CONTRIBUTING.md) - general guidelines for contributing to the project, including code style and commit message conventions and how to run the project.
