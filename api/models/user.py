@@ -6,29 +6,29 @@ Availability = Literal["Full-time", "Part-time", "Weekends", "Evenings"]
 
 
 class UserIn(BaseModel):
-    email: EmailStr
-    first_name: str
-    last_name: str
-    availability: Availability = "Part-time"
+  email: EmailStr
+  first_name: str
+  last_name: str
+  availability: Availability = "Part-time"
 
 
 class User(BaseModel):
-    user_id: PositiveInt
-    email: EmailStr
-    first_name: str
-    last_name: str
+  user_id: PositiveInt
+  email: EmailStr
+  first_name: str
+  last_name: str
 
-    # removed for simplification
-    # phone: Optional[str] = None
-    # birth_date: Optional[str] = None
-    # gender: Gender = "Prefer not to say"
-    # identification_number: Optional[str] = None
-    # country: Optional[str] = None
-    # city: Optional[str] = None
-    # address: Optional[str] = None
-    # profile_picture: Optional[str] = None
-    # education: Optional[str] = None
-    # skills: Optional[str] = None
-    availability: Availability = "Part-time"
-    # active: bool = True
-    # registration_date: Optional[datetime] = None
+  # removed for simplification
+  # phone: Optional[str] = None
+  # birth_date: Optional[str] = None
+  # gender: Gender = "Prefer not to say"
+  # identification_number: Optional[str] = None
+  # country: Optional[str] = None
+  # city: Optional[str] = None
+  # address: Optional[str] = None
+  # profile_picture: Optional[str] = None
+  # education: Optional[str] = None
+  # skills: Optional[str] = None
+  availability: Availability = "Part-time"
+  # active: bool = True
+  # registration_date: Optional[datetime] = None

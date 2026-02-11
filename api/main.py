@@ -11,14 +11,14 @@ from routes.users import router as users_router
 
 @asynccontextmanager
 async def lifespan(app: FastAPI):
-    """
-    Lifespan context manager to initialize the database when the app starts.
+  """
+  Lifespan context manager to initialize the database when the app starts.
 
-    This appears to be blocking, unsure if init_db should be async, as it should be blocking
-    otherwise without a DB connection the server is useless.
-    """
-    init_db()
-    yield
+  This appears to be blocking, unsure if init_db should be async, as it should be blocking
+  otherwise without a DB connection the server is useless.
+  """
+  init_db()
+  yield
 
 
 app = FastAPI(lifespan=lifespan)
@@ -27,12 +27,12 @@ app = FastAPI(lifespan=lifespan)
 # Helper/demo endpoints below
 @app.get("/api")
 async def root():
-    return {"message": "Hello World"}
+  return {"message": "Hello World"}
 
 
 @app.get("/api/check")
 async def check():
-    return {"content:": "I work, from Next.js too... how cool?"}
+  return {"content:": "I work, from Next.js too... how cool?"}
 
 
 # include nested routers here
