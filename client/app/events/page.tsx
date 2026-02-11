@@ -83,6 +83,11 @@ const EventsPage = () => {
 		Promise.all([
 			fetch("/api/events")
 				.then((res) => res.json())
+				// test log to see if events are being fetched correctly
+				.then((data) => {
+					console.log("Fetched events:", data);
+					return data;
+				})
 				.catch(() => []),
 			fetch("/api/roles")
 				.then((res) => res.json())
