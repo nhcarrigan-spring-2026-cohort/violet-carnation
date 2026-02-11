@@ -9,10 +9,12 @@ router = APIRouter(prefix="")
 
 
 @router.get("", response_model=list[RoleAndUser])
-def list_organization_users(organization_id: int, conn: sqlite3.Connection = Depends(get_connection)):
+def list_organization_users(
+    organization_id: int, conn: sqlite3.Connection = Depends(get_connection)
+):
     """
     List all users in an organization, along with their role. This is used to manage users in an organization, and to display the list of users in an organization.
-    
+
     TODO: add pagination/filtering against role
 
     :param organization_id: the ID of the organization to list users for
@@ -48,7 +50,7 @@ def add_organization_user(
     conn: sqlite3.Connection = Depends(get_connection),
 ):
     """
-    Add a user to an organization by creating a role record. This can currently be done by anyone, even those not in the organization. 
+    Add a user to an organization by creating a role record. This can currently be done by anyone, even those not in the organization.
 
     Later this will change to only be able to be performed by admins of the organization and the user themselves, where the user themselves can just make themselves a volunteer.
 
@@ -64,7 +66,9 @@ def add_organization_user(
         (payload.user_id,),
     ).fetchone()
     if user_row is None:
-        raise HTTPException(status_code=status.HTTP_404_NOT_FOUND, detail="User not found")
+        raise HTTPException(
+            status_code=status.HTTP_404_NOT_FOUND, detail="User not found"
+        )
 
     try:
         conn.execute(
@@ -89,7 +93,11 @@ def add_organization_user(
     )
 
 
-@router.delete("/{user_id}", response_model=RoleAndUser, summary="Remove a user from an organization")
+@router.delete(
+    "/{user_id}",
+    response_model=RoleAndUser,
+    summary="Remove a user from an organization",
+)
 def remove_organization_user(
     organization_id: int,
     user_id: int,
@@ -119,7 +127,9 @@ def remove_organization_user(
         (organization_id, user_id),
     ).fetchone()
     if row is None:
-        raise HTTPException(status_code=status.HTTP_404_NOT_FOUND, detail="User not found")
+        raise HTTPException(
+            status_code=status.HTTP_404_NOT_FOUND, detail="User not found"
+        )
 
     # TODO: verify the organization creator cannot be removed.
     conn.execute(
@@ -136,7 +146,11 @@ def remove_organization_user(
     )
 
 
-@router.put("/{user_id}", response_model=RoleAndUser, summary="Update a user's role in an organization")
+@router.put(
+    "/{user_id}",
+    response_model=RoleAndUser,
+    summary="Update a user's role in an organization",
+)
 def update_organization_user_role(
     organization_id: int,
     user_id: int,
@@ -165,7 +179,9 @@ def update_organization_user_role(
         (organization_id, user_id),
     ).fetchone()
     if row is None:
-        raise HTTPException(status_code=status.HTTP_404_NOT_FOUND, detail="User not found")
+        raise HTTPException(
+            status_code=status.HTTP_404_NOT_FOUND, detail="User not found"
+        )
 
     conn.execute(
         """

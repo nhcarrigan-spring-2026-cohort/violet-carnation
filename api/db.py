@@ -17,6 +17,7 @@ def init_db() -> None:
         conn.executescript(DB_SCHEMA)
         conn.commit()
 
+
 def get_connection():
     conn = sqlite3.connect(DATABASE_PATH)
     conn.execute("PRAGMA foreign_keys = ON;")

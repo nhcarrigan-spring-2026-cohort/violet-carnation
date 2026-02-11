@@ -1,7 +1,9 @@
 from typing import Literal
+
 from pydantic import BaseModel, EmailStr, PositiveInt
 
 Availability = Literal["Full-time", "Part-time", "Weekends", "Evenings"]
+
 
 class UserIn(BaseModel):
     email: EmailStr
@@ -9,12 +11,12 @@ class UserIn(BaseModel):
     last_name: str
     availability: Availability = "Part-time"
 
+
 class User(BaseModel):
     user_id: PositiveInt
     email: EmailStr
     first_name: str
     last_name: str
-
 
     # removed for simplification
     # phone: Optional[str] = None

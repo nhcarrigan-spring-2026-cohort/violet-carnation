@@ -1,6 +1,6 @@
 # DB schema definition for sqlite3 database, is used by the initialization function  in db.py
 # and is used in the populate_db.py script, which can be ran to populate the database with fake data
-DB_SCHEMA =  """
+DB_SCHEMA = """
 CREATE TABLE IF NOT EXISTS users (
     user_id INTEGER PRIMARY KEY AUTOINCREMENT,
     email TEXT NOT NULL UNIQUE,
