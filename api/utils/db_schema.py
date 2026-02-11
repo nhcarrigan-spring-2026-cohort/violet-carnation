@@ -30,6 +30,13 @@ CREATE TABLE IF NOT EXISTS roles (
         ON UPDATE CASCADE
         ON DELETE CASCADE
 );
+CREATE TABLE IF NOT EXISTS event_registrations (
+    user_id INTEGER NOT NULL,
+    event_id INTEGER NOT NULL, 
+    organization_id INTEGER NOT NULL,
+    registration_time TEXT NOT NULL,
+    PRIMARY KEY (user_id, organization_id, event_id)
+);
 CREATE TABLE IF NOT EXISTS events (
     id INTEGER PRIMARY KEY AUTOINCREMENT,
     name TEXT NOT NULL, 
@@ -47,5 +54,9 @@ DROP_DB_SQL = """
 DROP TABLE IF EXISTS users;
 DROP TABLE IF EXISTS organizations;
 DROP TABLE IF EXISTS roles;
+<<<<<<< HEAD
+DROP TABLE IF EXISTS event_registrations;
+=======
 DROP TABLE IF EXISTS events;
+>>>>>>> main
 """
