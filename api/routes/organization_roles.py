@@ -36,7 +36,7 @@ def list_organization_users(
         RoleAndUser(
             user_id=row["user_id"],
             organization_id=organization_id,
-            name=f'{row["first_name"]} {row["last_name"]}',
+            name=f"{row['first_name']} {row['last_name']}",
             permission_level=row["permission_level"],
         )
         for row in rows
@@ -88,7 +88,7 @@ def add_organization_user(
     return RoleAndUser(
         user_id=payload.user_id,
         organization_id=organization_id,
-        name=f"{user_row["first_name"]} {user_row["last_name"]}",
+        name=f"{user_row['first_name']} {user_row['last_name']}",
         permission_level=payload.permission_level,
     )
 
@@ -141,7 +141,7 @@ def remove_organization_user(
     return RoleAndUser(
         user_id=row["user_id"],
         organization_id=organization_id,
-        name=f'{row["first_name"]} {row["last_name"]}',
+        name=f"{row['first_name']} {row['last_name']}",
         permission_level=row["permission_level"],
     )
 
@@ -196,6 +196,6 @@ def update_organization_user_role(
     return RoleAndUser(
         user_id=row["user_id"],
         organization_id=organization_id,
-        name=f"{row["first_name"]} {row["last_name"]}",
+        name=f"{row['first_name']} {row['last_name']}",
         permission_level=payload.permission_level,
     )
