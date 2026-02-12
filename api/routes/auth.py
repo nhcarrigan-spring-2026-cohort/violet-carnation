@@ -1,11 +1,14 @@
+import logging
 import sqlite3
+from datetime import timedelta
 
+import jwt
 from fastapi import APIRouter, Depends, HTTPException, status
 from fastapi.security import OAuth2PasswordRequestForm
 
 from db import get_connection
-from models.auth import SignupRequest, SignupResponse
-from utils.security import create_access_token, hash_password, verify_password
+from models.auth import RequestResetBody, ResetPasswordBody, SignupRequest, SignupResponse
+from utils.security import create_access_token, decode_access_token, hash_password, verify_password
 
 router = APIRouter(prefix="/auth", tags=["auth"])
 
@@ -117,3 +120,67 @@ def login(
 
     token = create_access_token({"sub": str(user["user_id"]), "role": role})
     return {"access_token": token, "token_type": "bearer"}
+
+
+RESET_TOKEN_EXPIRE_MINUTES = 15
+logger = logging.getLogger(__name__)
+
+
+@router.post("/request-reset")
+def request_reset(payload: RequestResetBody, conn: sqlite3.Connection = Depends(get_connection)):
+    """
+    Request a password reset. If the email exists, a short-lived reset token is
+    generated and logged to the console.
+
+    Always returns 200 with a generic message to prevent email enumeration.
+    """
+    user = conn.execute(
+        "SELECT user_id FROM users WHERE email = ?",
+        (payload.email,),
+    ).fetchone()
+
+    if user:
+        reset_token = create_access_token(
+            {"sub": str(user["user_id"]), "purpose": "password_reset"},
+            expires_delta=timedelta(minutes=RESET_TOKEN_EXPIRE_MINUTES),
+        )
+        logger.info("Password reset token for %s: %s", payload.email, reset_token)
+
+    return {"message": "If that email exists, a reset link has been sent"}
+
+
+@router.post("/reset-password")
+def reset_password(payload: ResetPasswordBody, conn: sqlite3.Connection = Depends(get_connection)):
+    """
+    Reset a user's password using a valid reset token.
+    """
+    try:
+        claims = decode_access_token(payload.token)
+    except (jwt.ExpiredSignatureError, jwt.InvalidTokenError):
+        raise HTTPException(
+            status_code=status.HTTP_400_BAD_REQUEST,
+            detail="Invalid or expired reset token",
+        )
+
+    # Ensure this token was created for password reset
+    if claims.get("purpose") != "password_reset":
+        raise HTTPException(
+            status_code=status.HTTP_400_BAD_REQUEST,
+            detail="Invalid reset token",
+        )
+
+    user_id = claims.get("sub")
+
+    # Update the hashed password in credentials
+    result = conn.execute(
+        "UPDATE credentials SET hashed_password = ? WHERE user_id = ?",
+        (hash_password(payload.new_password), user_id),
+    )
+    if result.rowcount == 0:
+        raise HTTPException(
+            status_code=status.HTTP_404_NOT_FOUND,
+            detail="User not found",
+        )
+    conn.commit()
+
+    return {"message": "Password has been reset successfully"}

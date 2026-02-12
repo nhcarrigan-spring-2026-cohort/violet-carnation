@@ -19,3 +19,12 @@ class SignupResponse(BaseModel):
     last_name: str
     role: str
     org_id: Optional[int] = None
+
+
+class RequestResetBody(BaseModel):
+    email: EmailStr
+
+
+class ResetPasswordBody(BaseModel):
+    token: str
+    new_password: str
