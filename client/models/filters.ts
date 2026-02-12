@@ -5,5 +5,5 @@ export type Scope = "all" | "myOrgs" | "admin";
 export interface Filters {
   scope: Scope | null;
   category: EventCategory | null;
-  availability: Availability | null;
+  availability: Availability[] | null;
 }

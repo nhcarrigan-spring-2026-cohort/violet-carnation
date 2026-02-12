@@ -2,7 +2,8 @@
 
 import React, { useState } from "react";
 import { Filters } from "@/models/filters";
-import { EVENT_CATEGORIES } from "@/models/eventCategories";
+import { EVENT_CATEGORIES, EventCategory } from "@/models/eventCategories";
+import { Availability } from "@/models/user";
 
 interface FilterModalProps {
   isOpen: boolean;
@@ -13,13 +14,21 @@ interface FilterModalProps {
 
 const FilterModal = ({ isOpen, onClose, filters, onApply }: FilterModalProps) => {
   const [localFilters, setLocalFilters] = useState(filters);
-  const [selectedAvailability, setSelectedAvailability] = useState<string[]>([]);
 
-  const handleAvailabilityToggle = (availability: string) => {
-    if (selectedAvailability.includes(availability)) {
-      setSelectedAvailability((prev) => prev.filter((a) => a !== availability));
+  const handleAvailabilityToggle = (availability: Availability) => {
+    const current = localFilters.availability || [];
+
+    if (current.includes(availability)) {
+      const updated = current.filter((a) => a !== availability);
+      setLocalFilters({
+        ...localFilters,
+        availability: updated.length > 0 ? updated : null,
+      });
     } else {
-      setSelectedAvailability((prev) => [...prev, availability]);
+      setLocalFilters({
+        ...localFilters,
+        availability: [...current, availability],
+      });
     }
   };
 
@@ -62,9 +71,13 @@ const FilterModal = ({ isOpen, onClose, filters, onApply }: FilterModalProps) =>
           <legend>Category</legend>
           <select
             value={localFilters.category || ""}
-            onChange={(e) =>
-              setLocalFilters({ ...localFilters, category: e.target.value || null })
-            }
+            onChange={(e) => {
+              const value = e.target.value;
+              setLocalFilters({
+                ...localFilters,
+                category: value ? (value as EventCategory) : null,
+              });
+            }}
           >
             <option value="">All Categories</option>
             {EVENT_CATEGORIES.map((cat) => (
@@ -76,6 +89,46 @@ const FilterModal = ({ isOpen, onClose, filters, onApply }: FilterModalProps) =>
         </fieldset>
         <fieldset>
           <legend>Availability</legend>
+          <label>
+            <input
+              type="checkbox"
+              checked={localFilters.availability?.includes("Mornings") || false}
+              onChange={() => handleAvailabilityToggle("Mornings")}
+            />
+            Mornings
+          </label>
+          <label>
+            <input
+              type="checkbox"
+              checked={localFilters.availability?.includes("Afternoons") || false}
+              onChange={() => handleAvailabilityToggle("Afternoons")}
+            />
+            Afternoons
+          </label>
+          <label>
+            <input
+              type="checkbox"
+              checked={localFilters.availability?.includes("Evenings") || false}
+              onChange={() => handleAvailabilityToggle("Evenings")}
+            />
+            Evenings
+          </label>
+          <label>
+            <input
+              type="checkbox"
+              checked={localFilters.availability?.includes("Weekends") || false}
+              onChange={() => handleAvailabilityToggle("Weekends")}
+            />
+            Weekends
+          </label>
+          <label>
+            <input
+              type="checkbox"
+              checked={localFilters.availability?.includes("Flexible") || false}
+              onChange={() => handleAvailabilityToggle("Flexible")}
+            />
+            Flexible
+          </label>
         </fieldset>
         <button onClick={() => onApply(localFilters)}>Apply</button>
         <button onClick={onClose}>Cancel</button>
