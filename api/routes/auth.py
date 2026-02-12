@@ -144,7 +144,7 @@ def request_reset(payload: RequestResetBody, conn: sqlite3.Connection = Depends(
             {"sub": str(user["user_id"]), "purpose": "password_reset"},
             expires_delta=timedelta(minutes=RESET_TOKEN_EXPIRE_MINUTES),
         )
-        logger.info("Password reset token for %s: %s", payload.email, reset_token)
+        print(f"PASSWORD RESET TOKEN for {payload.email}: {reset_token}")
 
     return {"message": "If that email exists, a reset link has been sent"}
 
