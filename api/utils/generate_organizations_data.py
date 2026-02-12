@@ -34,7 +34,7 @@ def generate_organizations_data(org_list_file):
 
     orgs_data = []
 
-    for k in range(len(orgs_list)):
+    for k in range(len(orgs_list)- 1):
         created_by_user_id = admin_users[k][0]
         name = orgs_list[k]["name"]
         description = fake.text(max_nb_chars=100)
