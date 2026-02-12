@@ -45,7 +45,6 @@ def list_organizations(
     params.extend([limit, skip])
 
     rows = conn.execute(base_sql, params).fetchall()
-
     return [
         Organization(
             organization_id=row["organization_id"],

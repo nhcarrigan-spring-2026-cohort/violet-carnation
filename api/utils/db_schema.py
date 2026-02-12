@@ -44,7 +44,7 @@ CREATE TABLE IF NOT EXISTS events (
     location TEXT NOT NULL, 
     time TEXT NOT NULL,
     organization_id INTEGER NOT NULL,
-    FOREIGN KEY (organization_id) REFERENCES organizations(id)
+    FOREIGN KEY (organization_id) REFERENCES organizations(organization_id)
 );
 """
 
@@ -54,9 +54,6 @@ DROP_DB_SQL = """
 DROP TABLE IF EXISTS users;
 DROP TABLE IF EXISTS organizations;
 DROP TABLE IF EXISTS roles;
-<<<<<<< HEAD
 DROP TABLE IF EXISTS event_registrations;
-=======
 DROP TABLE IF EXISTS events;
->>>>>>> main
 """

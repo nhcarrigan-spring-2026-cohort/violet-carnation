@@ -2,7 +2,7 @@ import sqlite3
 
 from fastapi import APIRouter, Depends, HTTPException, status
 from db import get_connection
-from models import Event, EventIn
+from models import Event, EventIn, EventUpdate
 
 router = APIRouter(prefix="/events", tags=["events"])
 
@@ -79,11 +79,84 @@ def add_event(payload: EventIn, conn=Depends(get_connection)):
 
 # Put/update request
 @router.put("/{event_id}", response_model=None)
-def update_event(event_id: int, conn=Depends(get_connection)):
-    return {"message": "Not implemented"}
+# def update_event(event_id: int, conn=Depends(get_connection)):
+def update_event(
+    event_id: int,
+    payload: EventUpdate,
+    conn: sqlite3.Connection = Depends(get_connection),
+):
+    row = conn.execute(
+        """
+        SELECT id, name, description, location, time, organization_id
+        FROM events
+        WHERE id = ?
+        """,
+        (event_id,),
+    ).fetchone()
+    if row is None:
+        raise HTTPException(
+            status_code=status.HTTP_404_NOT_FOUND, detail="Event not found"
+        )
+
+    updated_name = payload.name if payload.name is not None else row["name"]
+    updated_description = (
+        payload.description if payload.description is not None else row["description"]
+    )
+    updated_location = (
+        payload.location if payload.location is not None else row["location"]
+    )
+    updated_time = payload.time if payload.time is not None else row["time"]
+    updated_organization_id = (
+        payload.organization_id
+        if payload.organization_id is not None
+        else row["organization_id"]
+    )
+
+    conn.execute(
+        """
+        UPDATE events
+        SET name = ?, description = ?, location = ?, time = ?, organization_id = ?
+        WHERE id = ?
+        """,
+        (
+            updated_name,
+            updated_description,
+            updated_location,
+            updated_time,
+            updated_organization_id,
+            event_id,
+        ),
+    )
+    conn.commit()
+
+    return Event(
+        id=event_id,
+        name=updated_name,
+        description=updated_description,
+        location=updated_location,
+        time=updated_time,
+        organization_id=row["organization_id"],
+    )
 
 
 # Destroy event
-@router.delete("/{event_id}", response_model=None)
+@router.delete("/{event_id}", status_code=status.HTTP_204_NO_CONTENT)
 def delete_event(event_id: int, conn=Depends(get_connection)):
-    return {"message": "Not implemented"}
+    row = conn.execute(
+        """
+        SELECT id, name, description, location, time, organization_id
+        FROM events
+        WHERE id = ?
+        """,
+        (event_id,),
+    ).fetchone()
+    if row is None:
+        raise HTTPException(
+            status_code=status.HTTP_404_NOT_FOUND, detail="Event not found"
+        )
+
+    conn.execute(
+        "DELETE FROM events WHERE id = ?",
+        (event_id,),
+    )
+    conn.commit()
