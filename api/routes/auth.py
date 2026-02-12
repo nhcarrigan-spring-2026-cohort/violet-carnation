@@ -8,6 +8,7 @@ from fastapi.security import OAuth2PasswordRequestForm
 
 from db import get_connection
 from models.auth import RequestResetBody, ResetPasswordBody, SignupRequest, SignupResponse
+from utils.auth import get_current_user
 from utils.security import create_access_token, decode_access_token, hash_password, verify_password
 
 router = APIRouter(prefix="/auth", tags=["auth"])
@@ -184,3 +185,46 @@ def reset_password(payload: ResetPasswordBody, conn: sqlite3.Connection = Depend
     conn.commit()
 
     return {"message": "Password has been reset successfully"}
+
+
+@router.delete("/delete-account")
+def delete_account(
+    current_user: dict = Depends(get_current_user),
+    conn: sqlite3.Connection = Depends(get_connection),
+):
+    """
+    Delete the currently authenticated user's account.
+
+    Removes credentials, role memberships, and the user record.
+    If the user is the sole creator of an organization, that organization is also deleted.
+    """
+    user_id = current_user["user_id"]
+
+    # Delete credentials (password hash)
+    conn.execute("DELETE FROM credentials WHERE user_id = ?", (user_id,))
+
+    # Delete role memberships
+    conn.execute("DELETE FROM roles WHERE user_id = ?", (user_id,))
+
+    # Delete organizations this user created (if no other admins remain)
+    orgs = conn.execute(
+        "SELECT organization_id FROM organizations WHERE created_by_user_id = ?",
+        (user_id,),
+    ).fetchall()
+    for org in orgs:
+        other_admins = conn.execute(
+            "SELECT user_id FROM roles WHERE organization_id = ? AND permission_level = 'admin' AND user_id != ?",
+            (org["organization_id"], user_id),
+        ).fetchone()
+        if other_admins is None:
+            conn.execute(
+                "DELETE FROM organizations WHERE organization_id = ?",
+                (org["organization_id"],),
+            )
+
+    # Delete the user record
+    conn.execute("DELETE FROM users WHERE user_id = ?", (user_id,))
+
+    conn.commit()
+
+    return {"message": "Account deleted successfully"}
