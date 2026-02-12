@@ -1,0 +1,26 @@
+{
+  // enter @recommended into the extensions search to see these. Install
+  // how you see fit
+  "recommendations": [
+    // python related packages
+    "ms-python.python",
+    "ms-python.vscode-pylance",
+    "charliermarsh.ruff",
+
+    // nextjs related packages
+    "dbaeumer.vscode-eslint",
+    "bradlc.vscode-tailwindcss",
+    "esbenp.prettier-vscode",
+    "mikestead.dotenv",
+
+    // database related packages
+    // **NOTE** I have trouble running this on my WSL2 windows instance
+    "mtxr.sqltools",
+
+    // network related packages
+    "humao.rest-client",
+
+    // general package for spell check
+    "streetsidesoftware.code-spell-checker"
+  ]
+}

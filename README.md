@@ -56,7 +56,7 @@ See [CONTRIBUTING.md](./docs/CONTRIBUTING.md) for setup instructions.
 - [@urmilbhatt](https://github.com/urmilbhatt)
 - [@gerardoRmrz](https://github.com/gerardoRmrz)
 - [@TiffanyClark](https://github.com/TiffanyClark)
-- [@felixicity](https://github.com/felixicity)
+- [@felicity](https://github.com/felixicity)
 
 ## Project Timeline
 

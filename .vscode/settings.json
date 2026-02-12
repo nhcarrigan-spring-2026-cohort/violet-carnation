@@ -1,5 +1,15 @@
 {
   "python-envs.pythonProjects": [],
+  // for auto format on save for typescript using prettier, and ruff for python
+  "[typescriptreact]": {
+    "editor.formatOnSave": true,
+    "editor.defaultFormatter": "esbenp.prettier-vscode"
+  },
+  "[python]": {
+    "editor.formatOnSave": true,
+    "editor.defaultFormatter": "charliermarsh.ruff"
+  },
+
   "sqltools.connections": [
     {
       "previewLimit": 50,
@@ -7,5 +17,22 @@
       "name": "appdb",
       "database": "app.db"
     }
-  ]
+  ],
+  "cSpell.words": [
+    "executescript",
+    "fastapi",
+    "frankgomezdev",
+    "masudulalam",
+    "ofthewildfire",
+    "pycache",
+    "sylkylacole",
+    "urmilbhatt",
+    "uvicorn",
+    "venv"
+  ],
+
+  // auto approve these commands, this covers common usecases.
+  "chat.tools.terminal.autoApprove": {
+    "sqlite3": true
+  }
 }
