@@ -1,10 +1,11 @@
 import sqlite3
 
 from fastapi import APIRouter, Depends, HTTPException, status
+from fastapi.security import OAuth2PasswordRequestForm
 
 from db import get_connection
 from models.auth import SignupRequest, SignupResponse
-from utils.security import hash_password
+from utils.security import create_access_token, hash_password, verify_password
 
 router = APIRouter(prefix="/auth", tags=["auth"])
 
@@ -70,3 +71,49 @@ def signup(payload: SignupRequest, conn: sqlite3.Connection = Depends(get_connec
         role="org_admin" if is_org_admin else "volunteer",
         org_id=org_id,
     )
+
+
+@router.post("/login")
+def login(
+    form_data: OAuth2PasswordRequestForm = Depends(),
+    conn: sqlite3.Connection = Depends(get_connection),
+):
+    """
+    Authenticate a user and return a JWT access token.
+
+    Accepts `username` (the user's email) and `password` via OAuth2 form data.
+    """
+    # Look up user by email 
+    # Note: Auth2 spec uses "username" field
+    user = conn.execute(
+        "SELECT user_id, email FROM users WHERE email = ?",
+        (form_data.username,),
+    ).fetchone()
+    if user is None:
+        raise HTTPException(
+            status_code=status.HTTP_401_UNAUTHORIZED,
+            detail="Invalid credentials",
+            headers={"WWW-Authenticate": "Bearer"},
+        )
+
+    # Verify password from credentials table
+    cred = conn.execute(
+        "SELECT hashed_password FROM credentials WHERE user_id = ?",
+        (user["user_id"],),
+    ).fetchone()
+    if cred is None or not verify_password(form_data.password, cred["hashed_password"]):
+        raise HTTPException(
+            status_code=status.HTTP_401_UNAUTHORIZED,
+            detail="Invalid credentials",
+            headers={"WWW-Authenticate": "Bearer"},
+        )
+
+    # If user has an admin role in any org, they are org_admin.
+    role_row = conn.execute(
+        "SELECT permission_level FROM roles WHERE user_id = ? AND permission_level = 'admin' LIMIT 1",
+        (user["user_id"],),
+    ).fetchone()
+    role = "org_admin" if role_row else "volunteer"
+
+    token = create_access_token({"sub": str(user["user_id"]), "role": role})
+    return {"access_token": token, "token_type": "bearer"}
