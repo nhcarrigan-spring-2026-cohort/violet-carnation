@@ -3,16 +3,16 @@
 import React, { useState } from "react";
 import { Filters } from "@/models/filters";
 import { EVENT_CATEGORIES, EventCategory } from "@/models/eventCategories";
-import { Availability } from "@/models/user";
+import { AVAILABILITY_OPTIONS, Availability } from "@/models/user";
+import { SCOPE_OPTIONS } from "@/models/filters";
 
 interface FilterModalProps {
-  isOpen: boolean;
   onClose: () => void;
   filters: Filters;
   onApply: (filters: Filters) => void;
 }
 
-const FilterModal = ({ isOpen, onClose, filters, onApply }: FilterModalProps) => {
+const FilterModal = ({ onClose, filters, onApply }: FilterModalProps) => {
   const [localFilters, setLocalFilters] = useState(filters);
 
   const handleAvailabilityToggle = (availability: Availability) => {
@@ -32,8 +32,6 @@ const FilterModal = ({ isOpen, onClose, filters, onApply }: FilterModalProps) =>
     }
   };
 
-  if (!isOpen) return null;
-
   return (
     <div className="modal-overlay" onClick={onClose}>
       <div className="modal-content" onClick={(e) => e.stopPropagation()}>
@@ -42,31 +40,23 @@ const FilterModal = ({ isOpen, onClose, filters, onApply }: FilterModalProps) =>
         {/* Scope */}
         <fieldset>
           <legend>Scope</legend>
-          <label>
-            <input
-              type="radio"
-              checked={localFilters.scope === "all"}
-              onChange={() => setLocalFilters({ ...localFilters, scope: "all" })}
-            />
-            All Events
-          </label>
-          <label>
-            <input
-              type="radio"
-              checked={localFilters.scope === "myOrgs"}
-              onChange={() => setLocalFilters({ ...localFilters, scope: "myOrgs" })}
-            />
-            My Organizations
-          </label>
-          <label>
-            <input
-              type="radio"
-              checked={localFilters.scope === "admin"}
-              onChange={() => setLocalFilters({ ...localFilters, scope: "admin" })}
-            />
-            Admin Only
-          </label>
+          {SCOPE_OPTIONS.map((option) => (
+            <label key={option}>
+              <input
+                type="radio"
+                checked={localFilters.scope === option}
+                onChange={() => setLocalFilters({ ...localFilters, scope: option })}
+              />
+              {option === "myOrgs"
+                ? "My Organizations"
+                : option === "admin"
+                  ? "Admin Only"
+                  : "All Events"}
+            </label>
+          ))}
         </fieldset>
+
+        {/* Category */}
         <fieldset>
           <legend>Category</legend>
           <select
@@ -87,48 +77,28 @@ const FilterModal = ({ isOpen, onClose, filters, onApply }: FilterModalProps) =>
             ))}
           </select>
         </fieldset>
+
+        {/* Availability */}
         <fieldset>
           <legend>Availability</legend>
-          <label>
-            <input
-              type="checkbox"
-              checked={localFilters.availability?.includes("Mornings") || false}
-              onChange={() => handleAvailabilityToggle("Mornings")}
-            />
-            Mornings
-          </label>
-          <label>
-            <input
-              type="checkbox"
-              checked={localFilters.availability?.includes("Afternoons") || false}
-              onChange={() => handleAvailabilityToggle("Afternoons")}
-            />
-            Afternoons
-          </label>
-          <label>
-            <input
-              type="checkbox"
-              checked={localFilters.availability?.includes("Evenings") || false}
-              onChange={() => handleAvailabilityToggle("Evenings")}
-            />
-            Evenings
-          </label>
-          <label>
-            <input
-              type="checkbox"
-              checked={localFilters.availability?.includes("Weekends") || false}
-              onChange={() => handleAvailabilityToggle("Weekends")}
-            />
-            Weekends
-          </label>
-          <label>
-            <input
-              type="checkbox"
-              checked={localFilters.availability?.includes("Flexible") || false}
-              onChange={() => handleAvailabilityToggle("Flexible")}
-            />
-            Flexible
-          </label>
+          {AVAILABILITY_OPTIONS.map((option) => (
+            <label key={option}>
+              <input
+                type="checkbox"
+                checked={localFilters.availability?.includes(option) || false}
+                onChange={() => handleAvailabilityToggle(option)}
+              />
+              {option === "Mornings"
+                ? "Mornings"
+                : option === "Afternoons"
+                  ? "Afternoons"
+                  : option === "Evenings"
+                    ? "Evenings"
+                    : option === "Weekends"
+                      ? "Weekends"
+                      : "Flexible"}
+            </label>
+          ))}
         </fieldset>
         <button onClick={() => onApply(localFilters)}>Apply</button>
         <button onClick={onClose}>Cancel</button>
