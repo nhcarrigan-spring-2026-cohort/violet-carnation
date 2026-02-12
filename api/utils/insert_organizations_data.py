@@ -1,14 +1,9 @@
 import sqlite3
-from db_schema import DB_SCHEMA
+
 from generate_organizations_data import generate_organizations_data
 
-# SQLite connection
-conn = sqlite3.connect("app.db")
-cursor = conn.cursor()
-cursor.executescript(DB_SCHEMA)
 
-
-def insert_orgs_data(orgs_data):
+def insert_orgs_data(conn, cursor, orgs_data):
     """Insert data in Organizations table"""
 
     insert_query = """
@@ -22,14 +17,14 @@ def insert_orgs_data(orgs_data):
         conn.commit()
         print(f"{len(orgs_data)} records were inserted successfully.")
     except sqlite3.IntegrityError as e:
-        print(f"Integridad error: {e}")
+        print(f"Integrity error: {e}")
         conn.rollback()
     except Exception as e:
         print(f"Error: {e}")
         conn.rollback()
 
 
-def verify_data():
+def verify_data(cursor):
     """Verify correct data insertion"""
     cursor.execute("SELECT COUNT(*) FROM Organizations")
     count = cursor.fetchone()[0]
@@ -44,17 +39,13 @@ def verify_data():
 
 
 # Main configuration
-def execute_insert_orgs_data(org_list_file):
+def execute_insert_orgs_data(conn, cursor, org_list_file):
     print("Generating synthetic data...")
 
     orgs_data = generate_organizations_data(org_list_file)
 
     print(f"Inserting {len(orgs_data)} records in DB...")
-    insert_orgs_data(orgs_data)
+    insert_orgs_data(conn, cursor, orgs_data)
 
     # Verifying insertion
-    verify_data()
-
-    # Close connection
-    conn.close()
-    print("\nProcess complete. Connection close.\n")
+    verify_data(cursor)

@@ -1,14 +1,9 @@
 import sqlite3
-from db_schema import DB_SCHEMA
+
 from generate_roles_data import generate_roles_data
 
-# SQLite connection
-conn = sqlite3.connect("app.db")
-cursor = conn.cursor()
-cursor.executescript(DB_SCHEMA)
 
-
-def insert_roles_data(roles_data):
+def insert_roles_data(conn, cursor, roles_data):
     """Insert data in Roles table"""
 
     insert_query = """
@@ -29,7 +24,7 @@ def insert_roles_data(roles_data):
         conn.rollback()
 
 
-def verify_data():
+def verify_data(cursor):
     """Verify correct data insertion"""
     cursor.execute("SELECT COUNT(*) FROM Roles")
     count = cursor.fetchone()[0]
@@ -46,17 +41,13 @@ def verify_data():
 
 
 # Main configuration
-def execute_insert_roles_data(NUM_RECORDS):
+def execute_insert_roles_data(conn, cursor, num_records):
     print("Generating synthetic data...")
 
-    roles_data = generate_roles_data(NUM_RECORDS)
+    roles_data = generate_roles_data(num_records)
 
     print(f"Inserting {len(roles_data)} records in DB...")
-    insert_roles_data(roles_data)
+    insert_roles_data(conn, cursor, roles_data)
 
     # Verifying insertion
-    verify_data()
-
-    # Close connection
-    conn.close()
-    print("\nProcess complete. Connection close.\n")
+    verify_data(cursor)

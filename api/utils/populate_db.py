@@ -1,5 +1,7 @@
 import os
+import sqlite3
 
+from db_schema import DB_SCHEMA
 from insert_organizations_data import execute_insert_orgs_data
 from insert_roles_data import execute_insert_roles_data
 from insert_users_data import execute_insert_users_data
@@ -16,8 +18,16 @@ if __name__ == "__main__":
     else:
         print(f"\n{db_file} does not exist\n")
 
-    execute_insert_users_data(NUM_RECORDS)
-    execute_insert_roles_data(NUM_RECORDS)
-    execute_insert_orgs_data(
-        "./utils/organizations_list.json"
-    )  # Inside the function there is a list with organization names
+    conn = sqlite3.connect(db_file)
+    cursor = conn.cursor()
+    cursor.executescript(DB_SCHEMA)
+
+    try:
+        execute_insert_users_data(conn, cursor, NUM_RECORDS)
+        execute_insert_roles_data(conn, cursor, NUM_RECORDS)
+        execute_insert_orgs_data(
+            conn, cursor, "./utils/organizations_list.json"
+        )  # Inside the function there is a list with organization names
+    finally:
+        conn.close()
+        print("\nProcess complete. Connection close.\n")
