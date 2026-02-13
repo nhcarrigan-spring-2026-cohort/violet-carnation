@@ -37,7 +37,7 @@ def generate_skills():
 
 
 def generate_education():
-    """Generate a random eductional level"""
+    """Generate a random educational level"""
     education_levels = [
         "High School",
         "Associate Degree",
@@ -50,7 +50,7 @@ def generate_education():
 
 
 def generate_profile_picture():
-    """Generate an fake image URL"""
+    """Generate a fake image URL"""
     return f"https://example.com/profile/{fake.uuid4()}.jpg"
 
 
@@ -83,7 +83,7 @@ def generate_user_data(num_records=100):
             last_name = fake.last_name()
             email = f"{first_name.lower()}.{last_name.lower()}@{fake.domain_name()}"
 
-        # Generarte data
+        # Generate data
         password_hash = generate_password_hash("Password123!")
         phone = fake.phone_number()[:20]
         birth_date = fake.date_of_birth(minimum_age=18, maximum_age=70).strftime(
@@ -100,7 +100,7 @@ def generate_user_data(num_records=100):
         availability = random.choice(availability_options)
         active = random.choice([0, 1])
 
-        # Generarte random registry date in last two years
+        # Generate random registry date in last two years
         days_ago = random.randint(0, 730)
         registration_date = (datetime.now() - timedelta(days=days_ago)).strftime(
             "%Y-%m-%d %H:%M:%S"

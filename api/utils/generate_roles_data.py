@@ -6,7 +6,7 @@ fake = Faker()
 
 
 def generate_roles_data(num_records=100):
-    """Generate fake data for Roles table"""
+    """Generate fake data for roles table"""
     # default pre-defined options
 
     roles_data = []
