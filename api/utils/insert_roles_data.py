@@ -7,7 +7,7 @@ def insert_roles_data(conn, cursor, roles_data):
     """Insert data in Roles table"""
 
     insert_query = """
-    INSERT INTO Roles (
+    INSERT INTO roles (
         user_id, organization_id, permission_level
     ) VALUES (?, ?, ?)
     """
@@ -17,7 +17,7 @@ def insert_roles_data(conn, cursor, roles_data):
         conn.commit()
         print(f"{len(roles_data)} records were inserted successfully.")
     except sqlite3.IntegrityError as e:
-        print(f"Integridad error: {e}")
+        print(f"Integrity error: {e}")
         conn.rollback()
     except Exception as e:
         print(f"Error: {e}")
@@ -26,11 +26,11 @@ def insert_roles_data(conn, cursor, roles_data):
 
 def verify_data(cursor):
     """Verify correct data insertion"""
-    cursor.execute("SELECT COUNT(*) FROM Roles")
+    cursor.execute("SELECT COUNT(*) FROM roles")
     count = cursor.fetchone()[0]
     print(f"Total records: {count}")
 
-    cursor.execute("SELECT * FROM Roles LIMIT 5")
+    cursor.execute("SELECT * FROM roles LIMIT 5")
     sample_records = cursor.fetchall()
 
     print("\nShowing 5 records:")
