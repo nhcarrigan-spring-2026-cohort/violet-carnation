@@ -149,11 +149,11 @@ def update_user(
     """
     row = conn.execute(
         """
-        SELECT user_id, first_name, last_name, availability
+        SELECT user_id, email, first_name, last_name, availability
         FROM users
         WHERE user_id = ?
         """,
-        (f"{user_id}"),  ## I don't know why this works but just user_id don't.
+        (f"{user_id}",),  ## I don't know why this works but just user_id don't.
     ).fetchone()
 
     if row is None:
@@ -193,4 +193,6 @@ def update_user(
         user_id=row["user_id"],
         first_name=updated_first_name,
         last_name=updated_last_name,
+        email=row["email"],
+        availability=updated_availability,
     )
