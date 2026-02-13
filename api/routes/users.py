@@ -149,7 +149,7 @@ def update_user(
     """
     row = conn.execute(
         """
-        SELECT user_id, email, first_name, last_name, availability
+        SELECT user_id, first_name, last_name, availability
         FROM users
         WHERE user_id = ?
         """,
@@ -167,7 +167,6 @@ def update_user(
     updated_last_name = (
         payload.last_name if payload.last_name is not None else row["last_name"]
     )
-    updated_email = payload.email if payload.email is not None else row["email"]
 
     updated_availability = (
         payload.availability
@@ -178,13 +177,12 @@ def update_user(
     conn.execute(
         """
         UPDATE users
-        SET first_name = ?, last_name = ?, email = ?, availability = ?
+        SET first_name = ?, last_name = ?, availability = ?
         WHERE user_id = ?
         """,
         (
             updated_first_name,
             updated_last_name,
-            updated_email,
             updated_availability,
             user_id,  ## Here user_id works so f"{user_id}" is not needed. It's so confusing.
         ),
@@ -195,5 +193,4 @@ def update_user(
         user_id=row["user_id"],
         first_name=updated_first_name,
         last_name=updated_last_name,
-        email=updated_email,
     )
