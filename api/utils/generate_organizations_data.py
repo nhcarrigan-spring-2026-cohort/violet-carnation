@@ -24,8 +24,8 @@ def get_admin_users(conn: sqlite3.Connection):
 
 
 def generate_organizations_data(org_list_file, conn: sqlite3.Connection):
-    admin_users = get_admin_users(conn)  # user_id, organization_id, permission_level
     """Generate fake data for Organizations table"""
+    admin_users = get_admin_users(conn)  # user_id, organization_id, permission_level
     # read from org_list_file the organizations list
     with open(org_list_file, "r") as file:
         orgs_list = json.load(file)
