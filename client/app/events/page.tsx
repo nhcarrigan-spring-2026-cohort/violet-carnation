@@ -2,7 +2,6 @@
 
 import React from "react";
 import { useState, useEffect } from "react";
-import { User } from "@/models/user";
 import { Filters } from "@/models/filters";
 import { Event } from "@/models/event";
 import { Role } from "@/models/roles";
@@ -11,6 +10,7 @@ import FilterButton from "../components/FilterButton";
 import FilterModal from "../components/FilterModal";
 import ActiveFilters from "../components/ActiveFilters";
 import EventCarousel from "../components/EventCarousel";
+import { getTimeOfDay } from "@/models/event";
 
 // Helper functions
 function applyFilters(events: Event[], filters: Filters, userRoles: Role[]) {
@@ -36,16 +36,20 @@ function applyFilters(events: Event[], filters: Filters, userRoles: Role[]) {
     filtered = filtered.filter((event) => event.category === filters.category);
   }
 
-  // Filter by radius
-  if (filters.radius) {
-    // TODO: distance calculation logic
-  }
-
   // Filter by availability
-  if (filters.availability) {
-    filtered = filtered.filter((event) =>
-      filters.availability?.includes(event.availability)
-    );
+  if (filters.availability && filters.availability.length > 0) {
+    filtered = filtered.filter((event) => {
+      if (filters.availability!.includes("Weekends") && event.is_weekend) {
+        return true;
+      }
+
+      const eventTimeOfDay = getTimeOfDay(event.time);
+      if (eventTimeOfDay && filters.availability!.includes(eventTimeOfDay)) {
+        return true;
+      }
+
+      return false;
+    });
   }
 
   return filtered;
@@ -68,7 +72,6 @@ function removeFilter(filters: Filters, key: string) {
 }
 
 const EventsPage = () => {
-  const [currentUser, setCurrentUser] = useState<User | null>(null);
   const [events, setEvents] = useState<Event[]>([]);
   const [userRoles, setUserRoles] = useState<Role[]>([]);
   const [showFilters, setShowFilters] = useState(false);
@@ -82,23 +85,14 @@ const EventsPage = () => {
     Promise.all([
       fetch("/api/events")
         .then((res) => res.json())
-        // test log to see if events are being fetched correctly
-        .then((data) => {
-          console.log("Fetched events:", data);
-          return data;
-        })
         .catch(() => []),
       fetch("/api/roles")
         .then((res) => res.json())
         .catch(() => []),
-      fetch("/api/user")
-        .then((res) => res.json())
-        .catch(() => null),
     ])
-      .then(([eventsData, rolesData, userData]) => {
+      .then(([eventsData, rolesData]) => {
         setEvents(eventsData);
         setUserRoles(rolesData);
-        setCurrentUser(userData);
       })
       .catch((error) => console.error("Error:", error));
   }, []);
