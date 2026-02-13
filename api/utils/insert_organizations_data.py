@@ -4,10 +4,10 @@ from generate_organizations_data import generate_organizations_data
 
 
 def insert_orgs_data(conn, cursor, orgs_data):
-    """Insert data in Organizations table"""
+    """Insert data in organizations table"""
 
     insert_query = """
-    INSERT INTO Organizations (
+    INSERT INTO organizations (
         created_by_user_id, name, description
     ) VALUES (?, ?, ?)
     """
@@ -26,7 +26,7 @@ def insert_orgs_data(conn, cursor, orgs_data):
 
 def verify_data(cursor):
     """Verify correct data insertion"""
-    cursor.execute("SELECT COUNT(*) FROM Organizations")
+    cursor.execute("SELECT COUNT(*) FROM organizations")
     count = cursor.fetchone()[0]
     print(f"Total records: {count}")
 
