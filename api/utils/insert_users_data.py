@@ -1,15 +1,9 @@
 import sqlite3
 
-from db_schema import DB_SCHEMA
 from genarate_users_data import generate_user_data
 
-# SQLite connection
-conn = sqlite3.connect("app.db")
-cursor = conn.cursor()
-cursor.executescript(DB_SCHEMA)
 
-
-def insert_users_data(users_data):
+def insert_users_data(conn, cursor, users_data):
     """Insert data in Users table"""
     insert_query = """
     INSERT INTO users (
@@ -28,7 +22,7 @@ def insert_users_data(users_data):
         conn.rollback()
 
 
-def verify_data():
+def verify_data(cursor):
     """Verify correct data insertion"""
     cursor.execute("SELECT COUNT(*) FROM users")
     count = cursor.fetchone()[0]
@@ -45,19 +39,15 @@ def verify_data():
 
 
 # Main configuration
-def execute_insert_users_data(NUM_RECORDS):
+def execute_insert_users_data(conn, cursor, num_records):
     print("Generating synthetic data...")
-    generated_data = generate_user_data(NUM_RECORDS)
+    generated_data = generate_user_data(num_records)
     users_data = [
         (email, first_name, last_name, availability)
         for email, _, first_name, last_name, *_, availability, _, _ in generated_data
     ]
-    print(f"Inserting {NUM_RECORDS} records in DB...")
-    insert_users_data(users_data)
+    print(f"Inserting {num_records} records in DB...")
+    insert_users_data(conn, cursor, users_data)
 
     # Verifying insertion
-    verify_data()
-
-    # Close connection
-    conn.close()
-    print("\nProcess complete. Connection close.\n")
+    verify_data(cursor)
