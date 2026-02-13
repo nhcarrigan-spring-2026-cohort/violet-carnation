@@ -24,10 +24,10 @@ if __name__ == "__main__":
 
     try:
         execute_insert_users_data(conn, cursor, NUM_RECORDS)
+        execute_insert_roles_data(conn, cursor, NUM_RECORDS)
         execute_insert_orgs_data(
             conn, cursor, "./utils/organizations_list.json"
         )  # Inside the function there is a list with organization names
-        execute_insert_roles_data(conn, cursor, NUM_RECORDS)
     finally:
         conn.close()
         print("\nProcess complete. Connection close.\n")

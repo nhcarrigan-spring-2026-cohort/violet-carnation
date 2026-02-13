@@ -42,7 +42,7 @@ def verify_data(cursor):
 def execute_insert_orgs_data(conn, cursor, org_list_file):
     print("Generating synthetic data...")
 
-    orgs_data = generate_organizations_data(org_list_file)
+    orgs_data = generate_organizations_data(org_list_file, conn)
 
     print(f"Inserting {len(orgs_data)} records in DB...")
     insert_orgs_data(conn, cursor, orgs_data)
