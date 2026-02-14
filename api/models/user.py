@@ -1,4 +1,4 @@
-from typing import Literal
+from typing import Literal, Optional
 
 from pydantic import BaseModel, EmailStr, PositiveInt
 
@@ -17,6 +17,13 @@ class User(BaseModel):
     email: EmailStr
     first_name: str
     last_name: str
+    availability: Availability = "Part-time"
+
+
+class UserUpdate(BaseModel):
+    first_name: Optional[str] = None
+    last_name: Optional[str] = None
+    availability: Optional[Availability] = None
 
     # removed for simplification
     # phone: Optional[str] = None
@@ -29,6 +36,5 @@ class User(BaseModel):
     # profile_picture: Optional[str] = None
     # education: Optional[str] = None
     # skills: Optional[str] = None
-    availability: Availability = "Part-time"
     # active: bool = True
     # registration_date: Optional[datetime] = None
