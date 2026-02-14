@@ -5,11 +5,11 @@ import { useState, useEffect } from "react";
 import { Filters } from "@/models/filters";
 import { Event } from "@/models/event";
 import { Role } from "@/models/roles";
-import NavBar from "../components/NavBar";
-import FilterButton from "../components/FilterButton";
-import FilterModal from "../components/FilterModal";
-import ActiveFilters from "../components/ActiveFilters";
-import EventCarousel from "../components/EventCarousel";
+import NavBar from "../../components/NavBar";
+import FilterButton from "../../components/FilterButton";
+import FilterModal from "../../components/FilterModal";
+import ActiveFilters from "../../components/ActiveFilters";
+import EventCarousel from "../../components/EventCarousel";
 import { getTimeOfDay } from "@/models/event";
 
 // Helper functions
