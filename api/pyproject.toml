@@ -2,9 +2,6 @@
 line-length = 88
 indent-width = 4
 
-[tool.ruff.lint]
-# Ignore unused imports in __init__.py files (common pattern for re-exports)
-ignore = ["F401"]
-
 [tool.ruff.lint.per-file-ignores]
+# Ignore unused imports in __init__.py files (common pattern for re-exports)
 "__init__.py" = ["F401"]
