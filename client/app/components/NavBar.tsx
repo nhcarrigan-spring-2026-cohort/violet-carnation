@@ -1,6 +1,6 @@
 "use client";
 import React from "react";
-import { ModeToggle } from "@/components/mode-toggle"
+import { ModeToggle } from "@/components/ui/mode-toggle"
 
 export function Navbar() {
   return (
