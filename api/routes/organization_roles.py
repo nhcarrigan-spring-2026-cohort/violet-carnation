@@ -9,10 +9,12 @@ router = APIRouter(prefix="")
 
 
 @router.get("", response_model=list[RoleAndUser])
-def list_organization_users(organization_id: int, conn: sqlite3.Connection = Depends(get_connection)):
+def list_organization_users(
+    organization_id: int, conn: sqlite3.Connection = Depends(get_connection)
+):
     """
     List all users in an organization, along with their role. This is used to manage users in an organization, and to display the list of users in an organization.
-    
+
     TODO: add pagination/filtering against role
 
     :param organization_id: the ID of the organization to list users for
@@ -22,9 +24,9 @@ def list_organization_users(organization_id: int, conn: sqlite3.Connection = Dep
     """
     rows = conn.execute(
         """
-        SELECT r.user_id, r.organization_id,  r.permission_level, u.name
+        SELECT r.user_id, r.organization_id,  r.permission_level, u.first_name, u.last_name
         FROM roles r
-        JOIN users u ON r.user_id = u.id
+        JOIN users u ON r.user_id = u.user_id
         WHERE r.organization_id = ?
         """,
         (organization_id,),
@@ -34,7 +36,7 @@ def list_organization_users(organization_id: int, conn: sqlite3.Connection = Dep
         RoleAndUser(
             user_id=row["user_id"],
             organization_id=organization_id,
-            name=row["name"],
+            name=f'{row["first_name"]} {row["last_name"]}',
             permission_level=row["permission_level"],
         )
         for row in rows
@@ -48,7 +50,7 @@ def add_organization_user(
     conn: sqlite3.Connection = Depends(get_connection),
 ):
     """
-    Add a user to an organization by creating a role record. This can currently be done by anyone, even those not in the organization. 
+    Add a user to an organization by creating a role record. This can currently be done by anyone, even those not in the organization.
 
     Later this will change to only be able to be performed by admins of the organization and the user themselves, where the user themselves can just make themselves a volunteer.
 
@@ -60,11 +62,13 @@ def add_organization_user(
     :type conn: sqlite3.Connection
     """
     user_row = conn.execute(
-        "SELECT id, name FROM users WHERE id = ?",
+        "SELECT user_id, first_name, last_name FROM users WHERE user_id = ?",
         (payload.user_id,),
     ).fetchone()
     if user_row is None:
-        raise HTTPException(status_code=status.HTTP_404_NOT_FOUND, detail="User not found")
+        raise HTTPException(
+            status_code=status.HTTP_404_NOT_FOUND, detail="User not found"
+        )
 
     try:
         conn.execute(
@@ -84,12 +88,16 @@ def add_organization_user(
     return RoleAndUser(
         user_id=payload.user_id,
         organization_id=organization_id,
-        name=user_row["name"],
+        name=f"{user_row["first_name"]} {user_row["last_name"]}",
         permission_level=payload.permission_level,
     )
 
 
-@router.delete("/{user_id}", response_model=RoleAndUser, summary="Remove a user from an organization")
+@router.delete(
+    "/{user_id}",
+    response_model=RoleAndUser,
+    summary="Remove a user from an organization",
+)
 def remove_organization_user(
     organization_id: int,
     user_id: int,
@@ -111,15 +119,17 @@ def remove_organization_user(
 
     row = conn.execute(
         """
-        SELECT r.user_id, r.organization_id, r.permission_level, u.name
+        SELECT r.user_id, r.organization_id, r.permission_level, u.first_name, last_name
         FROM roles r
-        JOIN users u ON r.user_id = u.id
+        JOIN users u ON r.user_id = u.user_id
         WHERE r.organization_id = ? AND r.user_id = ?
         """,
         (organization_id, user_id),
     ).fetchone()
     if row is None:
-        raise HTTPException(status_code=status.HTTP_404_NOT_FOUND, detail="User not found")
+        raise HTTPException(
+            status_code=status.HTTP_404_NOT_FOUND, detail="User not found"
+        )
 
     # TODO: verify the organization creator cannot be removed.
     conn.execute(
@@ -131,12 +141,16 @@ def remove_organization_user(
     return RoleAndUser(
         user_id=row["user_id"],
         organization_id=organization_id,
-        name=row["name"],
+        name=f'{row["first_name"]} {row["last_name"]}',
         permission_level=row["permission_level"],
     )
 
 
-@router.put("/{user_id}", response_model=RoleAndUser, summary="Update a user's role in an organization")
+@router.put(
+    "/{user_id}",
+    response_model=RoleAndUser,
+    summary="Update a user's role in an organization",
+)
 def update_organization_user_role(
     organization_id: int,
     user_id: int,
@@ -157,15 +171,17 @@ def update_organization_user_role(
     """
     row = conn.execute(
         """
-        SELECT r.user_id, r.organization_id, r.permission_level, u.name
+        SELECT r.user_id, r.organization_id, r.permission_level, u.first_name, u.last_name
         FROM roles r
-        JOIN users u ON r.user_id = u.id
+        JOIN users u ON r.user_id = u.user_id
         WHERE r.organization_id = ? AND r.user_id = ?
         """,
         (organization_id, user_id),
     ).fetchone()
     if row is None:
-        raise HTTPException(status_code=status.HTTP_404_NOT_FOUND, detail="User not found")
+        raise HTTPException(
+            status_code=status.HTTP_404_NOT_FOUND, detail="User not found"
+        )
 
     conn.execute(
         """
@@ -180,6 +196,6 @@ def update_organization_user_role(
     return RoleAndUser(
         user_id=row["user_id"],
         organization_id=organization_id,
-        name=row["name"],
+        name=f"{row["first_name"]} {row["last_name"]}",
         permission_level=payload.permission_level,
     )

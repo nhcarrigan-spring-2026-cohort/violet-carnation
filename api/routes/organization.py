@@ -8,6 +8,7 @@ from routes.organization_roles import router as organization_roles_router
 
 router = APIRouter(prefix="/organization", tags=["organization"])
 
+
 @router.get("", response_model=list[Organization])
 def list_organizations(
     conn: sqlite3.Connection = Depends(get_connection),
@@ -44,7 +45,6 @@ def list_organizations(
     params.extend([limit, skip])
 
     rows = conn.execute(base_sql, params).fetchall()
-
     return [
         Organization(
             organization_id=row["organization_id"],
@@ -76,7 +76,9 @@ def create_organization(
         (payload.user_id,),
     ).fetchone()
     if user_row is None:
-        raise HTTPException(status_code=status.HTTP_404_NOT_FOUND, detail="User not found")
+        raise HTTPException(
+            status_code=status.HTTP_404_NOT_FOUND, detail="User not found"
+        )
 
     cursor = conn.execute(
         """
@@ -131,7 +133,9 @@ def delete_organization(
         (organization_id,),
     ).fetchone()
     if row is None:
-        raise HTTPException(status_code=status.HTTP_404_NOT_FOUND, detail="Organization not found")
+        raise HTTPException(
+            status_code=status.HTTP_404_NOT_FOUND, detail="Organization not found"
+        )
 
     if row["created_by_user_id"] != user_id:
         raise HTTPException(
@@ -180,7 +184,9 @@ def update_organization(
         (organization_id,),
     ).fetchone()
     if row is None:
-        raise HTTPException(status_code=status.HTTP_404_NOT_FOUND, detail="Organization not found")
+        raise HTTPException(
+            status_code=status.HTTP_404_NOT_FOUND, detail="Organization not found"
+        )
 
     role_row = conn.execute(
         """
@@ -219,5 +225,5 @@ def update_organization(
     )
 
 
-# TODO: not sure if this is the right pattern or not? 
+# TODO: not sure if this is the right pattern or not?
 router.include_router(organization_roles_router, prefix="/{organization_id}/users")

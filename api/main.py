@@ -1,7 +1,8 @@
 from contextlib import asynccontextmanager
 
-from db import init_db
 from fastapi import FastAPI
+
+from db import init_db
 from routes.auth import router as auth_router
 from routes.event_registrations import router as event_registrations_router
 from routes.events import router as events_router
@@ -19,6 +20,7 @@ async def lifespan(app: FastAPI):
     """
     init_db()
     yield
+
 
 app = FastAPI(lifespan=lifespan)
 
@@ -38,6 +40,5 @@ async def check():
 app.include_router(auth_router, prefix="/api")
 app.include_router(users_router, prefix="/api")
 app.include_router(organization_router, prefix="/api")
+app.include_router(events_router, prefix="/api")
 app.include_router(event_registrations_router, prefix="/api")
-app.include_router(events_router, prefix='/api')
-
