@@ -30,9 +30,17 @@ CREATE TABLE IF NOT EXISTS roles (
         ON UPDATE CASCADE
         ON DELETE CASCADE
 );
+CREATE TABLE IF NOT EXISTS credentials (
+    id INTEGER PRIMARY KEY AUTOINCREMENT,
+    user_id INTEGER NOT NULL UNIQUE,
+    hashed_password TEXT NOT NULL,
+    FOREIGN KEY (user_id) REFERENCES users(user_id)
+        ON UPDATE CASCADE
+        ON DELETE CASCADE
+);
 CREATE TABLE IF NOT EXISTS event_registrations (
     user_id INTEGER NOT NULL,
-    event_id INTEGER NOT NULL, 
+    event_id INTEGER NOT NULL,
     organization_id INTEGER NOT NULL,
     registration_time TEXT NOT NULL,
     PRIMARY KEY (user_id, organization_id, event_id)
@@ -55,5 +63,6 @@ DROP TABLE IF EXISTS users;
 DROP TABLE IF EXISTS organizations;
 DROP TABLE IF EXISTS roles;
 DROP TABLE IF EXISTS event_registrations;
+DROP TABLE IF EXISTS credentials;
 DROP TABLE IF EXISTS events;
 """
