@@ -1,5 +1,5 @@
 /**
- * This page is the main landing pages for organizations.
+ * This page is the main landing page for organizations.
  *
  * Should show:
  * - the organizations the user is a part of

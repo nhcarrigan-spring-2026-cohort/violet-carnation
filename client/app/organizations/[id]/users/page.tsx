@@ -9,5 +9,5 @@
  * but the admin who created the organization CANNOT downgrade their permission or remove themselves.
  */
 export default async function OrganizationUsersPage() {
-  return <div>OrganizationPage</div>;
+  return <div>OrganizationUsersPage</div>;
 }
