@@ -18,9 +18,6 @@ router = APIRouter(prefix="/auth", tags=["auth"])
 def signup(payload: SignupRequest, conn: sqlite3.Connection = Depends(get_connection)):
     """
     Register a new user.
-
-    If `org_name` is provided, an organization is created and the user is registered
-    as an org_admin linked to it. Otherwise the user is registered as a volunteer.
     """
     # Check for duplicate email
     existing = conn.execute(
@@ -33,31 +30,12 @@ def signup(payload: SignupRequest, conn: sqlite3.Connection = Depends(get_connec
             detail="A user with this email already exists",
         )
 
-    is_org_admin = payload.org_name is not None
-    org_id = None
-
-    # Create the user first (organizations FK requires a valid user_id)
+    # Create the user
     user_cursor = conn.execute(
         "INSERT INTO users (email, first_name, last_name) VALUES (?, ?, ?)",
         (payload.email, payload.first_name, payload.last_name),
     )
     user_id = user_cursor.lastrowid
-
-    if is_org_admin:
-        # Create the organization linked to the new user
-        org_cursor = conn.execute(
-            """
-            INSERT INTO organizations (name, description, created_by_user_id)
-            VALUES (?, ?, ?)
-            """,
-            (payload.org_name, payload.org_description, user_id),
-        )
-        org_id = org_cursor.lastrowid
-        # Grant admin role on the new org
-        conn.execute(
-            "INSERT INTO roles (user_id, organization_id, permission_level) VALUES (?, ?, ?)",
-            (user_id, org_id, "admin"),
-        )
 
     # Store hashed password in credentials table
     conn.execute(
@@ -72,8 +50,6 @@ def signup(payload: SignupRequest, conn: sqlite3.Connection = Depends(get_connec
         email=payload.email,
         first_name=payload.first_name,
         last_name=payload.last_name,
-        role="org_admin" if is_org_admin else "volunteer",
-        org_id=org_id,
     )
 
 
@@ -112,14 +88,7 @@ def login(
             headers={"WWW-Authenticate": "Bearer"},
         )
 
-    # If user has an admin role in any org, they are org_admin.
-    role_row = conn.execute(
-        "SELECT permission_level FROM roles WHERE user_id = ? AND permission_level = 'admin' LIMIT 1",
-        (user["user_id"],),
-    ).fetchone()
-    role = "org_admin" if role_row else "volunteer"
-
-    token = create_access_token({"sub": str(user["user_id"]), "role": role})
+    token = create_access_token({"sub": str(user["user_id"])})
     return {"access_token": token, "token_type": "bearer"}
 
 
@@ -195,32 +164,12 @@ def delete_account(
     """
     Delete the currently authenticated user's account.
 
-    Removes credentials, role memberships, and the user record.
-    If the user is the sole creator of an organization, that organization is also deleted.
+    Removes credentials and the user record.
     """
     user_id = current_user["user_id"]
 
     # Delete credentials (password hash)
     conn.execute("DELETE FROM credentials WHERE user_id = ?", (user_id,))
-
-    # Delete role memberships
-    conn.execute("DELETE FROM roles WHERE user_id = ?", (user_id,))
-
-    # Delete organizations this user created (if no other admins remain)
-    orgs = conn.execute(
-        "SELECT organization_id FROM organizations WHERE created_by_user_id = ?",
-        (user_id,),
-    ).fetchall()
-    for org in orgs:
-        other_admins = conn.execute(
-            "SELECT user_id FROM roles WHERE organization_id = ? AND permission_level = 'admin' AND user_id != ?",
-            (org["organization_id"], user_id),
-        ).fetchone()
-        if other_admins is None:
-            conn.execute(
-                "DELETE FROM organizations WHERE organization_id = ?",
-                (org["organization_id"],),
-            )
 
     # Delete the user record
     conn.execute("DELETE FROM users WHERE user_id = ?", (user_id,))

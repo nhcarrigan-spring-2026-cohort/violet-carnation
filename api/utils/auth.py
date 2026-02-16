@@ -54,25 +54,4 @@ def get_current_user(
         "email": row["email"],
         "first_name": row["first_name"],
         "last_name": row["last_name"],
-        "role": claims.get("role", "volunteer"),
     }
-
-# This will protect routes so only users with a specific role (org_admin) can access it.
-def require_role(role: str):
-    """
-    Dependency factory that checks the current user has the required role.
-
-    Usage:
-        @router.get("/admin-only")
-        def admin_route(user: dict = Depends(require_role("org_admin"))):
-            ...
-    """
-    def role_checker(current_user: dict = Depends(get_current_user)) -> dict:
-        if current_user["role"] != role:
-            raise HTTPException(
-                status_code=status.HTTP_403_FORBIDDEN,
-                detail=f"This action requires the '{role}' role",
-            )
-        return current_user
-
-    return role_checker
