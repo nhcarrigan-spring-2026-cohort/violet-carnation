@@ -40,6 +40,9 @@ jobs:
       - name: Run TypeScript type check
         run: npm run check-types
 
+      - name: Run Jest tests
+        run: npm test
+
       - name: Build Next.js app
         run: npm run build
         env:
