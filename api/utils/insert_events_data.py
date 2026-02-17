@@ -1,14 +1,13 @@
 import sqlite3
-
 from generate_events_data import generate_events_data
 
 def insert_events_data(conn, cursor, events_data):
     # insert data into events table 
     insert_query = """
     INSERT INTO events (
-        id, name, description, location, time, organization_id
-    ) VALUES (?,?,?,?,?,?)
-"""
+        name, description, location, time, organization_id
+    ) VALUES (?, ?, ?, ?, ?)
+    """
     # insert data in parameters into database
     # print error message if unsuccessful
     try:
@@ -38,10 +37,10 @@ def verify_data(cursor):
 
 
 # main configuration
-def execute_insert_events_data(conn, cursor, events_list_file):
+def execute_insert_events_data(conn: sqlite3.Connection, cursor):
     print("Generating synthetic data...")
 
-    events_data = generate_events_data(events_list_file, conn)
+    events_data = generate_events_data(conn)
 
     print(f"Inserting {len(events_data)} records in DB...")
     insert_events_data(conn, cursor, events_data)
