@@ -11,8 +11,11 @@ permissions:
 
 jobs:
   client:
-    name: Client CI
+    name: Client CI (Node ${{ matrix.node-version }})
     runs-on: ubuntu-latest
+    strategy:
+      matrix:
+        node-version: [20, 22, 24]
     defaults:
       run:
         working-directory: ./client
@@ -24,8 +27,8 @@ jobs:
       - name: Setup Node.js
         uses: actions/setup-node@v4
         with:
-          node-version-file: "./client/.nvmrc"
-          cache: "npm"
+          node-version: ${{ matrix.node-version }}
+          cache: 'npm'
           cache-dependency-path: ./client/package-lock.json
 
       - name: Install dependencies
