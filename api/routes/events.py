@@ -76,8 +76,6 @@ def list_events(
     
     query += " ORDER BY id"
 
-    print("Executing query:", query, "with params:", params)  # Debugging statement
-    
     rows = conn.execute(query, params).fetchall()
     return [
         Event(
