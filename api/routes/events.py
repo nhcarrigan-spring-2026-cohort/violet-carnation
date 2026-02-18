@@ -1,7 +1,7 @@
 import sqlite3
 from typing import Optional
 
-from fastapi import APIRouter, Depends, HTTPException, Query, status
+from fastapi import APIRouter, Depends, HTTPException, status
 from db import get_connection
 from models import Event, EventIn, EventUpdate
 
