@@ -76,8 +76,6 @@ def list_events(
     
     query += " ORDER BY id"
 
-    print("Executing query:", query, "with params:", params)  # Debugging statement
-    
     rows = conn.execute(query, params).fetchall()
     return [
         Event(
@@ -219,7 +217,7 @@ def update_event(
         description=updated_description,
         location=updated_location,
         date_time=updated_date_time,
-        organization_id=row["organization_id"],
+        organization_id=updated_organization_id,
     )
 
 
