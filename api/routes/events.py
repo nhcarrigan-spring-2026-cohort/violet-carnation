@@ -42,26 +42,26 @@ def list_events(
     :param conn: the connection to the database
     :type conn: sqlite3.Connection
     """
-    query = "SELECT id, name, description, location, time, organization_id FROM events WHERE 1=1"
+    query = "SELECT id, name, description, location, date_time, organization_id FROM events WHERE 1=1"
     params = []
     
     # Apply time-based filtering - compares only the time portion, ignoring date
     if begin_time is not None:
-        query += " AND time(time) >= time(?)"
+        query += " AND time(date_time) >= time(?)"
         params.append(begin_time)
     
     if end_time is not None:
-        query += " AND time(time) <= time(?)"
+        query += " AND time(date_time) <= time(?)"
         params.append(end_time)
     
     # Apply date-based filtering
-    # Note: This assumes time column might contain date information or we use SQLite date functions
+    # Note: This assumes date_time column might contain date information or we use SQLite date functions
     if begin_date is not None:
-        query += " AND date(time) >= date(?)"
+        query += " AND date(date_time) >= date(?)"
         params.append(begin_date)
     
     if end_date is not None:
-        query += " AND date(time) <= date(?)"
+        query += " AND date(date_time) <= date(?)"
         params.append(end_date)
     
     # Apply weekday filtering using SQLite's strftime function
@@ -69,10 +69,10 @@ def list_events(
     if is_weekday is not None:
         if is_weekday:
             # Weekdays: Monday(1) through Friday(5)
-            query += " AND CAST(strftime('%w', date(time)) AS INTEGER) BETWEEN 1 AND 5"
+            query += " AND CAST(strftime('%w', date(date_time)) AS INTEGER) BETWEEN 1 AND 5"
         else:
             # Weekends: Saturday(6) and Sunday(0)
-            query += " AND (strftime('%w', date(time)) IN ('0', '6'))"
+            query += " AND (strftime('%w', date(date_time)) IN ('0', '6'))"
     
     query += " ORDER BY id"
 
@@ -85,7 +85,7 @@ def list_events(
             name=row["name"],
             description=row["description"],
             location=row["location"],
-            time=row["time"],
+            date_time=row["date_time"],
             organization_id=row["organization_id"],
         )
         for row in rows
@@ -105,7 +105,7 @@ def get_event(event_id: int, conn=Depends(get_connection)):
     :type conn: sqlite3.Connection
     """
     row = conn.execute(
-        "SELECT id, name, description, location, time, organization_id FROM events WHERE id = ?",
+        "SELECT id, name, description, location, date_time, organization_id FROM events WHERE id = ?",
         (event_id,),
     ).fetchone()
     if row is None:
@@ -117,7 +117,7 @@ def get_event(event_id: int, conn=Depends(get_connection)):
         name=row["name"],
         description=row["description"],
         location=row["location"],
-        time=row["time"],
+        date_time=row["date_time"],
         organization_id=row["organization_id"],
     )
 
@@ -133,12 +133,12 @@ def add_event(payload: EventIn, conn=Depends(get_connection)):
     :type conn: sqlite3.Connection
     """
     cursor = conn.execute(
-        "INSERT INTO events (name, description, location, time, organization_id) VALUES (?, ?, ?, ?, ?)",
+        "INSERT INTO events (name, description, location, date_time, organization_id) VALUES (?, ?, ?, ?, ?)",
         (
             payload.name,
             payload.description,
             payload.location,
-            payload.time,
+            payload.date_time,
             payload.organization_id,
         ),
     )
@@ -148,7 +148,7 @@ def add_event(payload: EventIn, conn=Depends(get_connection)):
         name=payload.name,
         description=payload.description,
         location=payload.location,
-        time=payload.time,
+        date_time=payload.date_time,
         organization_id=payload.organization_id,
     )
 
@@ -171,7 +171,7 @@ def update_event(
     """
     row = conn.execute(
         """
-        SELECT id, name, description, location, time, organization_id
+        SELECT id, name, description, location, date_time, organization_id
         FROM events
         WHERE id = ?
         """,
@@ -189,7 +189,7 @@ def update_event(
     updated_location = (
         payload.location if payload.location is not None else row["location"]
     )
-    updated_time = payload.time if payload.time is not None else row["time"]
+    updated_date_time = payload.date_time if payload.date_time is not None else row["date_time"]
     updated_organization_id = (
         payload.organization_id
         if payload.organization_id is not None
@@ -199,14 +199,14 @@ def update_event(
     conn.execute(
         """
         UPDATE events
-        SET name = ?, description = ?, location = ?, time = ?, organization_id = ?
+        SET name = ?, description = ?, location = ?, date_time = ?, organization_id = ?
         WHERE id = ?
         """,
         (
             updated_name,
             updated_description,
             updated_location,
-            updated_time,
+            updated_date_time,
             updated_organization_id,
             event_id,
         ),
@@ -218,7 +218,7 @@ def update_event(
         name=updated_name,
         description=updated_description,
         location=updated_location,
-        time=updated_time,
+        date_time=updated_date_time,
         organization_id=row["organization_id"],
     )
 
@@ -235,7 +235,7 @@ def delete_event(event_id: int, conn=Depends(get_connection)):
     """
     row = conn.execute(
         """
-        SELECT id, name, description, location, time, organization_id
+        SELECT id, name, description, location, date_time, organization_id
         FROM events
         WHERE id = ?
         """,

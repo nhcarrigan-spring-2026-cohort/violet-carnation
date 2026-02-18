@@ -9,15 +9,15 @@ export const TIME_OF_DAY_RANGES = {
 export type TimeOfDay = keyof typeof TIME_OF_DAY_RANGES;
 
 /**
- * Parse event time (ISO 8601 datetime or HH:MM format) and determine which part of day it falls in
+ * Parse event date_time (ISO 8601 datetime or HH:MM format) and determine which part of day it falls in
  *
- * @param time - Time string in ISO 8601 format (e.g., "2026-02-17T09:00:00") or "HH:MM" format (e.g., "09:00", "14:30")
+ * @param dateTime - Time string in ISO 8601 format (e.g., "2026-02-17T09:00:00") or "HH:MM" format (e.g., "09:00", "14:30")
  * @returns TimeOfDay category or null if outside defined ranges
  */
-export function getTimeOfDay(time: string): TimeOfDay | null {
+export function getTimeOfDay(dateTime: string): TimeOfDay | null {
   // Handle both ISO 8601 datetime strings and simple HH:MM format
   // Extract time portion: supports "2026-02-17T09:00:00", "2026-02-17 09:00:00", or "09:00"
-  const timeMatch = time.match(/(\d{2}):(\d{2})/);
+  const timeMatch = dateTime.match(/(\d{2}):(\d{2})/);
   if (!timeMatch) return null;
 
   const hour = parseInt(timeMatch[1], 10);
@@ -32,15 +32,15 @@ export function getTimeOfDay(time: string): TimeOfDay | null {
 }
 
 /**
- * Determine if the given time string falls on a weekend (Saturday or Sunday)
+ * Determine if the given date_time string falls on a weekend (Saturday or Sunday)
  *
- * @param time - Time string in ISO 8601 format (e.g., "2026-02-17T09:00:00") or "YYYY-MM-DD HH:MM:SS" format
+ * @param dateTime - Time string in ISO 8601 format (e.g., "2026-02-17T09:00:00") or "YYYY-MM-DD HH:MM:SS" format
  * @returns true if the date is Saturday or Sunday, false otherwise, null if parsing fails
  */
-export function isWeekend(time: string): boolean | null {
+export function isWeekend(dateTime: string): boolean | null {
   // Extract date portion from various formats
   // Supports: "2026-02-17T09:00:00", "2026-02-17 09:00:00", "2026-02-17"
-  const dateMatch = time.match(/(\d{4})-(\d{2})-(\d{2})/);
+  const dateMatch = dateTime.match(/(\d{4})-(\d{2})-(\d{2})/);
   if (!dateMatch) return null;
 
   const year = parseInt(dateMatch[1], 10);
@@ -70,7 +70,7 @@ export interface Event {
   description: string;
   location: string;
   /** ISO 8601 datetime string (e.g., "2026-02-17 08:00:00") */
-  time: string;
+  date_time: string;
   organization_id: number;
 
   // TODO: none of the following are supported on back-end yet

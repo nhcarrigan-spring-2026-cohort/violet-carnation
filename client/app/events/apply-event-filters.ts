@@ -40,11 +40,11 @@ export function applyEventFilters(
   // Filter by availability
   if (filters.availability && filters.availability.length > 0) {
     filtered = filtered.filter((event) => {
-      if (filters.availability!.includes("Weekends") && isWeekend(event.time)) {
+      if (filters.availability!.includes("Weekends") && isWeekend(event.date_time)) {
         return true;
       }
 
-      const eventTimeOfDay = getTimeOfDay(event.time);
+      const eventTimeOfDay = getTimeOfDay(event.date_time);
       if (eventTimeOfDay && filters.availability!.includes(eventTimeOfDay)) {
         return true;
       }

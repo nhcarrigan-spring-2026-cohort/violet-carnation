@@ -11,7 +11,7 @@ describe("applyFilters", () => {
       description: "Beach cleanup",
       location: "Beach",
       category: "Environmental Conservation",
-      time: "2026-03-15 09:00:00",
+      date_time: "2026-03-15 09:00:00",
       time_zone: "PST",
       organization_id: 1,
       signup_count: 10,
@@ -23,7 +23,7 @@ describe("applyFilters", () => {
       description: "Help students",
       location: "School",
       category: "Education & Tutoring",
-      time: "2026-03-16 18:00:00",
+      date_time: "2026-03-16 18:00:00",
       time_zone: "PST",
       organization_id: 2,
       signup_count: 5,
@@ -35,7 +35,7 @@ describe("applyFilters", () => {
       description: "Collect food",
       location: "Community Center",
       category: "Community Development",
-      time: "2026-03-14 10:00:00",
+      date_time: "2026-03-14 10:00:00",
       time_zone: "PST",
       organization_id: 1,
       signup_count: 20,
@@ -47,7 +47,7 @@ describe("applyFilters", () => {
       description: "Skills workshop",
       location: "Library",
       category: "Education & Tutoring",
-      time: "2026-03-17 14:00:00",
+      date_time: "2026-03-17 14:00:00",
       time_zone: "PST",
       organization_id: 3,
       signup_count: 15,
@@ -177,7 +177,7 @@ describe("applyFilters", () => {
       const result = applyEventFilters(mockEvents, filters, mockUserRoles);
 
       expect(result).toHaveLength(1);
-      expect(result[0].time).toBe("2026-03-16 18:00:00");
+      expect(result[0].date_time).toBe("2026-03-16 18:00:00");
     });
 
     it("should filter events by afternoon time", () => {
@@ -190,7 +190,7 @@ describe("applyFilters", () => {
       const result = applyEventFilters(mockEvents, filters, mockUserRoles);
 
       expect(result).toHaveLength(1);
-      expect(result[0].time).toBe("2026-03-17 14:00:00");
+      expect(result[0].date_time).toBe("2026-03-17 14:00:00");
     });
 
     it("should filter events by multiple availability options", () => {
