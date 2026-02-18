@@ -219,7 +219,7 @@ def update_event(
         description=updated_description,
         location=updated_location,
         date_time=updated_date_time,
-        organization_id=row["organization_id"],
+        organization_id=updated_organization_id,
     )
 
 
