@@ -1,4 +1,4 @@
-import { Event, getTimeOfDay } from "@/models/event";
+import { Event, getTimeOfDay, isWeekend } from "@/models/event";
 import { Filters } from "@/models/filters";
 import { Role } from "@/models/roles";
 
@@ -40,7 +40,7 @@ export function applyEventFilters(
   // Filter by availability
   if (filters.availability && filters.availability.length > 0) {
     filtered = filtered.filter((event) => {
-      if (filters.availability!.includes("Weekends") && event.is_weekend) {
+      if (filters.availability!.includes("Weekends") && isWeekend(event.time)) {
         return true;
       }
 
