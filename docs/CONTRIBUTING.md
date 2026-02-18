@@ -156,7 +156,7 @@ You _should_ see `(.venv)` appear in your terminal prompt, to see how to verify 
 4. **Run development server:**
 
 **note** first time setup you should seed the database, you don't have to but it will make testing easier.
-Skip down to "Seeding the Database" section below for instructions on how to do that, then come back here to run the
+Skip down to [Seeding the Database](#seeding-the-database) section below for instructions on how to do that, then come back here to run the
 backend api.
 
 ```bash
@@ -241,8 +241,80 @@ Then use the above populate db command to re-initialize the database and seed it
 
 ## Project Structure
 
-- :warning: Structure is being finalized. Current discussion: client/api at root vs api nested in client.
-- This section will be updated once decided.
+## Project Structure
+
+```
+violet-carnation/
+├── .github/              # GitHub templates and workflows
+│   ├── ci.yml
+│   ├── pull_request_template.md
+│   └── ISSUE_TEMPLATE/
+├── api/                  # Backend (FastAPI)
+│   ├── models/           # Database models
+│   ├── routes/           # API route handlers
+│   ├── utils/            # Helper functions, DB utilities
+│   ├── main.py           # FastAPI application entry
+│   └── requirements.txt  # Python dependencies
+├── client/               # Frontend (Next.js)
+│   ├── app/              # Next.js App Router
+│   │   ├── page.tsx      # Home/landing page
+│   │   ├── layout.tsx    # Root layout (NavBar, global styles)
+│   │   ├── events/       # Event browsing & management
+│   │   │   ├── page.tsx            # /events - Browse all events
+│   │   │   ├── create/page.tsx     # /events/create - Create new event
+│   │   │   └── [id]/
+│   │   │       ├── page.tsx        # /events/[id] - Event details
+│   │   │       └── edit/page.tsx   # /events/[id]/edit - Edit event
+│   │   ├── organizations/          # Organization management
+│   │   │   ├── page.tsx            # /organizations - Browse orgs
+│   │   │   ├── create/page.tsx     # /organizations/create
+│   │   │   └── [id]/
+│   │   │       ├── page.tsx        # /organizations/[id] - Org details
+│   │   │       ├── edit/page.tsx   # /organizations/[id]/edit
+│   │   │       ├── events/page.tsx # /organizations/[id]/events - Org's events
+│   │   │       └── users/page.tsx  # /organizations/[id]/users - Manage members
+│   │   ├── profile/      # User profile & settings
+│   │   │   ├── page.tsx            # /profile
+│   │   │   └── history/page.tsx    # /profile/history - Activity log
+│   │   ├── signin/page.tsx         # /signin - Authentication
+│   │   └── signup/page.tsx         # /signup - Registration
+│   ├── components/       # Reusable React components
+│   │   ├── ui/           # shadcn UI components
+│   │   ├── FilterModal.tsx
+│   │   ├── EventCarousel.tsx
+│   │   └── NavBar.tsx
+│   ├── models/           # TypeScript interfaces & types
+│   │   ├── event.ts
+│   │   ├── user.ts
+│   │   ├── organization.ts
+│   │   ├── filters.ts
+│   │   └── eventCategories.ts
+│   ├── package.json      # Node.js dependencies
+│   └── next.config.ts    # Next.js configuration
+└── docs/                 # Documentation
+    ├── CONTRIBUTING.md
+    └── RESOURCES.md
+```
+
+### Key Directories
+
+**Frontend (`/client`):**
+
+- `app/` - Next.js pages and routing (App Router pattern)
+- `components/` - Reusable React components
+- `models/` - TypeScript types and interfaces shared across app
+
+**Backend (`/api`):**
+
+- `models/` - Pydantic models for request/response validation
+- `routes/` - API endpoints organized by resource
+- `utils/` - Database connection, auth helpers, seed scripts
+
+**Development:**
+
+- Frontend runs on `http://localhost:3000`
+- Backend runs on `http://localhost:8000`
+- Both should run simultaneously in separate terminals
 
 ## Development Workflow
 
@@ -422,4 +494,140 @@ Questions? Contact:
 
 ## Troubleshooting
 
-> **Note:** This section will be updated as common issues are discovered during development.
+### Tailwind CSS Error: `Can't resolve 'tw-animate-css'`
+
+**Symptoms:**
+
+```
+CssSyntaxError: Can't resolve 'tw-animate-css' in '/client/app'
+```
+
+**Cause:** Orphaned `package-lock.json` at project root or stale Next.js cache after merging PRs.
+
+**Solution:**
+
+```bash
+# From project root
+rm package-lock.json  # If exists at root (shouldn't be there)
+
+# From client/
+rm -rf node_modules
+rm package-lock.json
+rm -rf .next
+npm install
+npm run dev
+```
+
+---
+
+### Backend API Returns 404 from Frontend
+
+**Symptoms:** Fetching `/api/events` returns 404 or CORS errors.
+
+**Cause:** Backend server not running or CORS not configured.
+
+**Solution:**
+
+1. **Verify backend is running:**
+
+```bash
+   # In api/ directory
+   source .venv/bin/activate
+   uvicorn main:app --reload
+```
+
+Should see: `Uvicorn running on http://127.0.0.1:8000`
+
+2. **Test backend directly:** Visit `http://localhost:8000/docs`
+   - If this works, backend is running
+   - If frontend still gets errors, check CORS configuration
+
+---
+
+### Virtual Environment Not Activating
+
+**Symptoms:** After running activate command, still see system Python path.
+
+**Solution:**
+
+**Check activation:**
+
+```bash
+# Linux/Mac
+which python3
+# Should show: /path/to/project/api/.venv/bin/python3
+
+# Windows
+Get-Command python
+# Should show: C:\path\to\project\api\.venv\Scripts\python.exe
+```
+
+**If still showing system Python:**
+
+```bash
+# Delete and recreate venv
+rm -rf .venv
+python3 -m venv .venv
+source .venv/bin/activate  # or .venv\Scripts\activate on Windows
+pip install -r requirements.txt
+```
+
+---
+
+### Database Schema Errors
+
+**Symptoms:** Errors about missing columns or tables after pulling new changes.
+
+**Solution:** Drop and re-seed the database:
+
+```bash
+# From api/ directory with venv active
+python utils/drop_db.py
+python utils/populate_db.py
+```
+
+---
+
+### Node Modules Accidentally Committed
+
+**Symptoms:** PR shows hundreds of files from `node_modules/`.
+
+**Cause:** `.gitignore` not properly configured or `node_modules` manually added.
+
+**Solution:**
+
+```bash
+# Remove from git (keeps files locally)
+git rm -r --cached node_modules
+git rm -r --cached client/node_modules
+
+# Verify .gitignore includes:
+node_modules/
+
+# Commit the fix
+git add .gitignore
+git commit -m "fix: remove node_modules from tracking"
+```
+
+---
+
+### Type Errors After Merging
+
+**Symptoms:** TypeScript errors in previously working files.
+
+**Solution:** Reinstall dependencies to match updated types:
+
+```bash
+cd client
+rm -rf node_modules package-lock.json
+npm install
+```
+
+---
+
+### Still Having Issues?
+
+1. Check Discord #violet-carnation for similar problems
+2. Search closed GitHub issues
+3. Tag `@bradtaniguchi` or `@sylkylacole` in Discord
+4. Open a new issue with reproduction steps
