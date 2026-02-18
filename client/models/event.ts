@@ -30,12 +30,13 @@ export interface Event {
   name: string;
   description: string;
   location: string;
-  category: EventCategory | null;
-  date: string;
   time: string;
-  time_zone: string;
   organization_id: number;
+
+  // TODO: none of the following are supported on back-end yet
+  category: EventCategory | null;
+  time_zone: string;
   signup_count: number;
   user_signed_up: boolean;
-  is_weekend: boolean;
+  // is_weekend: boolean; // **note** this can be calculated on the client-side based on time
 }
