@@ -19,7 +19,7 @@ describe("getTimeOfDay", () => {
     });
 
     it("should return 'Mornings' for space-separated datetime", () => {
-      expect(getTimeOfDay("2026-02-17 10:30:00")).toBe("Mornings");
+      expect(getTimeOfDay("2026-02-17T10:30:00")).toBe("Mornings");
     });
   });
 
@@ -131,7 +131,7 @@ describe("getTimeOfDay", () => {
     });
 
     it("should handle space-separated without seconds", () => {
-      expect(getTimeOfDay("2026-02-17 18:00")).toBe("Evenings");
+      expect(getTimeOfDay("2026-02-17T18:00")).toBe("Evenings");
     });
   });
 });
@@ -147,11 +147,11 @@ describe("isWeekend", () => {
     });
 
     it("should return true for Saturday with space separator", () => {
-      expect(isWeekend("2026-02-14 09:00:00")).toBe(true);
+      expect(isWeekend("2026-02-14T09:00:00")).toBe(true);
     });
 
     it("should return true for Sunday with space separator", () => {
-      expect(isWeekend("2026-02-15 09:00:00")).toBe(true);
+      expect(isWeekend("2026-02-15T09:00:00")).toBe(true);
     });
 
     it("should return true for Saturday date only", () => {

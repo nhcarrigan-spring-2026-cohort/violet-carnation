@@ -16,7 +16,7 @@ export type TimeOfDay = keyof typeof TIME_OF_DAY_RANGES;
  */
 export function getTimeOfDay(dateTime: string): TimeOfDay | null {
   // Handle both ISO 8601 datetime strings and simple HH:MM format
-  // Extract time portion: supports "2026-02-17T09:00:00", "2026-02-17 09:00:00", or "09:00"
+  // Extract time portion: supports "2026-02-17T09:00:00", "2026-02-17T09:00:00", or "09:00"
   const timeMatch = dateTime.match(/(\d{2}):(\d{2})/);
   if (!timeMatch) return null;
 
@@ -34,12 +34,12 @@ export function getTimeOfDay(dateTime: string): TimeOfDay | null {
 /**
  * Determine if the given date_time string falls on a weekend (Saturday or Sunday)
  *
- * @param dateTime - Time string in ISO 8601 format (e.g., "2026-02-17T09:00:00") or "YYYY-MM-DD HH:MM:SS" format
+ * @param dateTime - Time string in ISO 8601 format (e.g., "2026-02-17T09:00:00")
  * @returns true if the date is Saturday or Sunday, false otherwise, null if parsing fails
  */
 export function isWeekend(dateTime: string): boolean | null {
   // Extract date portion from various formats
-  // Supports: "2026-02-17T09:00:00", "2026-02-17 09:00:00", "2026-02-17"
+  // Supports: "2026-02-17T09:00:00", "2026-02-17T09:00:00", "2026-02-17"
   const dateMatch = dateTime.match(/(\d{4})-(\d{2})-(\d{2})/);
   if (!dateMatch) return null;
 
@@ -69,7 +69,7 @@ export interface Event {
   name: string;
   description: string;
   location: string;
-  /** ISO 8601 datetime string (e.g., "2026-02-17 08:00:00") */
+  /** ISO 8601 datetime string (e.g., "2026-02-17T08:00:00") */
   date_time: string;
   organization_id: number;
 
