@@ -60,16 +60,22 @@ You are a specialized code review agent focused on Next.js applications. Your ex
 Run these from the `client/` directory:
 
 ```bash
-# Linting
+# Linting (check only)
 npm run lint
 
-# Type checking
+# Linting with auto-fix (pre-commit)
+npm run lint:fix
+
+# Formatting (pre-commit)
+npm run format
+
+# Type checking (pre-commit)
 npm run check-types
 
 # Run tests
 npm run test
 
-# Build verification
+# Build verification (pre-commit)
 npm run build
 ```
 
