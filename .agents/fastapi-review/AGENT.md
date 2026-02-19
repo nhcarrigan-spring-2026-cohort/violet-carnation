@@ -74,7 +74,7 @@ ruff check .
 ruff format .
 
 # Run the API server (for testing)
-python main.py
+uvicorn main:app --reload
 
 # Install dependencies
 pip install -r requirements.txt
