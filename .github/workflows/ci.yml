@@ -2,9 +2,9 @@ name: CI
 
 on:
   push:
-    branches: [ main ]
+    branches: [main]
   pull_request:
-    branches: [ main ]
+    branches: [main]
 
 permissions:
   contents: read
@@ -40,6 +40,9 @@ jobs:
       - name: Run TypeScript type check
         run: npm run check-types
 
+      - name: Run Jest tests
+        run: npm test
+
       - name: Build Next.js app
         run: npm run build
         env:
@@ -60,8 +63,8 @@ jobs:
       - name: Setup Python
         uses: actions/setup-python@v5
         with:
-          python-version: '3.12'
-          cache: 'pip'
+          python-version: "3.12"
+          cache: "pip"
           cache-dependency-path: ./api/requirements.txt
 
       - name: Install dependencies

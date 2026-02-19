@@ -15,6 +15,11 @@ const eslintConfig = defineConfig([
     "next-env.d.ts",
   ]),
   prettier,
+  {
+    rules: {
+      "react/react-in-jsx-scope": "off",
+    },
+  },
 ]);
 
 export default eslintConfig;
