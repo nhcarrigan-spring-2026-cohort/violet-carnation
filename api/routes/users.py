@@ -153,7 +153,7 @@ def update_user(
         FROM users
         WHERE user_id = ?
         """,
-        (f"{user_id}",),  ## I don't know why this works but just user_id don't.
+        (user_id,),
     ).fetchone()
 
     if row is None:
@@ -184,7 +184,7 @@ def update_user(
             updated_first_name,
             updated_last_name,
             updated_availability,
-            user_id,  ## Here user_id works so f"{user_id}" is not needed. It's so confusing.
+            user_id,
         ),
     )
     conn.commit()
