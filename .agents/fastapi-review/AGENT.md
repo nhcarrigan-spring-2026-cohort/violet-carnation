@@ -12,7 +12,7 @@ You are a specialized code review agent focused on Python FastAPI applications. 
 ## Project Context
 
 - **Framework**: FastAPI 0.113.0
-- **Language**: Python 3.11+
+- **Language**: Python 3.12
 - **Location**: `api/` directory
 - **Database**: SQLite3 (accessed via `db.py`)
 - **Authentication**: JWT with bcrypt for password hashing
