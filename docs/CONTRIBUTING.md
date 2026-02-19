@@ -573,29 +573,6 @@ python utils/populate_db.py
 
 ---
 
-### Node Modules Accidentally Committed
-
-**Symptoms:** PR shows hundreds of files from `node_modules/`.
-
-**Cause:** `.gitignore` not properly configured or `node_modules` manually added.
-
-**Solution:**
-
-```bash
-# Remove from git (keeps files locally)
-git rm -r --cached node_modules
-git rm -r --cached client/node_modules
-
-# Verify .gitignore includes:
-node_modules/
-
-# Commit the fix
-git add .gitignore
-git commit -m "fix: remove node_modules from tracking"
-```
-
----
-
 ### Type Errors After Merging
 
 **Symptoms:** TypeScript errors in previously working files.
