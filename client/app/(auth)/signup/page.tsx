@@ -3,8 +3,11 @@
 import { AuthCard } from "@/components/AuthCard";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
+import { useRouter } from "next/navigation";
 
 export default function SignUpPage() {
+  const router = useRouter();
+  
   const handleSubmit = async (e: React.SubmitEvent<HTMLFormElement>) => {
     e.preventDefault();
     const formData = new FormData(e.currentTarget);
@@ -13,6 +16,10 @@ export default function SignUpPage() {
       headers: { "Content-Type": "application/json" },
       body: JSON.stringify(Object.fromEntries(formData)),
     });
+    
+    if (response.ok) {
+      router.push("/");
+    }
   };
 
   return (
