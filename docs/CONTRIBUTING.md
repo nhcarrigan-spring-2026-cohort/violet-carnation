@@ -257,38 +257,23 @@ violet-carnation/
 │   └── requirements.txt  # Python dependencies
 ├── client/               # Frontend (Next.js)
 │   ├── app/              # Next.js App Router
+│   │   ├── (auth)        # Auth container
+│   │   │   ├── signin/   # /signin - Authentication
+│   │   │   └── signup/   # /signup - Registration
 │   │   ├── page.tsx      # Home/landing page
 │   │   ├── layout.tsx    # Root layout (NavBar, global styles)
 │   │   ├── events/       # Event browsing & management
-│   │   │   ├── page.tsx            # /events - Browse all events
-│   │   │   ├── create/page.tsx     # /events/create - Create new event
-│   │   │   └── [id]/
-│   │   │       ├── page.tsx        # /events/[id] - Event details
-│   │   │       └── edit/page.tsx   # /events/[id]/edit - Edit event
 │   │   ├── organizations/          # Organization management
-│   │   │   ├── page.tsx            # /organizations - Browse orgs
-│   │   │   ├── create/page.tsx     # /organizations/create
-│   │   │   └── [id]/
-│   │   │       ├── page.tsx        # /organizations/[id] - Org details
-│   │   │       ├── edit/page.tsx   # /organizations/[id]/edit
-│   │   │       ├── events/page.tsx # /organizations/[id]/events - Org's events
-│   │   │       └── users/page.tsx  # /organizations/[id]/users - Manage members
 │   │   ├── profile/      # User profile & settings
-│   │   │   ├── page.tsx            # /profile
-│   │   │   └── history/page.tsx    # /profile/history - Activity log
-│   │   ├── signin/page.tsx         # /signin - Authentication
-│   │   └── signup/page.tsx         # /signup - Registration
+│   │
 │   ├── components/       # Reusable React components
 │   │   ├── ui/           # shadcn UI components
 │   │   ├── FilterModal.tsx
-│   │   ├── EventCarousel.tsx
-│   │   └── NavBar.tsx
+│   │   ├── ect
 │   ├── models/           # TypeScript interfaces & types
 │   │   ├── event.ts
 │   │   ├── user.ts
-│   │   ├── organization.ts
-│   │   ├── filters.ts
-│   │   └── eventCategories.ts
+│   │   ├── ect
 │   ├── package.json      # Node.js dependencies
 │   └── next.config.ts    # Next.js configuration
 └── docs/                 # Documentation
