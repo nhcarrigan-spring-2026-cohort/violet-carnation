@@ -1,6 +1,8 @@
+import os
 from contextlib import asynccontextmanager
 
 from fastapi import FastAPI
+from fastapi.middleware.cors import CORSMiddleware
 
 from db import init_db
 from routes.auth import router as auth_router
@@ -24,6 +26,17 @@ async def lifespan(app: FastAPI):
 
 app = FastAPI(lifespan=lifespan)
 
+_raw_origins = os.environ.get("ALLOWED_ORIGINS", "")
+_allowed_origins = [o.strip() for o in _raw_origins.split(",") if o.strip()]
+
+if _allowed_origins:
+    app.add_middleware(
+        CORSMiddleware,
+        allow_origins=_allowed_origins,
+        allow_credentials=True,
+        allow_methods=["GET", "POST", "PUT", "DELETE", "OPTIONS"],
+        allow_headers=["Authorization", "Content-Type"],
+    )
 
 # Helper/demo endpoints below
 @app.get("/api")
