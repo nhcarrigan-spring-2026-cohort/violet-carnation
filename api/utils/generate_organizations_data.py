@@ -1,5 +1,6 @@
 import json
 import sqlite3
+import random
 
 from faker import Faker
 
@@ -23,6 +24,36 @@ def get_admin_users(conn: sqlite3.Connection):
     return rows
 
 
+
+def generate_category():
+    # Return a random category
+    event_categories = [
+        "Animal Welfare",
+        "Hunger and Food Security",
+        "Homelessness and Housing",
+        "Education & Tutoring",
+        "Youth and Children",
+        "Senior Care and Support",
+        "Health & Medical",
+        "Environmental Conservation",
+        "Community Development",
+        "Arts & Culture",
+        "Disaster Relief",
+        "Veterans & Military Families",
+        "Immigrants & Refugees",
+        "Disability Services",
+        "Mental Health & Crisis Support",
+        "Advocacy & Human Rights",
+        "Faith-Based Services",
+        "Sports & Recreation",
+        "Job Training & Employment",
+        "Technology & Digital Literacy",
+    ]
+    
+    return random.choice(event_categories)
+
+
+
 def generate_organizations_data(org_list_file, conn: sqlite3.Connection):
     """Generate fake data for Organizations table"""
     admin_users = get_admin_users(conn)  # user_id, organization_id, permission_level
@@ -40,6 +71,6 @@ def generate_organizations_data(org_list_file, conn: sqlite3.Connection):
         name = orgs_list[k]["name"]
         description = fake.text(max_nb_chars=100)
 
-        orgs_data.append((created_by_user_id, name, description))
+        orgs_data.append((created_by_user_id, name, description, generate_category()))
 
     return orgs_data
