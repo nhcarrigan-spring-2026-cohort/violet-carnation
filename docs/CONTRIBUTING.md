@@ -156,7 +156,7 @@ You _should_ see `(.venv)` appear in your terminal prompt, to see how to verify 
 4. **Run development server:**
 
 **note** first time setup you should seed the database, you don't have to but it will make testing easier.
-Skip down to "Seeding the Database" section below for instructions on how to do that, then come back here to run the
+Skip down to [Seeding the Database](#seeding-the-database) section below for instructions on how to do that, then come back here to run the
 backend api.
 
 ```bash
@@ -241,8 +241,65 @@ Then use the above populate db command to re-initialize the database and seed it
 
 ## Project Structure
 
-- :warning: Structure is being finalized. Current discussion: client/api at root vs api nested in client.
-- This section will be updated once decided.
+## Project Structure
+
+```
+violet-carnation/
+├── .github/              # GitHub templates and workflows
+│   ├── ci.yml
+│   ├── pull_request_template.md
+│   └── ISSUE_TEMPLATE/
+├── api/                  # Backend (FastAPI)
+│   ├── models/           # Database models
+│   ├── routes/           # API route handlers
+│   ├── utils/            # Helper functions, DB utilities
+│   ├── main.py           # FastAPI application entry
+│   └── requirements.txt  # Python dependencies
+├── client/               # Frontend (Next.js)
+│   ├── app/              # Next.js App Router
+│   │   ├── (auth)        # Auth container
+│   │   │   ├── signin/   # /signin - Authentication
+│   │   │   └── signup/   # /signup - Registration
+│   │   ├── page.tsx      # Home/landing page
+│   │   ├── layout.tsx    # Root layout (NavBar, global styles)
+│   │   ├── events/       # Event browsing & management
+│   │   ├── organizations/          # Organization management
+│   │   ├── profile/      # User profile & settings
+│   │
+│   ├── components/       # Reusable React components
+│   │   ├── ui/           # shadcn UI components
+│   │   ├── FilterModal.tsx
+│   │   ├── ect
+│   ├── models/           # TypeScript interfaces & types
+│   │   ├── event.ts
+│   │   ├── user.ts
+│   │   ├── ect
+│   ├── package.json      # Node.js dependencies
+│   └── next.config.ts    # Next.js configuration
+└── docs/                 # Documentation
+    ├── CONTRIBUTING.md
+    └── RESOURCES.md
+```
+
+### Key Directories
+
+**Frontend (`/client`):**
+
+- `app/` - Next.js pages and routing (App Router pattern)
+- `components/` - Reusable React components
+- `models/` - TypeScript types and interfaces shared across app
+
+**Backend (`/api`):**
+
+- `models/` - Pydantic models for request/response validation
+- `routes/` - API endpoints organized by resource
+- `utils/` - Database connection, auth helpers, seed scripts
+
+**Development:**
+
+- Frontend runs on `http://localhost:3000`
+- Backend runs on `http://localhost:8000`
+- Both should run simultaneously in separate terminals
 
 ## Development Workflow
 
@@ -422,4 +479,12 @@ Questions? Contact:
 
 ## Troubleshooting
 
-> **Note:** This section will be updated as common issues are discovered during development.
+### Still Having Issues?
+
+Having issues? Check our [Troubleshooting Guide](./TROUBLESHOOTING.md) for common problems and solutions.
+
+If your issue isn't covered:
+
+1. Search closed GitHub issues
+2. Ask in Discord #violet-carnation
+3. Tag `@bradtaniguchi` or `@sylkylacole`

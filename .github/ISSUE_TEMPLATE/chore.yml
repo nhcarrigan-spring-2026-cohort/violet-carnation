@@ -1,0 +1,47 @@
+name: "🧹 Chore"
+description: Maintenance, cleanup, or code improvements
+title: "chore: <brief description>"
+labels: ["chore"]
+body:
+  - type: dropdown
+    id: type
+    attributes:
+      label: "Type"
+      description: What kind of chore is this?
+      options:
+        - Documentation
+        - Refactor
+        - Code cleanup
+        - Typo fix
+        - Dependency update
+        - Configuration
+        - Other
+    validations:
+      required: true
+
+  - type: textarea
+    id: description
+    attributes:
+      label: "Description"
+      description: What needs to be done?
+      placeholder: "Update CONTRIBUTING.md with new component structure..."
+    validations:
+      required: true
+
+  - type: textarea
+    id: motivation
+    attributes:
+      label: "Why?"
+      description: Why is this needed?
+      placeholder: "Component structure changed, docs are outdated..."
+    validations:
+      required: false
+
+  - type: textarea
+    id: context
+    attributes:
+      label: "Additional Context"
+      description: Related issues, files affected, etc.
+      placeholder: "Related to #123, affects /client/components/..."
+    validations:
+      required: false

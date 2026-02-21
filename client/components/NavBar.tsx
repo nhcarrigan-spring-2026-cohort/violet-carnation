@@ -10,4 +10,10 @@ export function Navbar() {
   )
 }
 
+ Tiffany
+
+const NavBar = () => {
+  return <div>NavBar</div>;
+};
+ main
 

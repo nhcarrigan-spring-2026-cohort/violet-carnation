@@ -4,7 +4,7 @@ from fastapi import APIRouter, Depends, HTTPException, status
 
 from db import get_connection
 from models import User
-from models.user import Availability, UserIn
+from models.user import Availability, UserIn, UserUpdate
 
 router = APIRouter(prefix="/users", tags=["users"])
 
@@ -82,7 +82,7 @@ def get_user(user_id: int, conn: sqlite3.Connection = Depends(get_connection)):
     """
     row = conn.execute(
         "SELECT user_id, email, first_name, last_name, availability FROM users WHERE user_id = ?",
-        (user_id,),
+        (user_id),
     ).fetchone()
     if row is None:
         raise HTTPException(
@@ -121,4 +121,78 @@ def create_user(payload: UserIn, conn: sqlite3.Connection = Depends(get_connecti
         first_name=payload.first_name,
         last_name=payload.last_name,
         availability=payload.availability,
+    )
+
+
+## All the users can modify the data. No permission level check is implemented yet
+@router.put(
+    "/{user_id}",
+    response_model=User,
+    summary="Update the user's profile fields",
+)
+def update_user(
+    user_id: int,
+    payload: UserUpdate,
+    conn: sqlite3.Connection = Depends(get_connection),
+):
+    """
+    # Update user profile fields.
+
+    ### TODO: implement restriction to users admin.
+
+    :param **user_id**: the user to update \n
+    :type **user_id**: *int* \n
+    :param **payload**: updated user data \n
+    :type **payload**: *UserUpdate* \n
+    :param **conn**: the connection to the database \n
+    :type **conn**: *sqlite3.Connection* \n
+    """
+    row = conn.execute(
+        """
+        SELECT user_id, email, first_name, last_name, availability
+        FROM users
+        WHERE user_id = ?
+        """,
+        (user_id,),
+    ).fetchone()
+
+    if row is None:
+        raise HTTPException(
+            status_code=status.HTTP_404_NOT_FOUND, detail="User not found"
+        )
+
+    updated_first_name = (
+        payload.first_name if payload.first_name is not None else row["first_name"]
+    )
+    updated_last_name = (
+        payload.last_name if payload.last_name is not None else row["last_name"]
+    )
+
+    updated_availability = (
+        payload.availability
+        if payload.availability is not None
+        else row["availability"]
+    )
+
+    conn.execute(
+        """
+        UPDATE users
+        SET first_name = ?, last_name = ?, availability = ?
+        WHERE user_id = ?
+        """,
+        (
+            updated_first_name,
+            updated_last_name,
+            updated_availability,
+            user_id,
+        ),
+    )
+    conn.commit()
+
+    return User(
+        user_id=row["user_id"],
+        first_name=updated_first_name,
+        last_name=updated_last_name,
+        email=row["email"],
+        availability=updated_availability,
     )
