@@ -1,4 +1,6 @@
-import React from "react";
+import { Badge } from "@/components/ui/badge";
+import { Button } from "@/components/ui/button";
+import { SlidersHorizontal } from "lucide-react";
 
 const FilterButton = ({
   onClick,
@@ -7,10 +9,15 @@ const FilterButton = ({
   onClick: () => void;
   activeCount: number;
 }) => (
-  <button onClick={onClick} className="flex items-center gap-2">
-    🔍 Filters
-    {activeCount > 0 && <span className="badge">{activeCount} active</span>}
-  </button>
+  <Button variant="outline" onClick={onClick} className="flex items-center gap-2">
+    <SlidersHorizontal className="h-4 w-4" />
+    Filters
+    {activeCount > 0 && (
+      <Badge variant="secondary" className="ml-1">
+        {activeCount}
+      </Badge>
+    )}
+  </Button>
 );
 
 export default FilterButton;

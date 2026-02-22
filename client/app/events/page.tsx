@@ -68,12 +68,17 @@ const EventsPage = () => {
   return (
     <div>
       <NavBar />
-      <FilterButton
-        onClick={() => setShowFilters(true)}
-        activeCount={getActiveFilterCount(filters)}
-      />
-      <ActiveFilters filters={filters} onRemove={handleRemoveFilter} />
-      <EventCarousel events={events} />
+      <main className="mx-auto max-w-5xl px-4 py-6 flex flex-col gap-4">
+        <div className="flex items-center justify-between">
+          <h1 className="text-2xl font-bold">Events</h1>
+          <FilterButton
+            onClick={() => setShowFilters(true)}
+            activeCount={getActiveFilterCount(filters)}
+          />
+        </div>
+        <ActiveFilters filters={filters} onRemove={handleRemoveFilter} />
+        <EventCarousel events={events} />
+      </main>
       {showFilters && (
         <FilterModal
           onClose={() => setShowFilters(false)}

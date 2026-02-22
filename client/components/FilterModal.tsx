@@ -1,8 +1,25 @@
 "use client";
 
+import { Button } from "@/components/ui/button";
+import { Checkbox } from "@/components/ui/checkbox";
+import { Label } from "@/components/ui/label";
+import { RadioGroup, RadioGroupItem } from "@/components/ui/radio-group";
+import {
+  Sheet,
+  SheetContent,
+  SheetFooter,
+  SheetHeader,
+  SheetTitle,
+} from "@/components/ui/sheet";
 import { Filters, SCOPE_OPTIONS } from "@/models/filters";
 import { AVAILABILITY_OPTIONS, Availability } from "@/models/user";
 import { useState } from "react";
+
+const SCOPE_LABELS: Record<string, string> = {
+  all: "All Events",
+  myOrgs: "My Organizations",
+  admin: "Admin Only",
+};
 
 interface FilterModalProps {
   onClose: () => void;
@@ -31,57 +48,62 @@ const FilterModal = ({ onClose, filters, onApply }: FilterModalProps) => {
   };
 
   return (
-    <div className="modal-overlay" onClick={onClose}>
-      <div className="modal-content" onClick={(e) => e.stopPropagation()}>
-        <h2>Filters</h2>
+    <Sheet open onOpenChange={(open) => !open && onClose()}>
+      <SheetContent side="right" className="w-80">
+        <SheetHeader>
+          <SheetTitle>Filters</SheetTitle>
+        </SheetHeader>
 
-        {/* Scope */}
-        <fieldset>
-          <legend>Scope</legend>
-          {SCOPE_OPTIONS.map((option) => (
-            <label key={option}>
-              <input
-                type="radio"
-                checked={localFilters.scope === option}
-                onChange={() => setLocalFilters({ ...localFilters, scope: option })}
-              />
-              {option === "myOrgs"
-                ? "My Organizations"
-                : option === "admin"
-                  ? "Admin Only"
-                  : "All Events"}
-            </label>
-          ))}
-        </fieldset>
+        <div className="flex flex-col gap-6 mt-6 px-1">
+          {/* Scope */}
+          <div className="flex flex-col gap-3">
+            <p className="text-sm font-semibold">Scope</p>
+            <RadioGroup
+              value={localFilters.scope}
+              onValueChange={(value) =>
+                setLocalFilters({ ...localFilters, scope: value as Filters["scope"] })
+              }
+              className="flex flex-col gap-2"
+            >
+              {SCOPE_OPTIONS.map((option) => (
+                <div key={option} className="flex items-center gap-2">
+                  <RadioGroupItem value={option} id={`scope-${option}`} />
+                  <Label htmlFor={`scope-${option}`}>{SCOPE_LABELS[option]}</Label>
+                </div>
+              ))}
+            </RadioGroup>
+          </div>
 
-        {/* TODO: Category filter removed until API supports it */}
+          {/* TODO: Category filter removed until API supports it */}
 
-        {/* Availability */}
-        <fieldset>
-          <legend>Availability</legend>
-          {AVAILABILITY_OPTIONS.map((option) => (
-            <label key={option}>
-              <input
-                type="checkbox"
-                checked={localFilters.availability?.includes(option) || false}
-                onChange={() => handleAvailabilityToggle(option)}
-              />
-              {option === "Mornings"
-                ? "Mornings"
-                : option === "Afternoons"
-                  ? "Afternoons"
-                  : option === "Evenings"
-                    ? "Evenings"
-                    : option === "Weekends"
-                      ? "Weekends"
-                      : "Flexible"}
-            </label>
-          ))}
-        </fieldset>
-        <button onClick={() => onApply(localFilters)}>Apply</button>
-        <button onClick={onClose}>Cancel</button>
-      </div>
-    </div>
+          {/* Availability */}
+          <div className="flex flex-col gap-3">
+            <p className="text-sm font-semibold">Availability</p>
+            <div className="flex flex-col gap-2">
+              {AVAILABILITY_OPTIONS.map((option) => (
+                <div key={option} className="flex items-center gap-2">
+                  <Checkbox
+                    id={`avail-${option}`}
+                    checked={localFilters.availability?.includes(option) || false}
+                    onCheckedChange={() => handleAvailabilityToggle(option)}
+                  />
+                  <Label htmlFor={`avail-${option}`}>{option}</Label>
+                </div>
+              ))}
+            </div>
+          </div>
+        </div>
+
+        <SheetFooter className="mt-8 flex gap-2">
+          <Button variant="outline" onClick={onClose} className="flex-1">
+            Cancel
+          </Button>
+          <Button onClick={() => onApply(localFilters)} className="flex-1">
+            Apply
+          </Button>
+        </SheetFooter>
+      </SheetContent>
+    </Sheet>
   );
 };
 
