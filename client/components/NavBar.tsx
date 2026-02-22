@@ -1,8 +1,11 @@
 "use client";
-import React from "react";
 
-const NavBar = () => {
-  return <div>NavBar</div>;
-};
+import { ModeToggle } from "@/components/ui/mode-toggle";
 
-export default NavBar;
+export default function Navbar() {
+  return (
+    <div className="flex justify-end p-4">
+      <ModeToggle />
+    </div>
+  );
+}
