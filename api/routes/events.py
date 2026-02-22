@@ -2,6 +2,7 @@ import sqlite3
 from typing import Optional
 
 from fastapi import APIRouter, Depends, HTTPException, status
+
 from db import get_connection
 from models import Event, EventIn, EventUpdate
 
@@ -13,15 +14,13 @@ def list_events(
     # TODO: improve type
     begin_time: Optional[str] = None,
     end_time: Optional[str] = None,
-
     begin_date: Optional[str] = None,
     end_date: Optional[str] = None,
-
     is_weekday: Optional[bool] = None,
     # TODO: add these later
     # locale: Optional[str] = None,
     # timezone: Optional[str] = None,
-    conn=Depends(get_connection)
+    conn=Depends(get_connection),
 ):
     """
     Get a list of all events with optional filtering by date/time and availability matching.
@@ -44,36 +43,38 @@ def list_events(
     """
     query = "SELECT id, name, description, location, date_time, organization_id FROM events WHERE 1=1"
     params = []
-    
+
     # Apply time-based filtering - compares only the time portion, ignoring date
     if begin_time is not None:
         query += " AND time(date_time) >= time(?)"
         params.append(begin_time)
-    
+
     if end_time is not None:
         query += " AND time(date_time) <= time(?)"
         params.append(end_time)
-    
+
     # Apply date-based filtering
     # Note: This assumes date_time column might contain date information or we use SQLite date functions
     if begin_date is not None:
         query += " AND date(date_time) >= date(?)"
         params.append(begin_date)
-    
+
     if end_date is not None:
         query += " AND date(date_time) <= date(?)"
         params.append(end_date)
-    
+
     # Apply weekday filtering using SQLite's strftime function
     # strftime('%w', date) returns 0-6 where 0=Sunday, 6=Saturday
     if is_weekday is not None:
         if is_weekday:
             # Weekdays: Monday(1) through Friday(5)
-            query += " AND CAST(strftime('%w', date(date_time)) AS INTEGER) BETWEEN 1 AND 5"
+            query += (
+                " AND CAST(strftime('%w', date(date_time)) AS INTEGER) BETWEEN 1 AND 5"
+            )
         else:
             # Weekends: Saturday(6) and Sunday(0)
             query += " AND (strftime('%w', date(date_time)) IN ('0', '6'))"
-    
+
     query += " ORDER BY id"
 
     rows = conn.execute(query, params).fetchall()
@@ -187,7 +188,9 @@ def update_event(
     updated_location = (
         payload.location if payload.location is not None else row["location"]
     )
-    updated_date_time = payload.date_time if payload.date_time is not None else row["date_time"]
+    updated_date_time = (
+        payload.date_time if payload.date_time is not None else row["date_time"]
+    )
     updated_organization_id = (
         payload.organization_id
         if payload.organization_id is not None
