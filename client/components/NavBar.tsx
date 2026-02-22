@@ -2,7 +2,7 @@
 
 import { ModeToggle } from "@/components/ui/mode-toggle";
 
-export function Navbar() {
+export default function Navbar() {
   return (
     <div className="flex justify-end p-4">
       <ModeToggle />
