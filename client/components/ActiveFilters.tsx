@@ -1,4 +1,3 @@
-import React from "react";
 import { Filters } from "@/models/filters";
 
 interface ActiveFiltersProps {
@@ -11,9 +10,6 @@ const ActiveFilters = ({ filters, onRemove }: ActiveFiltersProps) => {
 
   if (filters.scope !== "all") {
     activeFilters.push({ key: "scope", label: `Scope: ${filters.scope}` });
-  }
-  if (filters.category) {
-    activeFilters.push({ key: "category", label: filters.category });
   }
 
   if (filters.availability) {

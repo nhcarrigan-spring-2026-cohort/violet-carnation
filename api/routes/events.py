@@ -1,7 +1,7 @@
 import sqlite3
-from typing import Optional
+from typing import List, Optional
 
-from fastapi import APIRouter, Depends, HTTPException, status
+from fastapi import APIRouter, Depends, HTTPException, Query, status
 
 from db import get_connection
 from models import Event, EventIn, EventUpdate
@@ -17,6 +17,8 @@ def list_events(
     begin_date: Optional[str] = None,
     end_date: Optional[str] = None,
     is_weekday: Optional[bool] = None,
+    organization_id: Optional[List[int]] = Query(default=None),
+    availability: Optional[List[str]] = Query(default=None),
     # TODO: add these later
     # locale: Optional[str] = None,
     # timezone: Optional[str] = None,
@@ -24,7 +26,7 @@ def list_events(
 ):
     """
     Get a list of all events with optional filtering by date/time and availability matching.
-    Supports filtering by time range, date range, and weekday/weekend.
+    Supports filtering by time range, date range, weekday/weekend, and organization.
 
     **note** time values must be in the format 'HH:MM' a value such as "8:00" will not work properly, it should be "08:00"
 
@@ -38,6 +40,10 @@ def list_events(
     :type end_date: Optional[str]
     :param is_weekday: filter events by weekday (True for Monday-Friday, False for Saturday-Sunday). If None, no weekday filtering is applied
     :type is_weekday: Optional[bool]
+    :param organization_id: one or more organization IDs to filter by. Only events belonging to these organizations will be returned. If omitted, events from all organizations are returned
+    :type organization_id: Optional[List[int]]
+    :param availability: one or more availability options to filter by. Accepts 'Mornings' (06:00-11:59), 'Afternoons' (12:00-16:59), 'Evenings' (17:00-21:59), 'Weekends', or 'Flexible' (no restriction). Multiple values are combined with OR logic. If not provided or 'Flexible' is included, no availability filtering is applied
+    :type availability: Optional[List[str]]
     :param conn: the connection to the database
     :type conn: sqlite3.Connection
     """
@@ -74,6 +80,36 @@ def list_events(
         else:
             # Weekends: Saturday(6) and Sunday(0)
             query += " AND (strftime('%w', date(date_time)) IN ('0', '6'))"
+
+    # Filter by one or more organization IDs
+    if organization_id:
+        placeholders = ",".join("?" * len(organization_id))
+        query += f" AND organization_id IN ({placeholders})"
+        params.extend(organization_id)
+
+    # Filter by availability options using OR logic across all selected options.
+    # 'Flexible' means no restriction — skip filtering entirely if present.
+    if availability and "Flexible" not in availability:
+        availability_conditions = []
+        for option in availability:
+            if option == "Weekends":
+                availability_conditions.append(
+                    "(strftime('%w', date(date_time)) IN ('0', '6'))"
+                )
+            elif option == "Mornings":
+                availability_conditions.append(
+                    "(time(date_time) BETWEEN '06:00' AND '11:59')"
+                )
+            elif option == "Afternoons":
+                availability_conditions.append(
+                    "(time(date_time) BETWEEN '12:00' AND '16:59')"
+                )
+            elif option == "Evenings":
+                availability_conditions.append(
+                    "(time(date_time) BETWEEN '17:00' AND '21:59')"
+                )
+        if availability_conditions:
+            query += " AND (" + " OR ".join(availability_conditions) + ")"
 
     query += " ORDER BY id"
 

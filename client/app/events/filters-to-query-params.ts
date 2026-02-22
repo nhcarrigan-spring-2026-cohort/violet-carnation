@@ -1,30 +1,40 @@
 import { TIME_OF_DAY_RANGES, TimeOfDay } from "@/models/event";
 import { Filters } from "@/models/filters";
+import { Role } from "@/models/roles";
 
 /**
  * Convert client-side Filters state into URLSearchParams for the /api/events endpoint.
  *
- * The API supports: begin_time, end_time, begin_date, end_date, is_weekday.
- * The API applies all params with AND logic, but the client's availability
- * filter uses OR logic (any matching availability includes the event).
- *
- * Mapping strategy:
- * - When only time-of-day options are selected (Mornings/Afternoons/Evenings),
- *   compute the broadest time range (min start → max end) as begin_time/end_time.
- *   If the range is non-contiguous (e.g. Mornings+Evenings skipping Afternoons),
- *   the server will overfetch and client-side filtering refines the result.
- * - When only "Weekends" is selected, map to is_weekday=false.
- * - When both weekends AND time-of-day options are selected, we cannot express
- *   the OR semantics server-side (API would AND them). In this case we skip
- *   availability query params entirely and rely on client-side filtering.
- * - "Flexible" is a no-op (no server-side filtering).
- * - scope and category are not supported by the API and remain client-side only.
+ * API filter support:
+ * - scope     → organization_id (one per org derived from userRoles; "all" sends none)
+ * - availability:
+ *   - Weekends only             → is_weekday=false
+ *   - Time-of-day only          → begin_time/end_time (broadest range; client refines non-contiguous)
+ *   - Weekends + time-of-day    → no params sent; client-side filtering handles it (OR can't be expressed)
+ *   - Flexible                  → no-op
+ * - category  → NOT YET SUPPORTED by the API; removed from filters for now
  *
  * @param filters - The current filter state from the UI
+ * @param userRoles - The current user's roles, used to resolve scope into org IDs
  * @returns URLSearchParams to append to the /api/events request
  */
-export function filtersToQueryParams(filters: Filters): URLSearchParams {
+export function filtersToQueryParams(
+  filters: Filters,
+  userRoles: Role[] = [],
+): URLSearchParams {
   const params = new URLSearchParams();
+
+  // Map scope to organization_id query params
+  if (filters.scope === "myOrgs") {
+    userRoles
+      .map((r) => r.organization_id)
+      .forEach((id) => params.append("organization_id", String(id)));
+  } else if (filters.scope === "admin") {
+    userRoles
+      .filter((r) => r.permission_level === "admin")
+      .map((r) => r.organization_id)
+      .forEach((id) => params.append("organization_id", String(id)));
+  }
 
   if (!filters.availability || filters.availability.length === 0) {
     return params;

@@ -1,4 +1,5 @@
 import { Filters } from "@/models/filters";
+import { Role } from "@/models/roles";
 import { filtersToQueryParams } from "./filters-to-query-params";
 
 describe("filtersToQueryParams", () => {
@@ -6,7 +7,6 @@ describe("filtersToQueryParams", () => {
     it("should return empty params when availability is null", () => {
       const filters: Filters = {
         scope: "all",
-        category: null,
         availability: null,
       };
 
@@ -18,7 +18,6 @@ describe("filtersToQueryParams", () => {
     it("should return empty params when availability is empty array", () => {
       const filters: Filters = {
         scope: "all",
-        category: null,
         availability: [],
       };
 
@@ -28,31 +27,60 @@ describe("filtersToQueryParams", () => {
     });
   });
 
-  describe("scope and category are ignored (not supported by API)", () => {
-    it("should not include scope params even when scope is set", () => {
-      const filters: Filters = {
-        scope: "myOrgs",
-        category: null,
-        availability: null,
-      };
+  // category filter removed from the Filters model until API support is added.
+  // describe("category is ignored (not supported by API)", () => { ... });
 
-      const params = filtersToQueryParams(filters);
+  describe("scope maps to organization_id params", () => {
+    const roles: Role[] = [
+      { user_id: 1, organization_id: 10, permission_level: "volunteer" },
+      { user_id: 1, organization_id: 20, permission_level: "admin" },
+      { user_id: 1, organization_id: 30, permission_level: "admin" },
+    ];
 
-      expect(params.has("scope")).toBe(false);
+    it("should produce no organization_id params when scope is 'all'", () => {
+      const filters: Filters = { scope: "all", availability: null };
+
+      const params = filtersToQueryParams(filters, roles);
+
+      expect(params.has("organization_id")).toBe(false);
+    });
+
+    it("should produce organization_id for every role when scope is 'myOrgs'", () => {
+      const filters: Filters = { scope: "myOrgs", availability: null };
+
+      const params = filtersToQueryParams(filters, roles);
+
+      expect(params.getAll("organization_id")).toEqual(["10", "20", "30"]);
+    });
+
+    it("should produce organization_id only for admin roles when scope is 'admin'", () => {
+      const filters: Filters = { scope: "admin", availability: null };
+
+      const params = filtersToQueryParams(filters, roles);
+
+      expect(params.getAll("organization_id")).toEqual(["20", "30"]);
+    });
+
+    it("should produce no organization_id params when scope is 'myOrgs' but user has no roles", () => {
+      const filters: Filters = { scope: "myOrgs", availability: null };
+
+      const params = filtersToQueryParams(filters, []);
+
+      expect(params.has("organization_id")).toBe(false);
       expect(params.toString()).toBe("");
     });
 
-    it("should not include category params even when category is set", () => {
+    it("should combine organization_id with availability params", () => {
       const filters: Filters = {
-        scope: "all",
-        category: "Education & Tutoring",
-        availability: null,
+        scope: "myOrgs",
+        availability: ["Mornings"],
       };
 
-      const params = filtersToQueryParams(filters);
+      const params = filtersToQueryParams(filters, roles);
 
-      expect(params.has("category")).toBe(false);
-      expect(params.toString()).toBe("");
+      expect(params.getAll("organization_id")).toEqual(["10", "20", "30"]);
+      expect(params.get("begin_time")).toBe("06:00");
+      expect(params.get("end_time")).toBe("11:59");
     });
   });
 
@@ -60,7 +88,6 @@ describe("filtersToQueryParams", () => {
     it("should map Mornings to begin_time=06:00 and end_time=11:59", () => {
       const filters: Filters = {
         scope: "all",
-        category: null,
         availability: ["Mornings"],
       };
 
@@ -74,7 +101,6 @@ describe("filtersToQueryParams", () => {
     it("should map Afternoons to begin_time=12:00 and end_time=16:59", () => {
       const filters: Filters = {
         scope: "all",
-        category: null,
         availability: ["Afternoons"],
       };
 
@@ -87,7 +113,6 @@ describe("filtersToQueryParams", () => {
     it("should map Evenings to begin_time=17:00 and end_time=21:59", () => {
       const filters: Filters = {
         scope: "all",
-        category: null,
         availability: ["Evenings"],
       };
 
@@ -102,7 +127,6 @@ describe("filtersToQueryParams", () => {
     it("should map Weekends to is_weekday=false", () => {
       const filters: Filters = {
         scope: "all",
-        category: null,
         availability: ["Weekends"],
       };
 
@@ -118,7 +142,6 @@ describe("filtersToQueryParams", () => {
     it("should use broadest range for Mornings + Evenings (06:00-21:59)", () => {
       const filters: Filters = {
         scope: "all",
-        category: null,
         availability: ["Mornings", "Evenings"],
       };
 
@@ -132,7 +155,6 @@ describe("filtersToQueryParams", () => {
     it("should use broadest range for Mornings + Afternoons (06:00-16:59)", () => {
       const filters: Filters = {
         scope: "all",
-        category: null,
         availability: ["Mornings", "Afternoons"],
       };
 
@@ -145,7 +167,6 @@ describe("filtersToQueryParams", () => {
     it("should use broadest range for all three time slots (06:00-21:59)", () => {
       const filters: Filters = {
         scope: "all",
-        category: null,
         availability: ["Mornings", "Afternoons", "Evenings"],
       };
 
@@ -158,7 +179,6 @@ describe("filtersToQueryParams", () => {
     it("should use broadest range for Afternoons + Evenings (12:00-21:59)", () => {
       const filters: Filters = {
         scope: "all",
-        category: null,
         availability: ["Afternoons", "Evenings"],
       };
 
@@ -173,7 +193,6 @@ describe("filtersToQueryParams", () => {
     it("should return empty params for Weekends + Mornings (can't express OR)", () => {
       const filters: Filters = {
         scope: "all",
-        category: null,
         availability: ["Weekends", "Mornings"],
       };
 
@@ -185,7 +204,6 @@ describe("filtersToQueryParams", () => {
     it("should return empty params for Weekends + Evenings (can't express OR)", () => {
       const filters: Filters = {
         scope: "all",
-        category: null,
         availability: ["Weekends", "Evenings"],
       };
 
@@ -197,7 +215,6 @@ describe("filtersToQueryParams", () => {
     it("should return empty params for Weekends + multiple time slots", () => {
       const filters: Filters = {
         scope: "all",
-        category: null,
         availability: ["Weekends", "Mornings", "Evenings"],
       };
 
@@ -211,7 +228,6 @@ describe("filtersToQueryParams", () => {
     it("should return empty params when Flexible is selected alone", () => {
       const filters: Filters = {
         scope: "all",
-        category: null,
         availability: ["Flexible"],
       };
 
@@ -223,7 +239,6 @@ describe("filtersToQueryParams", () => {
     it("should return empty params when Flexible is selected with other options", () => {
       const filters: Filters = {
         scope: "all",
-        category: null,
         availability: ["Flexible", "Mornings"],
       };
 
@@ -235,7 +250,6 @@ describe("filtersToQueryParams", () => {
     it("should return empty params when Flexible is selected with Weekends", () => {
       const filters: Filters = {
         scope: "all",
-        category: null,
         availability: ["Flexible", "Weekends"],
       };
 
@@ -245,11 +259,10 @@ describe("filtersToQueryParams", () => {
     });
   });
 
-  describe("combined with scope and category (should only produce availability params)", () => {
-    it("should produce time params even when scope and category are set", () => {
+  describe("combined with scope (should only produce availability params)", () => {
+    it("should produce time params even when scope is set", () => {
       const filters: Filters = {
         scope: "admin",
-        category: "Environmental Conservation",
         availability: ["Mornings"],
       };
 
@@ -258,13 +271,11 @@ describe("filtersToQueryParams", () => {
       expect(params.get("begin_time")).toBe("06:00");
       expect(params.get("end_time")).toBe("11:59");
       expect(params.has("scope")).toBe(false);
-      expect(params.has("category")).toBe(false);
     });
 
     it("should produce weekend params even when scope is set", () => {
       const filters: Filters = {
         scope: "myOrgs",
-        category: null,
         availability: ["Weekends"],
       };
 

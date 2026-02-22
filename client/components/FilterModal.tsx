@@ -1,10 +1,8 @@
 "use client";
 
-import React, { useState } from "react";
-import { Filters } from "@/models/filters";
-import { EVENT_CATEGORIES, EventCategory } from "@/models/eventCategories";
+import { Filters, SCOPE_OPTIONS } from "@/models/filters";
 import { AVAILABILITY_OPTIONS, Availability } from "@/models/user";
-import { SCOPE_OPTIONS } from "@/models/filters";
+import { useState } from "react";
 
 interface FilterModalProps {
   onClose: () => void;
@@ -56,27 +54,7 @@ const FilterModal = ({ onClose, filters, onApply }: FilterModalProps) => {
           ))}
         </fieldset>
 
-        {/* Category */}
-        <fieldset>
-          <legend>Category</legend>
-          <select
-            value={localFilters.category || ""}
-            onChange={(e) => {
-              const value = e.target.value;
-              setLocalFilters({
-                ...localFilters,
-                category: value ? (value as EventCategory) : null,
-              });
-            }}
-          >
-            <option value="">All Categories</option>
-            {EVENT_CATEGORIES.map((cat) => (
-              <option key={cat} value={cat}>
-                {cat}
-              </option>
-            ))}
-          </select>
-        </fieldset>
+        {/* TODO: Category filter removed until API supports it */}
 
         {/* Availability */}
         <fieldset>

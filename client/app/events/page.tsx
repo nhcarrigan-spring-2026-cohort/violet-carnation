@@ -9,7 +9,6 @@ import EventCarousel from "../../components/EventCarousel";
 import FilterButton from "../../components/FilterButton";
 import FilterModal from "../../components/FilterModal";
 import NavBar from "../../components/NavBar";
-import { applyEventFilters } from "./apply-event-filters";
 import { filtersToQueryParams } from "./filters-to-query-params";
 
 // Helper functions
@@ -17,7 +16,6 @@ import { filtersToQueryParams } from "./filters-to-query-params";
 function getActiveFilterCount(filters: Filters) {
   let count = 0;
   if (filters.scope !== "all") count++;
-  if (filters.category) count++;
   if (filters.availability) count++;
   return count;
 }
@@ -36,12 +34,11 @@ const EventsPage = () => {
   const [showFilters, setShowFilters] = useState(false);
   const [filters, setFilters] = useState<Filters>({
     scope: "all",
-    category: null,
     availability: null,
   });
 
   const fetchEvents = useCallback(() => {
-    const queryParams = filtersToQueryParams(filters);
+    const queryParams = filtersToQueryParams(filters, userRoles);
     const queryString = queryParams.toString();
     const eventsUrl = queryString ? `/api/events?${queryString}` : "/api/events";
 
@@ -49,7 +46,7 @@ const EventsPage = () => {
       .then((res) => res.json())
       .then((eventsData) => setEvents(eventsData))
       .catch((error) => console.error("Error fetching events:", error));
-  }, [filters]);
+  }, [filters, userRoles]);
 
   useEffect(() => {
     fetchEvents();
@@ -64,10 +61,6 @@ const EventsPage = () => {
       .catch((error) => console.error("Error fetching roles:", error));
   }, []);
 
-  // Client-side filtering for scope, category, and availability edge cases
-  // the API can't express (e.g. "Weekends OR Mornings" with AND semantics)
-  const filteredEvents = applyEventFilters(events, filters, userRoles);
-
   const handleRemoveFilter = (key: string) => {
     setFilters(removeFilter(filters, key));
   };
@@ -80,7 +73,7 @@ const EventsPage = () => {
         activeCount={getActiveFilterCount(filters)}
       />
       <ActiveFilters filters={filters} onRemove={handleRemoveFilter} />
-      <EventCarousel events={filteredEvents} />
+      <EventCarousel events={events} />
       {showFilters && (
         <FilterModal
           onClose={() => setShowFilters(false)}
