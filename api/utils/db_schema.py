@@ -13,6 +13,7 @@ CREATE TABLE IF NOT EXISTS organizations (
     organization_id INTEGER PRIMARY KEY AUTOINCREMENT,
     name TEXT NOT NULL,
     description TEXT,
+    category TEXT,
     created_by_user_id INTEGER NOT NULL,
     FOREIGN KEY (created_by_user_id) REFERENCES users(user_id)
         ON UPDATE CASCADE

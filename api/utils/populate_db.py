@@ -5,6 +5,7 @@ from db_schema import DB_SCHEMA
 from insert_organizations_data import execute_insert_orgs_data
 from insert_roles_data import execute_insert_roles_data
 from insert_users_data import execute_insert_users_data
+from insert_events_data import execute_insert_events_data
 
 NUM_RECORDS = 100
 
@@ -28,6 +29,7 @@ if __name__ == "__main__":
         execute_insert_orgs_data(
             conn, cursor, "./utils/organizations_list.json"
         )  # Inside the function there is a list with organization names
+        execute_insert_events_data(conn, cursor)
     finally:
         conn.close()
         print("\nProcess complete. Connection close.\n")
