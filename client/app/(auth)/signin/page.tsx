@@ -3,8 +3,11 @@
 import { AuthCard } from "@/components/AuthCard";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
+import { useRouter } from "next/navigation";
 
 export default function SignInPage() {
+  const router = useRouter();
+  
   const handleSubmit = async (e: React.SubmitEvent<HTMLFormElement>) => {
     e.preventDefault();
     const formData = new FormData(e.currentTarget);
@@ -12,6 +15,10 @@ export default function SignInPage() {
       method: "POST",
       body: formData,
     });
+    
+    if (response.ok) {
+      router.push("/");
+    }
   };
 
   return (
