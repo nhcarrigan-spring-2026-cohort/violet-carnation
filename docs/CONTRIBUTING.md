@@ -153,7 +153,24 @@ You _should_ see `(.venv)` appear in your terminal prompt, to see how to verify 
   pip install -r requirements.txt
 ```
 
-4. **Run development server:**
+4. **Set up environment variables:**
+
+```bash
+  cp .env.example .env
+```
+
+Open `api/.env` and set values as needed. For local development the defaults
+work out of the box. For any non-development environment you **must** set
+`SECRET_KEY` to a long random secret and `ENV` to something other than
+`"development"` — the server will refuse to start otherwise.
+
+Generate a secure key with:
+
+```bash
+  python -c "import secrets; print(secrets.token_hex(32))"
+```
+
+5. **Run development server:**
 
 **note** first time setup you should seed the database, you don't have to but it will make testing easier.
 Skip down to [Seeding the Database](#seeding-the-database) section below for instructions on how to do that, then come back here to run the

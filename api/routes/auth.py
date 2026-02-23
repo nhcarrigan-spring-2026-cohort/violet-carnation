@@ -1,9 +1,11 @@
 import logging
+import os
 import sqlite3
 from datetime import timedelta
 
 import jwt
 from fastapi import APIRouter, Depends, HTTPException, status
+from fastapi.responses import JSONResponse
 from fastapi.security import OAuth2PasswordRequestForm
 
 from db import get_connection
@@ -22,6 +24,8 @@ from utils.security import (
 )
 
 router = APIRouter(prefix="/auth", tags=["auth"])
+
+_IS_PRODUCTION = os.environ.get("ENV", "development") != "development"
 
 
 @router.post(
@@ -108,7 +112,27 @@ def login(
         )
 
     token = create_access_token({"sub": str(user["user_id"])})
-    return {"access_token": token, "token_type": "bearer"}
+
+    response = JSONResponse(content={"access_token": token, "token_type": "bearer"})
+    response.set_cookie(
+        key="session",
+        value=token,
+        httponly=True,
+        samesite="lax",
+        secure=_IS_PRODUCTION,
+        path="/",
+    )
+    return response
+
+
+@router.post("/logout")
+def logout():
+    """
+    Clear the session cookie, effectively logging the user out.
+    """
+    response = JSONResponse(content={"message": "Logged out successfully"})
+    response.delete_cookie(key="session", path="/")
+    return response
 
 
 RESET_TOKEN_EXPIRE_MINUTES = 15
@@ -177,6 +201,18 @@ def reset_password(
     conn.commit()
 
     return {"message": "Password has been reset successfully"}
+
+
+@router.get("/me")
+def get_me(
+    current_user: dict = Depends(get_current_user),
+):
+    """
+    Return the currently authenticated user's profile.
+
+    Requires a valid session cookie or Bearer token.
+    """
+    return current_user
 
 
 @router.delete("/delete-account")
