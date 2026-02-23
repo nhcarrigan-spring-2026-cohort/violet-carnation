@@ -33,10 +33,12 @@
     "uvicorn",
     "venv"
   ],
-
   // auto approve these commands, this covers common usecases.
   "chat.tools.terminal.autoApprove": {
     "sqlite3": true,
-    "npx jest": true
+    "npx jest": true,
+    "npm": true,
+    "git": true,
+    "gh": true
   }
 }
