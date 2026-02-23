@@ -9,7 +9,7 @@ import type { Event } from "@/models/event";
 
 /**
  * Client component that fetches and displays personalised event recommendations
- * for the currently logged-in user (identified via the `user_id` cookie).
+ * for the currently logged-in user (identified via the auth session).
  *
  * - Not logged in → prompt to sign in
  * - Logged in, fetch in progress → loading indicator

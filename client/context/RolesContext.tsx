@@ -18,9 +18,6 @@ interface RolesContextValue {
    * Re-fetches and updates the roles for the given user.
    * Call this after login, role changes, or anywhere a fresh role list is needed.
    *
-   * TODO: Once authentication is implemented the userId parameter can be
-   * removed and the ID derived from the session token inside this function.
-   *
    * @param userId - The ID of the user whose roles to reload.
    */
   refreshRoles: (userId: number) => Promise<void>;

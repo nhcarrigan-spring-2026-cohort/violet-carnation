@@ -23,7 +23,6 @@ const CreateOrgPage = () => {
     setError(null);
     setSubmitting(true);
 
-    // TODO: Replace hardcoded fallback with authenticated user_id once auth is implemented.
     const userId = currentUserId ?? 1;
 
     try {

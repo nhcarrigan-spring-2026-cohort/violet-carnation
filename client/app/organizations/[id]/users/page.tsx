@@ -116,7 +116,6 @@ const OrgUsersPage = (props: PageProps) => {
   };
 
   const handleChangeRole = async (memberId: number, level: PermissionLevel) => {
-    // TODO: Replace hardcoded fallback with authenticated user_id once auth is implemented.
     const userId = currentUserId ?? 1;
     try {
       const res = await fetch(`/api/organization/${orgId}/users/${memberId}`, {
@@ -138,7 +137,6 @@ const OrgUsersPage = (props: PageProps) => {
   };
 
   const handleRemoveUser = async (memberId: number) => {
-    // TODO: Replace hardcoded fallback with authenticated user_id once auth is implemented.
     const userId = currentUserId ?? 1;
     try {
       const res = await fetch(

@@ -18,8 +18,6 @@ import { EVENT_CATEGORIES } from "@/models/eventCategories";
 import { AVAILABILITY_OPTIONS, type User } from "@/models/user";
 
 export default function ProfilePage() {
-  // TODO: Replace cookie-based userId lookup with a proper auth session once
-  // authentication is fully implemented (tracked as a separate task).
   const userId = useCurrentUserId();
 
   const [loading, setLoading] = useState(true);
