@@ -3,21 +3,28 @@
 import { AuthCard } from "@/components/AuthCard";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
-import { useRouter } from "next/navigation";
+import { useAuth } from "@/context/AuthContext";
+import { useRouter, useSearchParams } from "next/navigation";
+import { Suspense } from "react";
 
-export default function SignInPage() {
+function SignInForm() {
   const router = useRouter();
+  const searchParams = useSearchParams();
+  const { refresh } = useAuth();
 
-  const handleSubmit = async (e: React.SubmitEvent<HTMLFormElement>) => {
+  const handleSubmit = async (e: React.FormEvent<HTMLFormElement>) => {
     e.preventDefault();
     const formData = new FormData(e.currentTarget);
     const response = await fetch("/api/auth/login", {
       method: "POST",
+      credentials: "include",
       body: formData,
     });
 
     if (response.ok) {
-      router.push("/");
+      await refresh();
+      const next = searchParams.get("next") ?? "/";
+      router.push(next);
     }
   };
 
@@ -35,5 +42,13 @@ export default function SignInPage() {
       <Label htmlFor="password">Password</Label>
       <Input id="password" name="password" type="password" />
     </AuthCard>
+  );
+}
+
+export default function SignInPage() {
+  return (
+    <Suspense>
+      <SignInForm />
+    </Suspense>
   );
 }
