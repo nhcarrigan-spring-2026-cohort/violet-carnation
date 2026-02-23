@@ -71,6 +71,7 @@ const EditOrgPage = (props: PageProps) => {
       const res = await fetch(`/api/organization/${orgId}`, {
         method: "PUT",
         headers: { "Content-Type": "application/json" },
+        credentials: "include",
         body: JSON.stringify({
           name,
           description: description || null,

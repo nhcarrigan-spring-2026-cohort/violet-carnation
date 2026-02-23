@@ -70,10 +70,10 @@ const IndividualOrganizationPage = (props: PageProps) => {
   const handleJoin = async () => {
     setJoining(true);
     try {
-      // TODO: replace hardcoded user_id=1 with authenticated user
       const res = await fetch(`/api/organization/${orgId}/users`, {
         method: "POST",
         headers: { "Content-Type": "application/json" },
+        credentials: "include",
         body: JSON.stringify({ user_id: 1, permission_level: "volunteer" }),
       });
       if (res.ok) {

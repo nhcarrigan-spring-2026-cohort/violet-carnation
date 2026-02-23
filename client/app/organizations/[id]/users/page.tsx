@@ -96,6 +96,7 @@ const OrgUsersPage = (props: PageProps) => {
       const res = await fetch(`/api/organization/${orgId}/users`, {
         method: "POST",
         headers: { "Content-Type": "application/json" },
+        credentials: "include",
         body: JSON.stringify({ user_id: uid, permission_level: addPermission }),
       });
       if (!res.ok) {
@@ -121,6 +122,7 @@ const OrgUsersPage = (props: PageProps) => {
       const res = await fetch(`/api/organization/${orgId}/users/${memberId}`, {
         method: "PUT",
         headers: { "Content-Type": "application/json" },
+        credentials: "include",
         body: JSON.stringify({ permission_level: level, user_id: userId }),
       });
       if (!res.ok) {
@@ -141,7 +143,7 @@ const OrgUsersPage = (props: PageProps) => {
     try {
       const res = await fetch(
         `/api/organization/${orgId}/users/${memberId}?user_id=${userId}`,
-        { method: "DELETE" },
+        { method: "DELETE", credentials: "include" },
       );
       if (!res.ok) {
         const data = await res.json().catch(() => null);

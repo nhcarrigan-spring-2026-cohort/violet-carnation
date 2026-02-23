@@ -12,6 +12,7 @@ export async function createEvent(payload: EventIn): Promise<Event> {
   const res = await fetch(`${API_BASE}/events`, {
     method: "POST",
     headers: { "Content-Type": "application/json" },
+    credentials: "include",
     body: JSON.stringify(payload),
   });
 
@@ -34,6 +35,7 @@ export async function updateEvent(id: number, payload: EventUpdate): Promise<Eve
   const res = await fetch(`${API_BASE}/events/${id}`, {
     method: "PUT",
     headers: { "Content-Type": "application/json" },
+    credentials: "include",
     body: JSON.stringify(payload),
   });
 
