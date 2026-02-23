@@ -8,14 +8,14 @@ All 12 tasks (T1–T12) from AUTH_TASKS.md were completed. Changes were committe
 
 ## Commits
 
-| Commit | Description |
-|--------|-------------|
+| Commit    | Description                                                                   |
+| --------- | ----------------------------------------------------------------------------- |
 | `d2491cb` | feat: set httpOnly session cookie on login, add logout and /auth/me endpoints |
-| `03263f5` | feat: protect all mutation routes with auth dependency |
-| `90533a1` | feat: add server session utility and client auth context |
-| `97f9b1e` | fix: add credentials include to all client fetch calls |
-| `6a4d3f0` | feat: add middleware route protection, sign-out, and auth-aware NavBar |
-| `9e0046b` | chore: remove plain user_id cookie references and auth TODO comments |
+| `03263f5` | feat: protect all mutation routes with auth dependency                        |
+| `90533a1` | feat: add server session utility and client auth context                      |
+| `97f9b1e` | fix: add credentials include to all client fetch calls                        |
+| `6a4d3f0` | feat: add middleware route protection, sign-out, and auth-aware NavBar        |
+| `9e0046b` | chore: remove plain user_id cookie references and auth TODO comments          |
 
 ---
 

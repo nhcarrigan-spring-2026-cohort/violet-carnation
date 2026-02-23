@@ -1,8 +1,5 @@
 "use client";
 
-import { use, useEffect, useState } from "react";
-import Link from "next/link";
-import { toast } from "sonner";
 import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
@@ -10,6 +7,9 @@ import { Separator } from "@/components/ui/separator";
 import { Skeleton } from "@/components/ui/skeleton";
 import { useCurrentUserId } from "@/lib/useCurrentUserId";
 import { Event } from "@/models/event";
+import Link from "next/link";
+import { use, useEffect, useState } from "react";
+import { toast } from "sonner";
 
 interface PageProps {
   params: Promise<{ id: string }>;

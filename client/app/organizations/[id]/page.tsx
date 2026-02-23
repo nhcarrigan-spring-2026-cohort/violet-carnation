@@ -1,16 +1,16 @@
 "use client";
 
-import { use, useEffect, useState } from "react";
-import Link from "next/link";
+import EventCarousel from "@/components/EventCarousel";
 import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
 import { Card, CardHeader, CardTitle } from "@/components/ui/card";
 import { Separator } from "@/components/ui/separator";
 import { Skeleton } from "@/components/ui/skeleton";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
-import EventCarousel from "@/components/EventCarousel";
 import { Event } from "@/models/event";
 import { Organization, RoleAndUser } from "@/models/organizations";
+import Link from "next/link";
+import { use, useEffect, useState } from "react";
 
 interface PageProps {
   params: Promise<{ id: string }>;

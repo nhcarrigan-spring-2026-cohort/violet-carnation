@@ -1,7 +1,5 @@
 "use client";
 
-import { use, useEffect, useState } from "react";
-import { toast } from "sonner";
 import {
   AlertDialog,
   AlertDialogAction,
@@ -37,6 +35,8 @@ import { useRoles } from "@/context/RolesContext";
 import { useCurrentUserId } from "@/lib/useCurrentUserId";
 import type { RoleAndUser } from "@/models/organizations";
 import type { PermissionLevel } from "@/models/roles";
+import { use, useEffect, useState } from "react";
+import { toast } from "sonner";
 
 interface PageProps {
   params: Promise<{ id: string }>;

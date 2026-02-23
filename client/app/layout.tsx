@@ -34,8 +34,7 @@ export default async function RootLayout({
   const session = await getServerSession();
   const userId = session?.userId ?? null;
 
-  const initialRoles: Role[] =
-    userId !== null ? await fetchRoles(userId) : [];
+  const initialRoles: Role[] = userId !== null ? await fetchRoles(userId) : [];
 
   return (
     <html lang="en" suppressHydrationWarning>
