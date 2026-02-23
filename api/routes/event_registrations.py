@@ -4,6 +4,7 @@ from fastapi import APIRouter, Depends, HTTPException, status
 
 from db import get_connection
 from models import EventRegistrationIn, EventRegistrationWithEvent
+from utils.auth import get_current_user
 
 router = APIRouter(prefix="/event-registrations", tags=["event_registrations"])
 
@@ -165,6 +166,7 @@ def get_event_registration(
 def create_event_registration(
     payload: EventRegistrationIn,
     conn: sqlite3.Connection = Depends(get_connection),
+    _current_user: dict = Depends(get_current_user),
 ):
     """
     Create a new event registration.
@@ -205,6 +207,7 @@ def delete_event_registration(
     event_id: int,
     user_id: int,
     conn: sqlite3.Connection = Depends(get_connection),
+    _current_user: dict = Depends(get_current_user),
 ):
     """
     Delete an event registration.

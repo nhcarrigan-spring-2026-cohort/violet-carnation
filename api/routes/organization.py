@@ -5,6 +5,7 @@ from fastapi import APIRouter, Depends, HTTPException, status
 from db import get_connection
 from models import Organization, OrganizationCreate, OrganizationUpdate
 from routes.organization_roles import router as organization_roles_router
+from utils.auth import get_current_user
 
 router = APIRouter(prefix="/organization", tags=["organization"])
 
@@ -60,6 +61,7 @@ def list_organizations(
 def create_organization(
     payload: OrganizationCreate,
     conn: sqlite3.Connection = Depends(get_connection),
+    _current_user: dict = Depends(get_current_user),
 ):
     """
     Create an organization and grant the creator admin permissions.
@@ -142,6 +144,7 @@ def delete_organization(
     organization_id: int,
     user_id: int,
     conn: sqlite3.Connection = Depends(get_connection),
+    _current_user: dict = Depends(get_current_user),
 ):
     """
     Delete an organization if the requesting user is the creator.
@@ -193,6 +196,7 @@ def update_organization(
     organization_id: int,
     payload: OrganizationUpdate,
     conn: sqlite3.Connection = Depends(get_connection),
+    _current_user: dict = Depends(get_current_user),
 ):
     """
     Update organization name/description if the user is an admin.

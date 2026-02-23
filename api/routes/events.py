@@ -5,6 +5,7 @@ from fastapi import APIRouter, Depends, HTTPException, Query, status
 
 from db import get_connection
 from models import Event, EventIn, EventUpdate
+from utils.auth import get_current_user
 
 router = APIRouter(prefix="/events", tags=["events"])
 
@@ -239,7 +240,11 @@ def get_event(event_id: int, conn=Depends(get_connection)):
 
 
 @router.post("", status_code=status.HTTP_201_CREATED)
-def add_event(payload: EventIn, conn=Depends(get_connection)):
+def add_event(
+    payload: EventIn,
+    conn=Depends(get_connection),
+    _current_user: dict = Depends(get_current_user),
+):
     """
     Create a new event and add it to the database.
 
@@ -276,6 +281,7 @@ def update_event(
     event_id: int,
     payload: EventUpdate,
     conn: sqlite3.Connection = Depends(get_connection),
+    _current_user: dict = Depends(get_current_user),
 ):
     """
     Update an existing event with new data. Only fields provided in the payload will be updated.
@@ -349,7 +355,11 @@ def update_event(
 
 
 @router.delete("/{event_id}", status_code=status.HTTP_204_NO_CONTENT)
-def delete_event(event_id: int, conn=Depends(get_connection)):
+def delete_event(
+    event_id: int,
+    conn=Depends(get_connection),
+    _current_user: dict = Depends(get_current_user),
+):
     """
     Delete an event from the database.
 
