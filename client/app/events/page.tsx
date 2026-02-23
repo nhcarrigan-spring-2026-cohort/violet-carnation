@@ -23,7 +23,12 @@ const EventsPage = () => {
     const eventsUrl = queryString ? `/api/events?${queryString}` : "/api/events";
 
     fetch(eventsUrl)
-      .then((res) => res.json())
+      .then((res) => {
+        if (!res.ok) {
+          throw new Error(`HTTP error! status: ${res.status}`);
+        }
+        return res.json();
+      })
       .then((eventsData) => setEvents(eventsData))
       .catch((error) => console.error("Error fetching events:", error));
   }, [filters, userRoles]);
