@@ -1,15 +1,16 @@
-from typing import Literal, Optional
+from typing import List, Optional
 
 from pydantic import BaseModel, EmailStr, PositiveInt
-
-Availability = Literal["Full-time", "Part-time", "Weekends", "Evenings"]
 
 
 class UserIn(BaseModel):
     email: EmailStr
     first_name: str
     last_name: str
-    availability: Availability = "Part-time"
+    # TODO: resolve availability mismatch — frontend sends string[] (e.g. ["Mornings", "Weekends"]) but DB stores a single TEXT
+    availability: Optional[str] = None
+    skills: str = ""
+    interests: list[str] = []
 
 
 class User(BaseModel):
@@ -17,13 +18,19 @@ class User(BaseModel):
     email: EmailStr
     first_name: str
     last_name: str
-    availability: Availability = "Part-time"
+    # TODO: resolve availability mismatch — frontend sends string[] (e.g. ["Mornings", "Weekends"]) but DB stores a single TEXT
+    availability: Optional[str] = None
+    skills: str = ""
+    interests: list[str] = []
 
 
 class UserUpdate(BaseModel):
     first_name: Optional[str] = None
     last_name: Optional[str] = None
-    availability: Optional[Availability] = None
+    # TODO: resolve availability mismatch — frontend sends string[] (e.g. ["Mornings", "Weekends"]) but DB stores a single TEXT
+    availability: Optional[str] = None
+    skills: Optional[str] = None
+    interests: Optional[list[str]] = None
 
     # removed for simplification
     # phone: Optional[str] = None
@@ -35,6 +42,5 @@ class UserUpdate(BaseModel):
     # address: Optional[str] = None
     # profile_picture: Optional[str] = None
     # education: Optional[str] = None
-    # skills: Optional[str] = None
     # active: bool = True
     # registration_date: Optional[datetime] = None

@@ -12,7 +12,7 @@ import { Role } from "@/models/roles";
  *   - Time-of-day only          → begin_time/end_time (broadest range; client refines non-contiguous)
  *   - Weekends + time-of-day    → no params sent; client-side filtering handles it (OR can't be expressed)
  *   - Flexible                  → no-op
- * - category  → NOT YET SUPPORTED by the API; removed from filters for now
+ * - category  → category=X query params (one per selected category, OR logic on the API)
  *
  * @param filters - The current filter state from the UI
  * @param userRoles - The current user's roles, used to resolve scope into org IDs
@@ -34,6 +34,16 @@ export function filtersToQueryParams(
       .filter((r) => r.permission_level === "admin")
       .map((r) => r.organization_id)
       .forEach((id) => params.append("organization_id", String(id)));
+  }
+
+  // Map category filters → category=X query params
+  if (filters.category && filters.category.length > 0) {
+    filters.category.forEach((cat) => params.append("category", cat));
+  }
+
+  // Map location filter → location query param (substring match on backend)
+  if (filters.location) {
+    params.set("location", filters.location);
   }
 
   if (!filters.availability || filters.availability.length === 0) {

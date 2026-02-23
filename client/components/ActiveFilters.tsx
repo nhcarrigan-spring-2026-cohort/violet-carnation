@@ -29,6 +29,13 @@ const ActiveFilters = ({ filters, onRemove }: ActiveFiltersProps) => {
     });
   }
 
+  if (filters.location) {
+    activeFilters.push({
+      key: "location",
+      label: `Location: ${filters.location}`,
+    });
+  }
+
   if (activeFilters.length === 0) return null;
 
   return (

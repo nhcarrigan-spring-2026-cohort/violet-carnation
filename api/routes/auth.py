@@ -32,10 +32,17 @@ def signup(payload: SignupRequest, conn: sqlite3.Connection = Depends(get_connec
 
     # Create the user
     user_cursor = conn.execute(
-        "INSERT INTO users (email, first_name, last_name) VALUES (?, ?, ?)",
-        (payload.email, payload.first_name, payload.last_name),
+        "INSERT INTO users (email, first_name, last_name, skills) VALUES (?, ?, ?, ?)",
+        (payload.email, payload.first_name, payload.last_name, payload.skills),
     )
     user_id = user_cursor.lastrowid
+
+    # Insert user interests
+    for category in payload.interests:
+        conn.execute(
+            "INSERT OR IGNORE INTO user_interests (user_id, category) VALUES (?, ?)",
+            (user_id, category),
+        )
 
     # Store hashed password in credentials table
     conn.execute(

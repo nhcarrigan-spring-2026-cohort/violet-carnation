@@ -259,6 +259,46 @@ describe("filtersToQueryParams", () => {
     });
   });
 
+  describe("location filter", () => {
+    it("should set location param when location is provided", () => {
+      const filters: Filters = {
+        scope: "all",
+        availability: null,
+        location: "Austin",
+      };
+
+      const params = filtersToQueryParams(filters);
+
+      expect(params.get("location")).toBe("Austin");
+    });
+
+    it("should not set location param when location is null", () => {
+      const filters: Filters = {
+        scope: "all",
+        availability: null,
+        location: null,
+      };
+
+      const params = filtersToQueryParams(filters);
+
+      expect(params.has("location")).toBe(false);
+    });
+
+    it("should combine location with other filters", () => {
+      const filters: Filters = {
+        scope: "all",
+        availability: ["Mornings"],
+        location: "New York",
+      };
+
+      const params = filtersToQueryParams(filters);
+
+      expect(params.get("location")).toBe("New York");
+      expect(params.get("begin_time")).toBe("06:00");
+      expect(params.get("end_time")).toBe("11:59");
+    });
+  });
+
   describe("combined with scope (should only produce availability params)", () => {
     it("should produce time params even when scope is set", () => {
       const filters: Filters = {

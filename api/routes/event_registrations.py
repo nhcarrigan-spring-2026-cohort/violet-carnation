@@ -3,18 +3,19 @@ import sqlite3
 from fastapi import APIRouter, Depends, HTTPException, status
 
 from db import get_connection
-from models import EventRegistrationIn
+from models import EventRegistrationIn, EventRegistrationWithEvent
 
 router = APIRouter(prefix="/event-registrations", tags=["event_registrations"])
 
 
-@router.get("", response_model=list[EventRegistrationIn])
+@router.get("", response_model=list[EventRegistrationWithEvent] | list[EventRegistrationIn])
 def list_event_registrations(
     organization_id: int | None = None,
     event_id: int | None = None,
     user_id: int | None = None,
     skip: int = 0,
     limit: int = 10,
+    include_event_details: bool = False,
     conn: sqlite3.Connection = Depends(get_connection),
 ):
     """
@@ -26,12 +27,14 @@ def list_event_registrations(
     :type event_id: int | None
     :param user_id: filter by user ID
     :type user_id: int | None
-    :param conn: the connection to the database
-    :type conn: sqlite3.Connection
     :param skip: number of rows to skip before returning results
     :type skip: int
     :param limit: max number of rows to return
     :type limit: int
+    :param include_event_details: when True, JOIN with events table and return enriched rows
+    :type include_event_details: bool
+    :param conn: the connection to the database
+    :type conn: sqlite3.Connection
     """
     if skip < 0:
         raise HTTPException(
@@ -42,30 +45,54 @@ def list_event_registrations(
             status_code=status.HTTP_400_BAD_REQUEST, detail="Limit must be at least 1"
         )
 
-    query = """
-		SELECT user_id, event_id, organization_id, registration_time
-		FROM event_registrations
-	"""
+    if include_event_details:
+        query = """
+			SELECT er.user_id, er.event_id, er.organization_id, er.registration_time,
+			       e.name AS event_name, e.location AS event_location, e.date_time AS event_date_time
+			FROM event_registrations er
+			JOIN events e ON er.event_id = e.id
+		"""
+    else:
+        query = """
+			SELECT user_id, event_id, organization_id, registration_time
+			FROM event_registrations
+		"""
+
     conditions = []
     params: list[int] = []
 
     if organization_id is not None:
-        conditions.append("organization_id = ?")
+        conditions.append(("er.organization_id" if include_event_details else "organization_id") + " = ?")
         params.append(organization_id)
     if event_id is not None:
-        conditions.append("event_id = ?")
+        conditions.append(("er.event_id" if include_event_details else "event_id") + " = ?")
         params.append(event_id)
     if user_id is not None:
-        conditions.append("user_id = ?")
+        conditions.append(("er.user_id" if include_event_details else "user_id") + " = ?")
         params.append(user_id)
 
     if conditions:
         query += " WHERE " + " AND ".join(conditions)
-    query += " ORDER BY registration_time DESC"
+    query += " ORDER BY " + ("er.registration_time" if include_event_details else "registration_time") + " DESC"
     query += " LIMIT ? OFFSET ?"
     params.extend([limit, skip])
 
     rows = conn.execute(query, params).fetchall()
+
+    if include_event_details:
+        return [
+            EventRegistrationWithEvent(
+                user_id=row["user_id"],
+                event_id=row["event_id"],
+                organization_id=row["organization_id"],
+                registration_time=row["registration_time"],
+                event_name=row["event_name"],
+                event_location=row["event_location"],
+                event_date_time=row["event_date_time"],
+            )
+            for row in rows
+        ]
+
     return [
         EventRegistrationIn(
             user_id=row["user_id"],

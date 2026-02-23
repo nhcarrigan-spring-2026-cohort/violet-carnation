@@ -15,6 +15,8 @@ const EventsPage = () => {
   const [filters, setFilters] = useState<Filters>({
     scope: "all",
     availability: null,
+    category: null,
+    location: null,
   });
 
   const fetchEvents = useCallback(() => {

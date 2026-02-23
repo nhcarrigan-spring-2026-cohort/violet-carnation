@@ -9,6 +9,7 @@ class EventIn(BaseModel):
     location: str
     date_time: datetime
     organization_id: PositiveInt
+    category: Optional[str] = None
 
 
 class EventUpdate(BaseModel):
@@ -17,6 +18,7 @@ class EventUpdate(BaseModel):
     location: Optional[str] = None
     date_time: Optional[datetime] = None
     organization_id: Optional[PositiveInt] = None
+    category: Optional[str] = None
 
 
 class Event(BaseModel):
@@ -26,3 +28,4 @@ class Event(BaseModel):
     location: str
     date_time: datetime
     organization_id: PositiveInt
+    category: Optional[str] = None
