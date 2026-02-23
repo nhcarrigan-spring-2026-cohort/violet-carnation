@@ -1,12 +1,13 @@
 import type { Metadata } from "next";
 import { ThemeProvider } from "next-themes";
 import { Geist, Geist_Mono } from "next/font/google";
-import { cookies } from "next/headers";
 import "./globals.css";
 
 import { Toaster } from "@/components/ui/sonner";
+import { AuthProvider } from "@/context/AuthContext";
 import { RolesProvider } from "@/context/RolesContext";
 import { fetchRoles } from "@/lib/roles";
+import { getServerSession } from "@/lib/session";
 import type { Role } from "@/models/roles";
 
 const geistSans = Geist({
@@ -30,14 +31,11 @@ export default async function RootLayout({
 }: Readonly<{
   children: React.ReactNode;
 }>) {
-  // TODO: Once authentication is implemented, derive user_id from the session
-  // token stored in a secure, httpOnly cookie rather than a plain `user_id` cookie.
-  const cookieStore = await cookies();
-  const rawUserId = cookieStore.get("user_id")?.value;
-  const userId = rawUserId ? parseInt(rawUserId, 10) : null;
+  const session = await getServerSession();
+  const userId = session?.userId ?? null;
 
   const initialRoles: Role[] =
-    userId !== null && !isNaN(userId) ? await fetchRoles(userId) : [];
+    userId !== null ? await fetchRoles(userId) : [];
 
   return (
     <html lang="en" suppressHydrationWarning>
@@ -48,7 +46,9 @@ export default async function RootLayout({
           enableSystem
           disableTransitionOnChange
         >
-          <RolesProvider initialRoles={initialRoles}>{children}</RolesProvider>
+          <AuthProvider>
+            <RolesProvider initialRoles={initialRoles}>{children}</RolesProvider>
+          </AuthProvider>
           <Toaster />
         </ThemeProvider>
       </body>
