@@ -31,14 +31,10 @@ const FilterModal = ({ filters, onChange }: FilterBarProps) => {
     <div className="flex flex-wrap items-center gap-x-6 gap-y-3 rounded-lg border bg-card px-4 py-3 text-sm">
       {/* Scope */}
       <div className="flex items-center gap-3">
-        <span className="font-semibold text-muted-foreground whitespace-nowrap">
-          Scope
-        </span>
+        <span className="font-semibold text-muted-foreground whitespace-nowrap">Scope</span>
         <RadioGroup
           value={filters.scope ?? "all"}
-          onValueChange={(value) =>
-            onChange({ ...filters, scope: value as Filters["scope"] })
-          }
+          onValueChange={(value) => onChange({ ...filters, scope: value as Filters["scope"] })}
           className="flex items-center gap-3"
         >
           {SCOPE_OPTIONS.map((option) => (
