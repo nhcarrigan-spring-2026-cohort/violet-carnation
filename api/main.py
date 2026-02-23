@@ -9,6 +9,7 @@ from routes.auth import router as auth_router
 from routes.event_registrations import router as event_registrations_router
 from routes.events import router as events_router
 from routes.organization import router as organization_router
+from routes.roles import router as roles_router
 from routes.users import router as users_router
 from utils.logger import get_logger, setup_logging
 
@@ -67,3 +68,4 @@ app.include_router(users_router, prefix="/api")
 app.include_router(organization_router, prefix="/api")
 app.include_router(events_router, prefix="/api")
 app.include_router(event_registrations_router, prefix="/api")
+app.include_router(roles_router, prefix="/api")

@@ -1,110 +1,78 @@
 "use client";
 
-import React, { useState } from "react";
-import { Filters } from "@/models/filters";
-import { EVENT_CATEGORIES, EventCategory } from "@/models/eventCategories";
+import { Checkbox } from "@/components/ui/checkbox";
+import { Label } from "@/components/ui/label";
+import { RadioGroup, RadioGroupItem } from "@/components/ui/radio-group";
+import { Separator } from "@/components/ui/separator";
+import { Filters, SCOPE_OPTIONS } from "@/models/filters";
 import { AVAILABILITY_OPTIONS, Availability } from "@/models/user";
-import { SCOPE_OPTIONS } from "@/models/filters";
 
-interface FilterModalProps {
-  onClose: () => void;
+const SCOPE_LABELS: Record<string, string> = {
+  all: "All Events",
+  myOrgs: "My Organizations",
+  admin: "Admin Only",
+};
+
+interface FilterBarProps {
   filters: Filters;
-  onApply: (filters: Filters) => void;
+  onChange: (filters: Filters) => void;
 }
 
-const FilterModal = ({ onClose, filters, onApply }: FilterModalProps) => {
-  const [localFilters, setLocalFilters] = useState(filters);
-
+const FilterModal = ({ filters, onChange }: FilterBarProps) => {
   const handleAvailabilityToggle = (availability: Availability) => {
-    const current = localFilters.availability || [];
-
-    if (current.includes(availability)) {
-      const updated = current.filter((a) => a !== availability);
-      setLocalFilters({
-        ...localFilters,
-        availability: updated.length > 0 ? updated : null,
-      });
-    } else {
-      setLocalFilters({
-        ...localFilters,
-        availability: [...current, availability],
-      });
-    }
+    const current = filters.availability || [];
+    const updated = current.includes(availability)
+      ? current.filter((a) => a !== availability)
+      : [...current, availability];
+    onChange({ ...filters, availability: updated.length > 0 ? updated : null });
   };
 
   return (
-    <div className="modal-overlay" onClick={onClose}>
-      <div className="modal-content" onClick={(e) => e.stopPropagation()}>
-        <h2>Filters</h2>
-
-        {/* Scope */}
-        <fieldset>
-          <legend>Scope</legend>
+    <div className="flex flex-wrap items-center gap-x-6 gap-y-3 rounded-lg border bg-card px-4 py-3 text-sm">
+      {/* Scope */}
+      <div className="flex items-center gap-3">
+        <span className="font-semibold text-muted-foreground whitespace-nowrap">Scope</span>
+        <RadioGroup
+          value={filters.scope ?? "all"}
+          onValueChange={(value) => onChange({ ...filters, scope: value as Filters["scope"] })}
+          className="flex items-center gap-3"
+        >
           {SCOPE_OPTIONS.map((option) => (
-            <label key={option}>
-              <input
-                type="radio"
-                checked={localFilters.scope === option}
-                onChange={() => setLocalFilters({ ...localFilters, scope: option })}
-              />
-              {option === "myOrgs"
-                ? "My Organizations"
-                : option === "admin"
-                  ? "Admin Only"
-                  : "All Events"}
-            </label>
+            <div key={option} className="flex items-center gap-1.5">
+              <RadioGroupItem value={option} id={`scope-${option}`} />
+              <Label htmlFor={`scope-${option}`} className="cursor-pointer">
+                {SCOPE_LABELS[option]}
+              </Label>
+            </div>
           ))}
-        </fieldset>
+        </RadioGroup>
+      </div>
 
-        {/* Category */}
-        <fieldset>
-          <legend>Category</legend>
-          <select
-            value={localFilters.category || ""}
-            onChange={(e) => {
-              const value = e.target.value;
-              setLocalFilters({
-                ...localFilters,
-                category: value ? (value as EventCategory) : null,
-              });
-            }}
-          >
-            <option value="">All Categories</option>
-            {EVENT_CATEGORIES.map((cat) => (
-              <option key={cat} value={cat}>
-                {cat}
-              </option>
-            ))}
-          </select>
-        </fieldset>
+      <Separator orientation="vertical" className="h-5 hidden sm:block" />
 
-        {/* Availability */}
-        <fieldset>
-          <legend>Availability</legend>
+      {/* TODO: Category filter removed until API supports it */}
+
+      {/* Availability */}
+      <div className="flex items-center gap-3">
+        <span className="font-semibold text-muted-foreground whitespace-nowrap">Availability</span>
+        <div className="flex flex-wrap items-center gap-3">
           {AVAILABILITY_OPTIONS.map((option) => (
-            <label key={option}>
-              <input
-                type="checkbox"
-                checked={localFilters.availability?.includes(option) || false}
-                onChange={() => handleAvailabilityToggle(option)}
+            <div key={option} className="flex items-center gap-1.5">
+              <Checkbox
+                id={`avail-${option}`}
+                checked={filters.availability?.includes(option) || false}
+                onCheckedChange={() => handleAvailabilityToggle(option)}
               />
-              {option === "Mornings"
-                ? "Mornings"
-                : option === "Afternoons"
-                  ? "Afternoons"
-                  : option === "Evenings"
-                    ? "Evenings"
-                    : option === "Weekends"
-                      ? "Weekends"
-                      : "Flexible"}
-            </label>
+              <Label htmlFor={`avail-${option}`} className="cursor-pointer">
+                {option}
+              </Label>
+            </div>
           ))}
-        </fieldset>
-        <button onClick={() => onApply(localFilters)}>Apply</button>
-        <button onClick={onClose}>Cancel</button>
+        </div>
       </div>
     </div>
   );
 };
 
 export default FilterModal;
+
