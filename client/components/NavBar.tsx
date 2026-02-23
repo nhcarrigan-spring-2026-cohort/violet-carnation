@@ -11,12 +11,22 @@ export default function Navbar() {
   const router = useRouter();
 
   const handleSignOut = async () => {
-    await fetch("/api/auth/logout", {
-      method: "POST",
-      credentials: "include",
-    });
-    logout();
-    router.push("/signin");
+    try {
+      const res = await fetch("/api/auth/logout", {
+        method: "POST",
+        credentials: "include",
+      });
+
+      if (!res.ok) {
+        console.error("Failed to log out:", res.status, res.statusText);
+        return;
+      }
+
+      logout();
+      router.push("/signin");
+    } catch (error) {
+      console.error("Error while logging out:", error);
+    }
   };
 
   return (
