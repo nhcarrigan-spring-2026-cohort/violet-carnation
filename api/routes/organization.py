@@ -30,7 +30,7 @@ def list_organizations(
     :type query: str | None, optional
     """
     base_sql = """
-        SELECT organization_id, name, description, created_by_user_id
+        SELECT organization_id, name, description, category, created_by_user_id
         FROM organizations
     """
     params: list[object] = []
@@ -51,6 +51,7 @@ def list_organizations(
             organization_id=row["organization_id"],
             name=row["name"],
             description=row["description"],
+            category=row["category"],
             created_by_user_id=row["created_by_user_id"],
         )
         for row in rows
@@ -68,6 +69,28 @@ def create_organization(
 
     TODO: replace user_id with current user from authentication middleware.
 
+    For the 'category' attribute, create your own or copy and paste from the following:
+    1. Animal Welfare  
+    2. Hunger and Food Security  
+    3. Homelessness and Housing  
+    4. Education & Tutoring  
+    5. Youth and Children  
+    6. Senior Care and Support  
+    7. Health & Medical  
+    8. Environmental Conservation  
+    9. Community Development  
+    10. Arts & Culture  
+    11. Disaster Relief  
+    12. Veterans & Military Families  
+    13. Immigrants & Refugees  
+    14. Disability Services  
+    15. Mental Health & Crisis Support  
+    16. Advocacy & Human Rights  
+    17. Faith-Based Services  
+    18. Sports & Recreation  
+    19. Job Training & Employment  
+    20. Technology & Digital Literacy  
+
     :param payload: organization details and user ID for the creator
     :type payload: OrganizationCreate
     :param conn: the connection to the database
@@ -84,10 +107,10 @@ def create_organization(
 
     cursor = conn.execute(
         """
-        INSERT INTO organizations (name, description, created_by_user_id)
-        VALUES (?, ?, ?)
+        INSERT INTO organizations (name, description, category, created_by_user_id)
+        VALUES (?, ?, ?, ?)
         """,
-        (payload.name, payload.description, payload.user_id),
+        (payload.name, payload.description, payload.category, payload.user_id),
     )
     organization_id = cursor.lastrowid
 
@@ -104,6 +127,7 @@ def create_organization(
         organization_id=organization_id,
         name=payload.name,
         description=payload.description,
+        category=payload.category,
         created_by_user_id=payload.user_id,
     )
 
@@ -160,7 +184,7 @@ def delete_organization(
     """
     row = conn.execute(
         """
-        SELECT organization_id, name, description, created_by_user_id
+        SELECT organization_id, name, description, category, created_by_user_id
         FROM organizations
         WHERE organization_id = ?
         """,
@@ -187,6 +211,7 @@ def delete_organization(
         organization_id=row["organization_id"],
         name=row["name"],
         description=row["description"],
+        category=row["category"],
         created_by_user_id=row["created_by_user_id"],
     )
 
@@ -241,14 +266,17 @@ def update_organization(
     updated_description = (
         payload.description if payload.description is not None else row["description"]
     )
+    updated_category = (
+        payload.category if payload.category is not None else row["category"]
+    )
 
     conn.execute(
         """
         UPDATE organizations
-        SET name = ?, description = ?
+        SET name = ?, description = ?, category = ?
         WHERE organization_id = ?
         """,
-        (updated_name, updated_description, organization_id),
+        (updated_name, updated_description, updated_category, organization_id),
     )
     conn.commit()
 
@@ -256,6 +284,7 @@ def update_organization(
         organization_id=row["organization_id"],
         name=updated_name,
         description=updated_description,
+        category=updated_category,
         created_by_user_id=row["created_by_user_id"],
     )
 
