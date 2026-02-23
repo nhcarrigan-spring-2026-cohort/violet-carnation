@@ -87,7 +87,12 @@ def list_events(
             query += " AND (strftime('%w', date(date_time)) IN ('0', '6'))"
 
     # Filter by one or more organization IDs
-    if organization_id:
+    # Handle empty list case: if organization_id is explicitly an empty list,
+    # return no results (user has no orgs to view)
+    if organization_id is not None:
+        if len(organization_id) == 0:
+            # Empty list means no organizations to filter by - return empty result set
+            return []
         placeholders = ",".join("?" * len(organization_id))
         query += f" AND organization_id IN ({placeholders})"
         params.extend(organization_id)

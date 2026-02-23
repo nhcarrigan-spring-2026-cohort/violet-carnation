@@ -4,9 +4,9 @@ import { Geist, Geist_Mono } from "next/font/google";
 import { cookies } from "next/headers";
 import "./globals.css";
 
+import { Toaster } from "@/components/ui/sonner";
 import { RolesProvider } from "@/context/RolesContext";
 import { fetchRoles } from "@/lib/roles";
-import { Toaster } from "@/components/ui/sonner";
 import type { Role } from "@/models/roles";
 
 const geistSans = Geist({

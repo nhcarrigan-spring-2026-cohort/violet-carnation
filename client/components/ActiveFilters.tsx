@@ -25,14 +25,7 @@ const ActiveFilters = ({ filters, onRemove }: ActiveFiltersProps) => {
   if (filters.availability) {
     activeFilters.push({
       key: "availability",
-      label: `Availability: ${filters.availability}`,
-    });
-  }
-
-  if (filters.location) {
-    activeFilters.push({
-      key: "location",
-      label: `Location: ${filters.location}`,
+      label: `Availability: ${filters.availability.join(", ")}`,
     });
   }
 
