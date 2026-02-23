@@ -1,8 +1,8 @@
 "use client";
 
+import { useRoles } from "@/context/RolesContext";
 import { Event } from "@/models/event";
 import { Filters } from "@/models/filters";
-import { Role } from "@/models/roles";
 import { useCallback, useEffect, useState } from "react";
 import EventCarousel from "../../components/EventCarousel";
 import FilterModal from "../../components/FilterModal";
@@ -11,7 +11,7 @@ import { filtersToQueryParams } from "./filters-to-query-params";
 
 const EventsPage = () => {
   const [events, setEvents] = useState<Event[]>([]);
-  const [userRoles, setUserRoles] = useState<Role[]>([]);
+  const { roles: userRoles } = useRoles();
   const [filters, setFilters] = useState<Filters>({
     scope: "all",
     availability: null,
@@ -31,15 +31,6 @@ const EventsPage = () => {
   useEffect(() => {
     fetchEvents();
   }, [fetchEvents]);
-
-  useEffect(() => {
-    // TODO: this forces the first user_id for simplicity, this needs to be removed later.
-    // in the future the back-end will just know this information.
-    fetch("/api/roles?user_id=1")
-      .then((res) => res.json())
-      .then((rolesData) => setUserRoles(rolesData))
-      .catch((error) => console.error("Error fetching roles:", error));
-  }, []);
 
   return (
     <div>
