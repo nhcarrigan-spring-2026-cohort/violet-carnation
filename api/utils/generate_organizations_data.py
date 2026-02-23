@@ -36,7 +36,6 @@ def generate_organizations_data(org_list_file, conn: sqlite3.Connection):
     print(f"Generating data for {len(admin_users)} admins...")
 
     for k in range(len(admin_users)):
-
         created_by_user_id = admin_users[k][0]
         name = orgs_list[k]["name"]
         description = fake.text(max_nb_chars=100)

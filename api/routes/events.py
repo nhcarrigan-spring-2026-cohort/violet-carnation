@@ -1,7 +1,8 @@
 import sqlite3
-from typing import Optional
+from typing import List, Optional
 
-from fastapi import APIRouter, Depends, HTTPException, status
+from fastapi import APIRouter, Depends, HTTPException, Query, status
+
 from db import get_connection
 from models import Event, EventIn, EventUpdate
 
@@ -13,19 +14,20 @@ def list_events(
     # TODO: improve type
     begin_time: Optional[str] = None,
     end_time: Optional[str] = None,
-
     begin_date: Optional[str] = None,
     end_date: Optional[str] = None,
-
     is_weekday: Optional[bool] = None,
-    # TODO: add these later
-    # locale: Optional[str] = None,
-    # timezone: Optional[str] = None,
-    conn=Depends(get_connection)
+    organization_id: Optional[List[int]] = Query(default=None),
+    availability: Optional[List[str]] = Query(default=None),
+    category: Optional[List[str]] = Query(default=None),
+    # TODO: Option B — split location into city/state columns for structured filtering
+    location: Optional[str] = None,
+    limit: Optional[int] = None,
+    conn=Depends(get_connection),
 ):
     """
     Get a list of all events with optional filtering by date/time and availability matching.
-    Supports filtering by time range, date range, and weekday/weekend.
+    Supports filtering by time range, date range, weekday/weekend, and organization.
 
     **note** time values must be in the format 'HH:MM' a value such as "8:00" will not work properly, it should be "08:00"
 
@@ -39,42 +41,101 @@ def list_events(
     :type end_date: Optional[str]
     :param is_weekday: filter events by weekday (True for Monday-Friday, False for Saturday-Sunday). If None, no weekday filtering is applied
     :type is_weekday: Optional[bool]
+    :param organization_id: one or more organization IDs to filter by. Only events belonging to these organizations will be returned. If omitted, events from all organizations are returned
+    :type organization_id: Optional[List[int]]
+    :param availability: one or more availability options to filter by. Accepts 'Mornings' (06:00-11:59), 'Afternoons' (12:00-16:59), 'Evenings' (17:00-21:59), 'Weekends', or 'Flexible' (no restriction). Multiple values are combined with OR logic. If not provided or 'Flexible' is included, no availability filtering is applied
+    :type availability: Optional[List[str]]
+    :param category: one or more category names to filter by. Only events with a matching category will be returned
+    :type category: Optional[List[str]]
+    :param limit: the maximum number of events to return. If omitted, all matching events are returned
+    :type limit: Optional[int]
     :param conn: the connection to the database
     :type conn: sqlite3.Connection
     """
-    query = "SELECT id, name, description, location, date_time, organization_id FROM events WHERE 1=1"
+    query = "SELECT id, name, description, location, date_time, organization_id, category FROM events WHERE 1=1"
     params = []
-    
+
     # Apply time-based filtering - compares only the time portion, ignoring date
     if begin_time is not None:
         query += " AND time(date_time) >= time(?)"
         params.append(begin_time)
-    
+
     if end_time is not None:
         query += " AND time(date_time) <= time(?)"
         params.append(end_time)
-    
+
     # Apply date-based filtering
     # Note: This assumes date_time column might contain date information or we use SQLite date functions
     if begin_date is not None:
         query += " AND date(date_time) >= date(?)"
         params.append(begin_date)
-    
+
     if end_date is not None:
         query += " AND date(date_time) <= date(?)"
         params.append(end_date)
-    
+
     # Apply weekday filtering using SQLite's strftime function
     # strftime('%w', date) returns 0-6 where 0=Sunday, 6=Saturday
     if is_weekday is not None:
         if is_weekday:
             # Weekdays: Monday(1) through Friday(5)
-            query += " AND CAST(strftime('%w', date(date_time)) AS INTEGER) BETWEEN 1 AND 5"
+            query += (
+                " AND CAST(strftime('%w', date(date_time)) AS INTEGER) BETWEEN 1 AND 5"
+            )
         else:
             # Weekends: Saturday(6) and Sunday(0)
             query += " AND (strftime('%w', date(date_time)) IN ('0', '6'))"
-    
-    query += " ORDER BY id"
+
+    # Filter by one or more organization IDs
+    # Handle empty list case: if organization_id is explicitly an empty list,
+    # return no results (user has no orgs to view)
+    if organization_id is not None:
+        if len(organization_id) == 0:
+            # Empty list means no organizations to filter by - return empty result set
+            return []
+        placeholders = ",".join("?" * len(organization_id))
+        query += f" AND organization_id IN ({placeholders})"
+        params.extend(organization_id)
+
+    # Filter by availability options using OR logic across all selected options.
+    # 'Flexible' means no restriction — skip filtering entirely if present.
+    if availability and "Flexible" not in availability:
+        availability_conditions = []
+        for option in availability:
+            if option == "Weekends":
+                availability_conditions.append(
+                    "(strftime('%w', date(date_time)) IN ('0', '6'))"
+                )
+            elif option == "Mornings":
+                availability_conditions.append(
+                    "(time(date_time) BETWEEN '06:00' AND '11:59')"
+                )
+            elif option == "Afternoons":
+                availability_conditions.append(
+                    "(time(date_time) BETWEEN '12:00' AND '16:59')"
+                )
+            elif option == "Evenings":
+                availability_conditions.append(
+                    "(time(date_time) BETWEEN '17:00' AND '21:59')"
+                )
+        if availability_conditions:
+            query += " AND (" + " OR ".join(availability_conditions) + ")"
+
+    if category:
+        placeholders = ",".join("?" * len(category))
+        query += f" AND category IN ({placeholders})"
+        params.extend(category)
+
+    # Option A: free-text substring match on location field
+    if location:
+        query += " AND LOWER(location) LIKE LOWER(?)"
+        params.append(f"%{location}%")
+
+    query += " ORDER BY date_time ASC"
+
+    if limit is not None:
+        query += " LIMIT ?"
+        params.append(limit)
 
     rows = conn.execute(query, params).fetchall()
     return [
@@ -85,17 +146,73 @@ def list_events(
             location=row["location"],
             date_time=row["date_time"],
             organization_id=row["organization_id"],
+            category=row["category"],
         )
         for row in rows
     ]
 
 
-@router.get("/{event_id}", response_model=None)
+@router.get("/recommended", response_model=list[Event])
+def recommended_events(
+    user_id: int,
+    limit: int = 10,
+    conn: sqlite3.Connection = Depends(get_connection),
+):
+    """
+    Get a list of events recommended for a specific user.
+
+    Recommendations are based on the user's interests (stored in the ``user_interests``
+    table). Events the user has already registered for are excluded. Results are
+    ordered so that events whose ``category`` matches one of the user's interests
+    appear first, followed by all other events, both groups sorted by
+    ``date_time`` ascending.
+
+    :param user_id: the ID of the user to fetch recommendations for
+    :type user_id: int
+    :param limit: maximum number of events to return (default 10)
+    :type limit: int
+    :param conn: the connection to the database
+    :type conn: sqlite3.Connection
+    """
+    # Load the user's interest categories
+    interest_rows = conn.execute(
+        "SELECT category FROM user_interests WHERE user_id = ?", (user_id,)
+    ).fetchall()
+    interests = [r["category"] for r in interest_rows]
+
+    if interests:
+        placeholders = ",".join("?" * len(interests))
+        query = f"""
+            SELECT id, name, description, location, date_time, organization_id, category
+            FROM events
+            WHERE id NOT IN (
+                SELECT event_id FROM event_registrations WHERE user_id = ?
+            )
+            ORDER BY CASE WHEN category IN ({placeholders}) THEN 0 ELSE 1 END,
+                     date_time ASC
+            LIMIT ?
+        """
+        params: list = [user_id] + interests + [limit]
+    else:
+        query = """
+            SELECT id, name, description, location, date_time, organization_id, category
+            FROM events
+            WHERE id NOT IN (
+                SELECT event_id FROM event_registrations WHERE user_id = ?
+            )
+            ORDER BY date_time ASC
+            LIMIT ?
+        """
+        params = [user_id, limit]
+
+    rows = conn.execute(query, params).fetchall()
+    return [Event(**dict(row)) for row in rows]
+
+
+@router.get("/{event_id}", response_model=Event)
 def get_event(event_id: int, conn=Depends(get_connection)):
     """
     Get a single event by its ID.
-
-    TODO: this has no response object as this router is incomplete. Implement
 
     :param event_id: the ID of the event to retrieve
     :type event_id: int
@@ -103,7 +220,7 @@ def get_event(event_id: int, conn=Depends(get_connection)):
     :type conn: sqlite3.Connection
     """
     row = conn.execute(
-        "SELECT id, name, description, location, date_time, organization_id FROM events WHERE id = ?",
+        "SELECT id, name, description, location, date_time, organization_id, category FROM events WHERE id = ?",
         (event_id,),
     ).fetchone()
     if row is None:
@@ -117,6 +234,7 @@ def get_event(event_id: int, conn=Depends(get_connection)):
         location=row["location"],
         date_time=row["date_time"],
         organization_id=row["organization_id"],
+        category=row["category"],
     )
 
 
@@ -131,13 +249,14 @@ def add_event(payload: EventIn, conn=Depends(get_connection)):
     :type conn: sqlite3.Connection
     """
     cursor = conn.execute(
-        "INSERT INTO events (name, description, location, date_time, organization_id) VALUES (?, ?, ?, ?, ?)",
+        "INSERT INTO events (name, description, location, date_time, organization_id, category) VALUES (?, ?, ?, ?, ?, ?)",
         (
             payload.name,
             payload.description,
             payload.location,
             payload.date_time,
             payload.organization_id,
+            payload.category,
         ),
     )
     conn.commit()
@@ -148,10 +267,11 @@ def add_event(payload: EventIn, conn=Depends(get_connection)):
         location=payload.location,
         date_time=payload.date_time,
         organization_id=payload.organization_id,
+        category=payload.category,
     )
 
 
-@router.put("/{event_id}", response_model=None)
+@router.put("/{event_id}", response_model=Event)
 def update_event(
     event_id: int,
     payload: EventUpdate,
@@ -169,7 +289,7 @@ def update_event(
     """
     row = conn.execute(
         """
-        SELECT id, name, description, location, date_time, organization_id
+        SELECT id, name, description, location, date_time, organization_id, category
         FROM events
         WHERE id = ?
         """,
@@ -187,17 +307,22 @@ def update_event(
     updated_location = (
         payload.location if payload.location is not None else row["location"]
     )
-    updated_date_time = payload.date_time if payload.date_time is not None else row["date_time"]
+    updated_date_time = (
+        payload.date_time if payload.date_time is not None else row["date_time"]
+    )
     updated_organization_id = (
         payload.organization_id
         if payload.organization_id is not None
         else row["organization_id"]
     )
+    updated_category = (
+        payload.category if payload.category is not None else row["category"]
+    )
 
     conn.execute(
         """
         UPDATE events
-        SET name = ?, description = ?, location = ?, date_time = ?, organization_id = ?
+        SET name = ?, description = ?, location = ?, date_time = ?, organization_id = ?, category = ?
         WHERE id = ?
         """,
         (
@@ -206,6 +331,7 @@ def update_event(
             updated_location,
             updated_date_time,
             updated_organization_id,
+            updated_category,
             event_id,
         ),
     )
@@ -218,6 +344,7 @@ def update_event(
         location=updated_location,
         date_time=updated_date_time,
         organization_id=updated_organization_id,
+        category=updated_category,
     )
 
 

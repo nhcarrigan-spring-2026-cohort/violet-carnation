@@ -73,9 +73,21 @@ export interface Event {
   date_time: string;
   organization_id: number;
 
-  // TODO: none of the following are supported on back-end yet
   category: EventCategory | null;
+  // TODO: the following fields are not yet supported on the back-end
   time_zone: string;
   signup_count: number;
   user_signed_up: boolean;
 }
+
+export interface EventIn {
+  name: string;
+  description: string;
+  location: string;
+  /** ISO 8601 datetime string (e.g., "2026-03-15T14:00:00") */
+  date_time: string;
+  organization_id: number;
+  category?: string | null;
+}
+
+export type EventUpdate = Partial<EventIn>;

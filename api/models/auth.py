@@ -6,6 +6,8 @@ class SignupRequest(BaseModel):
     first_name: str
     last_name: str
     password: str
+    skills: str = ""
+    interests: list[str] = []
 
 
 class SignupResponse(BaseModel):

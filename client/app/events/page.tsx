@@ -1,85 +1,50 @@
 "use client";
 
+import { useRoles } from "@/context/RolesContext";
 import { Event } from "@/models/event";
 import { Filters } from "@/models/filters";
-import { Role } from "@/models/roles";
-import { useEffect, useState } from "react";
-import ActiveFilters from "../../components/ActiveFilters";
+import { useCallback, useEffect, useState } from "react";
 import EventCarousel from "../../components/EventCarousel";
-import FilterButton from "../../components/FilterButton";
 import FilterModal from "../../components/FilterModal";
 import NavBar from "../../components/NavBar";
-import { applyEventFilters } from "./apply-event-filters";
-
-// Helper functions
-
-function getActiveFilterCount(filters: Filters) {
-  let count = 0;
-  if (filters.scope !== "all") count++;
-  if (filters.category) count++;
-  if (filters.availability) count++;
-  return count;
-}
-
-function removeFilter(filters: Filters, key: string) {
-  // Returns new filters object without that key
-  return {
-    ...filters,
-    [key]: key === "scope" ? "all" : null,
-  };
-}
+import { filtersToQueryParams } from "./filters-to-query-params";
 
 const EventsPage = () => {
   const [events, setEvents] = useState<Event[]>([]);
-  const [userRoles, setUserRoles] = useState<Role[]>([]);
-  const [showFilters, setShowFilters] = useState(false);
+  const { roles: userRoles } = useRoles();
   const [filters, setFilters] = useState<Filters>({
     scope: "all",
-    category: null,
     availability: null,
   });
 
-  useEffect(() => {
-    Promise.all([
-      fetch("/api/events")
-        .then((res) => res.json())
-        .catch(() => []),
-      fetch("/api/roles")
-        .then((res) => res.json())
-        .catch(() => []),
-    ])
-      .then(([eventsData, rolesData]) => {
-        setEvents(eventsData);
-        setUserRoles(rolesData);
+  const fetchEvents = useCallback(() => {
+    const queryParams = filtersToQueryParams(filters, userRoles);
+    const queryString = queryParams.toString();
+    const eventsUrl = queryString ? `/api/events?${queryString}` : "/api/events";
+
+    fetch(eventsUrl)
+      .then((res) => {
+        if (!res.ok) {
+          throw new Error(`HTTP error! status: ${res.status}`);
+        }
+        return res.json();
       })
-      .catch((error) => console.error("Error:", error));
-  }, []);
+      .then((eventsData) => setEvents(eventsData))
+      .catch((error) => console.error("Error fetching events:", error));
+  }, [filters, userRoles]);
 
-  const filteredEvents = applyEventFilters(events, filters, userRoles);
-
-  const handleRemoveFilter = (key: string) => {
-    setFilters(removeFilter(filters, key));
-  };
+  useEffect(() => {
+    fetchEvents();
+  }, [fetchEvents]);
 
   return (
     <div>
       <NavBar />
-      <FilterButton
-        onClick={() => setShowFilters(true)}
-        activeCount={getActiveFilterCount(filters)}
-      />
-      <ActiveFilters filters={filters} onRemove={handleRemoveFilter} />
-      <EventCarousel events={filteredEvents} />
-      {showFilters && (
-        <FilterModal
-          onClose={() => setShowFilters(false)}
-          filters={filters}
-          onApply={(newFilters) => {
-            setFilters(newFilters);
-            setShowFilters(false);
-          }}
-        />
-      )}
+      <main className="mx-auto max-w-5xl px-4 py-6 flex flex-col gap-4">
+        <h1 className="text-2xl font-bold">Events</h1>
+        <FilterModal filters={filters} onChange={setFilters} />
+        <EventCarousel events={events} />
+      </main>
     </div>
   );
 };
