@@ -19,9 +19,10 @@ def list_events(
     is_weekday: Optional[bool] = None,
     organization_id: Optional[List[int]] = Query(default=None),
     availability: Optional[List[str]] = Query(default=None),
-    # TODO: add these later
-    # locale: Optional[str] = None,
-    # timezone: Optional[str] = None,
+    category: Optional[List[str]] = Query(default=None),
+    # TODO: Option B — split location into city/state columns for structured filtering
+    location: Optional[str] = None,
+    limit: Optional[int] = None,
     conn=Depends(get_connection),
 ):
     """
@@ -44,10 +45,14 @@ def list_events(
     :type organization_id: Optional[List[int]]
     :param availability: one or more availability options to filter by. Accepts 'Mornings' (06:00-11:59), 'Afternoons' (12:00-16:59), 'Evenings' (17:00-21:59), 'Weekends', or 'Flexible' (no restriction). Multiple values are combined with OR logic. If not provided or 'Flexible' is included, no availability filtering is applied
     :type availability: Optional[List[str]]
+    :param category: one or more category names to filter by. Only events with a matching category will be returned
+    :type category: Optional[List[str]]
+    :param limit: the maximum number of events to return. If omitted, all matching events are returned
+    :type limit: Optional[int]
     :param conn: the connection to the database
     :type conn: sqlite3.Connection
     """
-    query = "SELECT id, name, description, location, date_time, organization_id FROM events WHERE 1=1"
+    query = "SELECT id, name, description, location, date_time, organization_id, category FROM events WHERE 1=1"
     params = []
 
     # Apply time-based filtering - compares only the time portion, ignoring date
@@ -116,7 +121,21 @@ def list_events(
         if availability_conditions:
             query += " AND (" + " OR ".join(availability_conditions) + ")"
 
-    query += " ORDER BY id"
+    if category:
+        placeholders = ",".join("?" * len(category))
+        query += f" AND category IN ({placeholders})"
+        params.extend(category)
+
+    # Option A: free-text substring match on location field
+    if location:
+        query += " AND LOWER(location) LIKE LOWER(?)"
+        params.append(f"%{location}%")
+
+    query += " ORDER BY date_time ASC"
+
+    if limit is not None:
+        query += " LIMIT ?"
+        params.append(limit)
 
     rows = conn.execute(query, params).fetchall()
     return [
@@ -127,17 +146,73 @@ def list_events(
             location=row["location"],
             date_time=row["date_time"],
             organization_id=row["organization_id"],
+            category=row["category"],
         )
         for row in rows
     ]
 
 
-@router.get("/{event_id}", response_model=None)
+@router.get("/recommended", response_model=list[Event])
+def recommended_events(
+    user_id: int,
+    limit: int = 10,
+    conn: sqlite3.Connection = Depends(get_connection),
+):
+    """
+    Get a list of events recommended for a specific user.
+
+    Recommendations are based on the user's interests (stored in the ``user_interests``
+    table). Events the user has already registered for are excluded. Results are
+    ordered so that events whose ``category`` matches one of the user's interests
+    appear first, followed by all other events, both groups sorted by
+    ``date_time`` ascending.
+
+    :param user_id: the ID of the user to fetch recommendations for
+    :type user_id: int
+    :param limit: maximum number of events to return (default 10)
+    :type limit: int
+    :param conn: the connection to the database
+    :type conn: sqlite3.Connection
+    """
+    # Load the user's interest categories
+    interest_rows = conn.execute(
+        "SELECT category FROM user_interests WHERE user_id = ?", (user_id,)
+    ).fetchall()
+    interests = [r["category"] for r in interest_rows]
+
+    if interests:
+        placeholders = ",".join("?" * len(interests))
+        query = f"""
+            SELECT id, name, description, location, date_time, organization_id, category
+            FROM events
+            WHERE id NOT IN (
+                SELECT event_id FROM event_registrations WHERE user_id = ?
+            )
+            ORDER BY CASE WHEN category IN ({placeholders}) THEN 0 ELSE 1 END,
+                     date_time ASC
+            LIMIT ?
+        """
+        params: list = [user_id] + interests + [limit]
+    else:
+        query = """
+            SELECT id, name, description, location, date_time, organization_id, category
+            FROM events
+            WHERE id NOT IN (
+                SELECT event_id FROM event_registrations WHERE user_id = ?
+            )
+            ORDER BY date_time ASC
+            LIMIT ?
+        """
+        params = [user_id, limit]
+
+    rows = conn.execute(query, params).fetchall()
+    return [Event(**dict(row)) for row in rows]
+
+
+@router.get("/{event_id}", response_model=Event)
 def get_event(event_id: int, conn=Depends(get_connection)):
     """
     Get a single event by its ID.
-
-    TODO: this has no response object as this router is incomplete. Implement
 
     :param event_id: the ID of the event to retrieve
     :type event_id: int
@@ -145,7 +220,7 @@ def get_event(event_id: int, conn=Depends(get_connection)):
     :type conn: sqlite3.Connection
     """
     row = conn.execute(
-        "SELECT id, name, description, location, date_time, organization_id FROM events WHERE id = ?",
+        "SELECT id, name, description, location, date_time, organization_id, category FROM events WHERE id = ?",
         (event_id,),
     ).fetchone()
     if row is None:
@@ -159,6 +234,7 @@ def get_event(event_id: int, conn=Depends(get_connection)):
         location=row["location"],
         date_time=row["date_time"],
         organization_id=row["organization_id"],
+        category=row["category"],
     )
 
 
@@ -173,13 +249,14 @@ def add_event(payload: EventIn, conn=Depends(get_connection)):
     :type conn: sqlite3.Connection
     """
     cursor = conn.execute(
-        "INSERT INTO events (name, description, location, date_time, organization_id) VALUES (?, ?, ?, ?, ?)",
+        "INSERT INTO events (name, description, location, date_time, organization_id, category) VALUES (?, ?, ?, ?, ?, ?)",
         (
             payload.name,
             payload.description,
             payload.location,
             payload.date_time,
             payload.organization_id,
+            payload.category,
         ),
     )
     conn.commit()
@@ -190,10 +267,11 @@ def add_event(payload: EventIn, conn=Depends(get_connection)):
         location=payload.location,
         date_time=payload.date_time,
         organization_id=payload.organization_id,
+        category=payload.category,
     )
 
 
-@router.put("/{event_id}", response_model=None)
+@router.put("/{event_id}", response_model=Event)
 def update_event(
     event_id: int,
     payload: EventUpdate,
@@ -211,7 +289,7 @@ def update_event(
     """
     row = conn.execute(
         """
-        SELECT id, name, description, location, date_time, organization_id
+        SELECT id, name, description, location, date_time, organization_id, category
         FROM events
         WHERE id = ?
         """,
@@ -237,11 +315,14 @@ def update_event(
         if payload.organization_id is not None
         else row["organization_id"]
     )
+    updated_category = (
+        payload.category if payload.category is not None else row["category"]
+    )
 
     conn.execute(
         """
         UPDATE events
-        SET name = ?, description = ?, location = ?, date_time = ?, organization_id = ?
+        SET name = ?, description = ?, location = ?, date_time = ?, organization_id = ?, category = ?
         WHERE id = ?
         """,
         (
@@ -250,6 +331,7 @@ def update_event(
             updated_location,
             updated_date_time,
             updated_organization_id,
+            updated_category,
             event_id,
         ),
     )
@@ -262,6 +344,7 @@ def update_event(
         location=updated_location,
         date_time=updated_date_time,
         organization_id=updated_organization_id,
+        category=updated_category,
     )
 
 

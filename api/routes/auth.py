@@ -7,14 +7,26 @@ from fastapi import APIRouter, Depends, HTTPException, status
 from fastapi.security import OAuth2PasswordRequestForm
 
 from db import get_connection
-from models.auth import RequestResetBody, ResetPasswordBody, SignupRequest, SignupResponse
+from models.auth import (
+    RequestResetBody,
+    ResetPasswordBody,
+    SignupRequest,
+    SignupResponse,
+)
 from utils.auth import get_current_user
-from utils.security import create_access_token, decode_access_token, hash_password, verify_password
+from utils.security import (
+    create_access_token,
+    decode_access_token,
+    hash_password,
+    verify_password,
+)
 
 router = APIRouter(prefix="/auth", tags=["auth"])
 
 
-@router.post("/signup", response_model=SignupResponse, status_code=status.HTTP_201_CREATED)
+@router.post(
+    "/signup", response_model=SignupResponse, status_code=status.HTTP_201_CREATED
+)
 def signup(payload: SignupRequest, conn: sqlite3.Connection = Depends(get_connection)):
     """
     Register a new user.
@@ -32,10 +44,17 @@ def signup(payload: SignupRequest, conn: sqlite3.Connection = Depends(get_connec
 
     # Create the user
     user_cursor = conn.execute(
-        "INSERT INTO users (email, first_name, last_name) VALUES (?, ?, ?)",
-        (payload.email, payload.first_name, payload.last_name),
+        "INSERT INTO users (email, first_name, last_name, skills) VALUES (?, ?, ?, ?)",
+        (payload.email, payload.first_name, payload.last_name, payload.skills),
     )
     user_id = user_cursor.lastrowid
+
+    # Insert user interests
+    for category in payload.interests:
+        conn.execute(
+            "INSERT OR IGNORE INTO user_interests (user_id, category) VALUES (?, ?)",
+            (user_id, category),
+        )
 
     # Store hashed password in credentials table
     conn.execute(
@@ -63,7 +82,7 @@ def login(
 
     Accepts `username` (the user's email) and `password` via OAuth2 form data.
     """
-    # Look up user by email 
+    # Look up user by email
     # Note: Auth2 spec uses "username" field
     user = conn.execute(
         "SELECT user_id, email FROM users WHERE email = ?",
@@ -97,7 +116,9 @@ logger = logging.getLogger(__name__)
 
 
 @router.post("/request-reset")
-def request_reset(payload: RequestResetBody, conn: sqlite3.Connection = Depends(get_connection)):
+def request_reset(
+    payload: RequestResetBody, conn: sqlite3.Connection = Depends(get_connection)
+):
     """
     Request a password reset. If the email exists, a short-lived reset token is
     generated and logged to the console.
@@ -120,7 +141,9 @@ def request_reset(payload: RequestResetBody, conn: sqlite3.Connection = Depends(
 
 
 @router.post("/reset-password")
-def reset_password(payload: ResetPasswordBody, conn: sqlite3.Connection = Depends(get_connection)):
+def reset_password(
+    payload: ResetPasswordBody, conn: sqlite3.Connection = Depends(get_connection)
+):
     """
     Reset a user's password using a valid reset token.
     """

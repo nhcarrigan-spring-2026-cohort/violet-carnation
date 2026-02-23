@@ -54,7 +54,9 @@ const FilterModal = ({ filters, onChange }: FilterBarProps) => {
 
       {/* Availability */}
       <div className="flex items-center gap-3">
-        <span className="font-semibold text-muted-foreground whitespace-nowrap">Availability</span>
+        <span className="font-semibold text-muted-foreground whitespace-nowrap">
+          Availability
+        </span>
         <div className="flex flex-wrap items-center gap-3">
           {AVAILABILITY_OPTIONS.map((option) => (
             <div key={option} className="flex items-center gap-1.5">

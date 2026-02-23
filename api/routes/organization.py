@@ -106,6 +106,37 @@ def create_organization(
     )
 
 
+@router.get("/{organization_id}", response_model=Organization)
+def get_organization(
+    organization_id: int,
+    conn: sqlite3.Connection = Depends(get_connection),
+):
+    """
+    Get a single organization by ID.
+
+    :param organization_id: the ID of the organization to retrieve
+    :type organization_id: int
+    :param conn: the connection to the database
+    :type conn: sqlite3.Connection
+    """
+    row = conn.execute(
+        """
+        SELECT organization_id, name, description, created_by_user_id
+        FROM organizations
+        WHERE organization_id = ?
+        """,
+        (organization_id,),
+    ).fetchone()
+    if row is None:
+        raise HTTPException(status_code=404, detail="Organization not found")
+    return Organization(
+        organization_id=row["organization_id"],
+        name=row["name"],
+        description=row["description"],
+        created_by_user_id=row["created_by_user_id"],
+    )
+
+
 @router.delete("/{organization_id}", response_model=Organization)
 def delete_organization(
     organization_id: int,

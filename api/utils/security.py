@@ -1,4 +1,4 @@
-import os 
+import os
 from datetime import datetime, timedelta, timezone
 import bcrypt
 import jwt
@@ -22,13 +22,17 @@ def verify_password(plain_password: str, hashed_password: str) -> bool:
         hashed_password.encode("utf-8"),
     )
 
+
 # When we login, we'll call create_access_token with a dict of claims ("sub" - user's ID && "role" - volunteer or org_admin) and return the token to the client.
 def create_access_token(data: dict, expires_delta: timedelta | None = None) -> str:
     """Create a JWT access token with the given claims."""
     to_encode = data.copy()
-    expire = datetime.now(timezone.utc) + (expires_delta or timedelta(minutes=ACCESS_TOKEN_EXPIRE_MINUTES))
+    expire = datetime.now(timezone.utc) + (
+        expires_delta or timedelta(minutes=ACCESS_TOKEN_EXPIRE_MINUTES)
+    )
     to_encode["exp"] = expire
     return jwt.encode(to_encode, SECRET_KEY, algorithm=ALGORITHM)
+
 
 # Our protected routes will receive the token in something like "Authorization: Bearer <token>" and call decode_access_token to validate it and then extract the userID and role from the claims.
 def decode_access_token(token: str) -> dict:

@@ -4,3 +4,5 @@ export interface Organization {
   description: string | null;
   created_by_user_id: number;
 }
+
+export type { RoleAndUser } from "@/models/roles";

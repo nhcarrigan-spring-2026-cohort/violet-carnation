@@ -4,7 +4,8 @@ from fastapi import APIRouter, Depends, HTTPException, status
 
 from db import get_connection
 from models import User
-from models.user import Availability, UserIn, UserUpdate
+from models.user import UserIn, UserUpdate
+from utils.auth import get_current_user
 
 router = APIRouter(prefix="/users", tags=["users"])
 
@@ -15,7 +16,7 @@ def list_users(
     skip: int = 0,
     limit: int = 10,
     query: str | None = None,
-    availability: Availability | None = None,
+    availability: str | None = None,
 ):
     """
     List users with pagination, optional search query and the ability to filter by specific properties, currently supporting:
@@ -33,27 +34,29 @@ def list_users(
     """
 
     base_sql = """
-        SELECT user_id, email, first_name, last_name, availability
-        FROM users
+        SELECT u.user_id, u.email, u.first_name, u.last_name, u.availability, u.skills,
+               GROUP_CONCAT(ui.category) as interests_str
+        FROM users u
+        LEFT JOIN user_interests ui ON u.user_id = ui.user_id
     """
     params: list[object] = []
     conditions: list[str] = []
 
     if query:
         conditions.append(
-            "(lower(email) LIKE ? OR lower(first_name) LIKE ? OR lower(last_name) LIKE ?)"
+            "(lower(u.email) LIKE ? OR lower(u.first_name) LIKE ? OR lower(u.last_name) LIKE ?)"
         )
         term = f"%{query.lower()}%"
         params.extend([term, term, term])
 
     if availability:
-        conditions.append("availability = ?")
+        conditions.append("u.availability = ?")
         params.append(availability)
 
     if conditions:
         base_sql += " WHERE " + " AND ".join(conditions)
 
-    base_sql += " ORDER BY user_id LIMIT ? OFFSET ?"
+    base_sql += " GROUP BY u.user_id ORDER BY u.user_id LIMIT ? OFFSET ?"
     params.extend([limit, skip])
 
     rows = conn.execute(base_sql, params).fetchall()
@@ -64,6 +67,8 @@ def list_users(
             first_name=row["first_name"],
             last_name=row["last_name"],
             availability=row["availability"],
+            skills=row["skills"] or "",
+            interests=row["interests_str"].split(",") if row["interests_str"] else [],
         )
         for row in rows
     ]
@@ -81,19 +86,26 @@ def get_user(user_id: int, conn: sqlite3.Connection = Depends(get_connection)):
     :type conn: sqlite3.Connection
     """
     row = conn.execute(
-        "SELECT user_id, email, first_name, last_name, availability FROM users WHERE user_id = ?",
-        (user_id),
+        "SELECT user_id, email, first_name, last_name, availability, skills FROM users WHERE user_id = ?",
+        (user_id,),
     ).fetchone()
     if row is None:
         raise HTTPException(
             status_code=status.HTTP_404_NOT_FOUND, detail="User not found"
         )
+    interest_rows = conn.execute(
+        "SELECT category FROM user_interests WHERE user_id = ?",
+        (user_id,),
+    ).fetchall()
+    interests = [r["category"] for r in interest_rows]
     return User(
         user_id=row["user_id"],
         email=row["email"],
         first_name=row["first_name"],
         last_name=row["last_name"],
         availability=row["availability"],
+        skills=row["skills"] or "",
+        interests=interests,
     )
 
 
@@ -111,16 +123,30 @@ def create_user(payload: UserIn, conn: sqlite3.Connection = Depends(get_connecti
     :type conn: sqlite3.Connection
     """
     cursor = conn.execute(
-        "INSERT INTO users (email, first_name, last_name, availability) VALUES (?, ?, ?, ?)",
-        (payload.email, payload.first_name, payload.last_name, payload.availability),
+        "INSERT INTO users (email, first_name, last_name, availability, skills) VALUES (?, ?, ?, ?, ?)",
+        (
+            payload.email,
+            payload.first_name,
+            payload.last_name,
+            payload.availability,
+            payload.skills,
+        ),
     )
+    user_id = cursor.lastrowid
+    for category in payload.interests:
+        conn.execute(
+            "INSERT OR IGNORE INTO user_interests (user_id, category) VALUES (?, ?)",
+            (user_id, category),
+        )
     conn.commit()
     return User(
-        user_id=cursor.lastrowid,
+        user_id=user_id,
         email=payload.email,
         first_name=payload.first_name,
         last_name=payload.last_name,
         availability=payload.availability,
+        skills=payload.skills,
+        interests=payload.interests,
     )
 
 
@@ -134,6 +160,7 @@ def update_user(
     user_id: int,
     payload: UserUpdate,
     conn: sqlite3.Connection = Depends(get_connection),
+    current_user: dict = Depends(get_current_user),
 ):
     """
     # Update user profile fields.
@@ -147,9 +174,11 @@ def update_user(
     :param **conn**: the connection to the database \n
     :type **conn**: *sqlite3.Connection* \n
     """
+    if current_user.get("user_id") != user_id:
+        raise HTTPException(status_code=403, detail="Forbidden")
     row = conn.execute(
         """
-        SELECT user_id, email, first_name, last_name, availability
+        SELECT user_id, email, first_name, last_name, availability, skills
         FROM users
         WHERE user_id = ?
         """,
@@ -167,27 +196,50 @@ def update_user(
     updated_last_name = (
         payload.last_name if payload.last_name is not None else row["last_name"]
     )
-
     updated_availability = (
         payload.availability
         if payload.availability is not None
         else row["availability"]
     )
+    updated_skills = (
+        payload.skills if payload.skills is not None else row["skills"] or ""
+    )
 
     conn.execute(
         """
         UPDATE users
-        SET first_name = ?, last_name = ?, availability = ?
+        SET first_name = ?, last_name = ?, availability = ?, skills = ?
         WHERE user_id = ?
         """,
         (
             updated_first_name,
             updated_last_name,
             updated_availability,
+            updated_skills,
             user_id,
         ),
     )
+
+    # Upsert user_interests if provided
+    if payload.interests is not None:
+        conn.execute(
+            "DELETE FROM user_interests WHERE user_id = ?",
+            (user_id,),
+        )
+        for category in payload.interests:
+            conn.execute(
+                "INSERT OR IGNORE INTO user_interests (user_id, category) VALUES (?, ?)",
+                (user_id, category),
+            )
+
     conn.commit()
+
+    # Fetch updated interests
+    interest_rows = conn.execute(
+        "SELECT category FROM user_interests WHERE user_id = ?",
+        (user_id,),
+    ).fetchall()
+    updated_interests = [r["category"] for r in interest_rows]
 
     return User(
         user_id=row["user_id"],
@@ -195,4 +247,6 @@ def update_user(
         last_name=updated_last_name,
         email=row["email"],
         availability=updated_availability,
+        skills=updated_skills,
+        interests=updated_interests,
     )
