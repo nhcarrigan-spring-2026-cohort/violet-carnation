@@ -15,7 +15,7 @@ interface ActiveFiltersProps {
 const ActiveFilters = ({ filters, onRemove }: ActiveFiltersProps) => {
   const activeFilters: { key: string; label: string }[] = [];
 
-  if (filters.scope !== "all") {
+  if (filters.scope !== "all" && filters.scope) {
     activeFilters.push({
       key: "scope",
       label: `Scope: ${SCOPE_LABELS[filters.scope] ?? filters.scope}`,
