@@ -124,7 +124,13 @@ def create_user(payload: UserIn, conn: sqlite3.Connection = Depends(get_connecti
     """
     cursor = conn.execute(
         "INSERT INTO users (email, first_name, last_name, availability, skills) VALUES (?, ?, ?, ?, ?)",
-        (payload.email, payload.first_name, payload.last_name, payload.availability, payload.skills),
+        (
+            payload.email,
+            payload.first_name,
+            payload.last_name,
+            payload.availability,
+            payload.skills,
+        ),
     )
     user_id = cursor.lastrowid
     for category in payload.interests:

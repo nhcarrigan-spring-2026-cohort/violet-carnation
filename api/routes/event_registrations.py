@@ -8,7 +8,9 @@ from models import EventRegistrationIn, EventRegistrationWithEvent
 router = APIRouter(prefix="/event-registrations", tags=["event_registrations"])
 
 
-@router.get("", response_model=list[EventRegistrationWithEvent] | list[EventRegistrationIn])
+@router.get(
+    "", response_model=list[EventRegistrationWithEvent] | list[EventRegistrationIn]
+)
 def list_event_registrations(
     organization_id: int | None = None,
     event_id: int | None = None,
@@ -62,18 +64,29 @@ def list_event_registrations(
     params: list[int] = []
 
     if organization_id is not None:
-        conditions.append(("er.organization_id" if include_event_details else "organization_id") + " = ?")
+        conditions.append(
+            ("er.organization_id" if include_event_details else "organization_id")
+            + " = ?"
+        )
         params.append(organization_id)
     if event_id is not None:
-        conditions.append(("er.event_id" if include_event_details else "event_id") + " = ?")
+        conditions.append(
+            ("er.event_id" if include_event_details else "event_id") + " = ?"
+        )
         params.append(event_id)
     if user_id is not None:
-        conditions.append(("er.user_id" if include_event_details else "user_id") + " = ?")
+        conditions.append(
+            ("er.user_id" if include_event_details else "user_id") + " = ?"
+        )
         params.append(user_id)
 
     if conditions:
         query += " WHERE " + " AND ".join(conditions)
-    query += " ORDER BY " + ("er.registration_time" if include_event_details else "registration_time") + " DESC"
+    query += (
+        " ORDER BY "
+        + ("er.registration_time" if include_event_details else "registration_time")
+        + " DESC"
+    )
     query += " LIMIT ? OFFSET ?"
     params.extend([limit, skip])
 
