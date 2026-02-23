@@ -25,7 +25,7 @@ const ActiveFilters = ({ filters, onRemove }: ActiveFiltersProps) => {
   if (filters.availability) {
     activeFilters.push({
       key: "availability",
-      label: `Availability: ${filters.availability.join(", ")}`,
+      label: `Availability: ${filters.availability}`,
     });
   }
 

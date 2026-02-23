@@ -1,10 +1,10 @@
-import { Suspense } from "react";
-import Link from "next/link";
 import { Building2, Calendar, ClipboardList } from "lucide-react";
+import Link from "next/link";
+import { Suspense } from "react";
 
 import EventCarousel from "@/components/EventCarousel";
-import RecommendedEvents from "@/components/RecommendedEvents";
 import NavBar from "@/components/NavBar";
+import RecommendedEvents from "@/components/RecommendedEvents";
 import { Button } from "@/components/ui/button";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Separator } from "@/components/ui/separator";
@@ -12,13 +12,15 @@ import type { Event } from "@/models/event";
 
 async function UpcomingEvents() {
   const today = new Date().toISOString().split("T")[0];
+  // API_URL is a server-side env var; falls back to localhost for local development.
+  // Set API_URL in production to the internal API base URL (e.g. http://api:8000).
+  const apiUrl = process.env.API_URL ?? "http://localhost:8000";
   let events: Event[] = [];
 
   try {
-    const res = await fetch(
-      `http://localhost:8000/api/events?begin_date=${today}&limit=6`,
-      { cache: "no-store" },
-    );
+    const res = await fetch(`${apiUrl}/api/events?begin_date=${today}&limit=6`, {
+      cache: "no-store",
+    });
     if (res.ok) {
       events = await res.json();
     }

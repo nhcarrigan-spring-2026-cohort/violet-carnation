@@ -7,7 +7,6 @@ class UserIn(BaseModel):
     email: EmailStr
     first_name: str
     last_name: str
-    # TODO: resolve availability mismatch — frontend sends string[] (e.g. ["Mornings", "Weekends"]) but DB stores a single TEXT
     availability: Optional[str] = None
     skills: str = ""
     interests: list[str] = []
@@ -18,7 +17,6 @@ class User(BaseModel):
     email: EmailStr
     first_name: str
     last_name: str
-    # TODO: resolve availability mismatch — frontend sends string[] (e.g. ["Mornings", "Weekends"]) but DB stores a single TEXT
     availability: Optional[str] = None
     skills: str = ""
     interests: list[str] = []
@@ -27,7 +25,6 @@ class User(BaseModel):
 class UserUpdate(BaseModel):
     first_name: Optional[str] = None
     last_name: Optional[str] = None
-    # TODO: resolve availability mismatch — frontend sends string[] (e.g. ["Mornings", "Weekends"]) but DB stores a single TEXT
     availability: Optional[str] = None
     skills: Optional[str] = None
     interests: Optional[list[str]] = None

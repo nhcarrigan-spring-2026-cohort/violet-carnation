@@ -6,9 +6,8 @@ CREATE TABLE IF NOT EXISTS users (
     email TEXT NOT NULL UNIQUE,
     first_name TEXT NOT NULL,
     last_name TEXT NOT NULL,
-    availability TEXT DEFAULT NULL,
-    skills TEXT DEFAULT '',
-    interests TEXT DEFAULT NULL
+    availability TEXT DEFAULT NULL CHECK (availability IS NULL OR availability IN ('Mornings', 'Afternoons', 'Evenings', 'Weekends', 'Flexible')),
+    skills TEXT DEFAULT ''
 );
 CREATE TABLE IF NOT EXISTS organizations (
     organization_id INTEGER PRIMARY KEY AUTOINCREMENT,

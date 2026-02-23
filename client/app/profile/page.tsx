@@ -29,9 +29,6 @@ export default function ProfilePage() {
   // Form state
   const [firstName, setFirstName] = useState("");
   const [lastName, setLastName] = useState("");
-  // TODO: availability type mismatch — the frontend User model types `availability` as `string[] | null`
-  // but the backend stores/returns a single TEXT string. This form uses a single string to match
-  // backend storage. Needs a team decision to align types before production.
   const [availability, setAvailability] = useState<string>("");
   const [skills, setSkills] = useState("");
   const [interests, setInterests] = useState<string[]>([]);
@@ -50,14 +47,7 @@ export default function ProfilePage() {
         setUser(data);
         setFirstName(data.first_name);
         setLastName(data.last_name);
-        // Coerce availability to a single string regardless of whether the API
-        // returns a string or array (handles the frontend/backend type mismatch).
-        const avail = data.availability;
-        if (Array.isArray(avail)) {
-          setAvailability(avail[0] ?? "");
-        } else {
-          setAvailability((avail as string | null) ?? "");
-        }
+        setAvailability(data.availability ?? "");
         setSkills(data.skills ?? "");
         setInterests(data.interests ?? []);
       } catch {

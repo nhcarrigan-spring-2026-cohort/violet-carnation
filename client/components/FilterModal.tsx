@@ -5,9 +5,9 @@ import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import { RadioGroup, RadioGroupItem } from "@/components/ui/radio-group";
 import { Separator } from "@/components/ui/separator";
+import { EVENT_CATEGORIES, EventCategory } from "@/models/eventCategories";
 import { Filters, SCOPE_OPTIONS } from "@/models/filters";
 import { AVAILABILITY_OPTIONS, Availability } from "@/models/user";
-import { EVENT_CATEGORIES, EventCategory } from "@/models/eventCategories";
 
 const SCOPE_LABELS: Record<string, string> = {
   all: "All Events",
@@ -21,14 +21,6 @@ interface FilterBarProps {
 }
 
 const FilterModal = ({ filters, onChange }: FilterBarProps) => {
-  const handleAvailabilityToggle = (availability: Availability) => {
-    const current = filters.availability || [];
-    const updated = current.includes(availability)
-      ? current.filter((a) => a !== availability)
-      : [...current, availability];
-    onChange({ ...filters, availability: updated.length > 0 ? updated : null });
-  };
-
   const handleCategoryToggle = (category: EventCategory) => {
     const current = filters.category || [];
     const updated = current.includes(category)
@@ -107,20 +99,31 @@ const FilterModal = ({ filters, onChange }: FilterBarProps) => {
         <span className="font-semibold text-muted-foreground whitespace-nowrap">
           Availability
         </span>
-        <div className="flex flex-wrap items-center gap-3">
+        <RadioGroup
+          value={filters.availability ?? ""}
+          onValueChange={(value) =>
+            onChange({
+              ...filters,
+              availability: value ? (value as Availability) : null,
+            })
+          }
+          className="flex flex-wrap items-center gap-3"
+        >
+          <div className="flex items-center gap-1.5">
+            <RadioGroupItem value="" id="avail-none" />
+            <Label htmlFor="avail-none" className="cursor-pointer">
+              Any
+            </Label>
+          </div>
           {AVAILABILITY_OPTIONS.map((option) => (
             <div key={option} className="flex items-center gap-1.5">
-              <Checkbox
-                id={`avail-${option}`}
-                checked={filters.availability?.includes(option) || false}
-                onCheckedChange={() => handleAvailabilityToggle(option)}
-              />
+              <RadioGroupItem value={option} id={`avail-${option}`} />
               <Label htmlFor={`avail-${option}`} className="cursor-pointer">
                 {option}
               </Label>
             </div>
           ))}
-        </div>
+        </RadioGroup>
       </div>
     </div>
   );

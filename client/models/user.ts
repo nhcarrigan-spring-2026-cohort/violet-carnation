@@ -15,7 +15,7 @@ export interface User {
   email: string;
   first_name: string;
   last_name: string;
-  availability: string[] | null;
+  availability: Availability | null;
   // TODO: backend returns skills as a single string; frontend should split on comma when displaying as tags
   skills: string;
   interests: EventCategory[];
