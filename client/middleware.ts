@@ -49,7 +49,8 @@ export function middleware(request: NextRequest) {
 
   if (!session?.value) {
     const signInUrl = new URL("/signin", request.url);
-    signInUrl.searchParams.set("next", pathname);
+    const fullPath = request.nextUrl.pathname + request.nextUrl.search;
+    signInUrl.searchParams.set("next", fullPath);
     return NextResponse.redirect(signInUrl);
   }
 

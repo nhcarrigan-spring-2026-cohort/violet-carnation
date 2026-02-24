@@ -23,7 +23,10 @@ function SignInForm() {
 
     if (response.ok) {
       await refresh();
-      const next = searchParams.get("next") ?? "/";
+      const raw = searchParams.get("next") ?? "/";
+      // Only redirect to safe relative paths to prevent open-redirect attacks
+      const isSafeRelative = raw.startsWith("/") && !raw.startsWith("//");
+      const next = isSafeRelative ? raw : "/";
       router.push(next);
     }
   };

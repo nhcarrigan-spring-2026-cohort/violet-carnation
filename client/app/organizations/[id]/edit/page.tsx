@@ -62,9 +62,13 @@ const EditOrgPage = (props: PageProps) => {
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
     setError(null);
-    setSubmitting(true);
 
-    const userId = currentUserId ?? 1;
+    if (currentUserId === null) {
+      setError("You must be signed in to edit an organization.");
+      return;
+    }
+
+    setSubmitting(true);
 
     try {
       const res = await fetch(`/api/organization/${orgId}`, {
@@ -74,7 +78,6 @@ const EditOrgPage = (props: PageProps) => {
         body: JSON.stringify({
           name,
           description: description || null,
-          user_id: userId,
         }),
       });
 

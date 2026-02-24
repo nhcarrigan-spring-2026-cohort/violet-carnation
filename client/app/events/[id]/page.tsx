@@ -8,6 +8,7 @@ import { Skeleton } from "@/components/ui/skeleton";
 import { useCurrentUserId } from "@/lib/useCurrentUserId";
 import { Event } from "@/models/event";
 import Link from "next/link";
+import { useRouter } from "next/navigation";
 import { use, useEffect, useState } from "react";
 import { toast } from "sonner";
 
@@ -19,6 +20,7 @@ const EventDetailPage = (props: PageProps) => {
   const params = use(props.params);
   const eventId = Number(params.id);
   const userId = useCurrentUserId();
+  const router = useRouter();
 
   const [event, setEvent] = useState<Event | null>(null);
   const [isRegistered, setIsRegistered] = useState(false);
@@ -43,13 +45,15 @@ const EventDetailPage = (props: PageProps) => {
         const eventData: Event = await eventRes.json();
         setEvent(eventData);
 
-        // TODO: replace hardcoded user_id=1 with authenticated user
-        const regRes = await fetch(
-          `/api/event-registrations?event_id=${eventId}&user_id=1`,
-        );
-        if (regRes.ok) {
-          const regData: unknown[] = await regRes.json();
-          setIsRegistered(regData.length > 0);
+        // Check existing registration status for the authenticated user
+        if (userId !== null) {
+          const regRes = await fetch(
+            `/api/event-registrations?event_id=${eventId}&user_id=${userId}`,
+          );
+          if (regRes.ok) {
+            const regData: unknown[] = await regRes.json();
+            setIsRegistered(regData.length > 0);
+          }
         }
       } catch {
         setError("An unexpected error occurred.");
@@ -63,6 +67,10 @@ const EventDetailPage = (props: PageProps) => {
 
   const handleRegister = async () => {
     if (!event) return;
+    if (userId === null) {
+      router.push("/signin");
+      return;
+    }
     setRegistering(true);
     try {
       const res = await fetch("/api/event-registrations", {
@@ -92,10 +100,14 @@ const EventDetailPage = (props: PageProps) => {
 
   const handleUnregister = async () => {
     if (!event) return;
+    if (userId === null) {
+      router.push("/signin");
+      return;
+    }
     setRegistering(true);
     try {
       const res = await fetch(
-        `/api/event-registrations/${event.organization_id}/${event.id}/${userId ?? 1}`,
+        `/api/event-registrations/${event.organization_id}/${event.id}/${userId}`,
         { method: "DELETE", credentials: "include" },
       );
       if (res.ok) {

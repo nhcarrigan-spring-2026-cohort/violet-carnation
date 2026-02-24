@@ -32,7 +32,6 @@ import {
   TableRow,
 } from "@/components/ui/table";
 import { useRoles } from "@/context/RolesContext";
-import { useCurrentUserId } from "@/lib/useCurrentUserId";
 import type { RoleAndUser } from "@/models/organizations";
 import type { PermissionLevel } from "@/models/roles";
 import { use, useEffect, useState } from "react";
@@ -46,7 +45,6 @@ const OrgUsersPage = (props: PageProps) => {
   const params = use(props.params);
   const orgId = Number(params.id);
   const { roles } = useRoles();
-  const currentUserId = useCurrentUserId();
 
   const [members, setMembers] = useState<RoleAndUser[]>([]);
   const [loading, setLoading] = useState(true);
@@ -116,13 +114,12 @@ const OrgUsersPage = (props: PageProps) => {
   };
 
   const handleChangeRole = async (memberId: number, level: PermissionLevel) => {
-    const userId = currentUserId ?? 1;
     try {
       const res = await fetch(`/api/organization/${orgId}/users/${memberId}`, {
         method: "PUT",
         headers: { "Content-Type": "application/json" },
         credentials: "include",
-        body: JSON.stringify({ permission_level: level, user_id: userId }),
+        body: JSON.stringify({ permission_level: level }),
       });
       if (!res.ok) {
         const data = await res.json().catch(() => null);
@@ -137,10 +134,9 @@ const OrgUsersPage = (props: PageProps) => {
   };
 
   const handleRemoveUser = async (memberId: number) => {
-    const userId = currentUserId ?? 1;
     try {
       const res = await fetch(
-        `/api/organization/${orgId}/users/${memberId}?user_id=${userId}`,
+        `/api/organization/${orgId}/users/${memberId}`,
         { method: "DELETE", credentials: "include" },
       );
       if (!res.ok) {

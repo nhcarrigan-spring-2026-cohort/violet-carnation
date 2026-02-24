@@ -67,8 +67,6 @@ def create_organization(
     """
     Create an organization and grant the creator admin permissions.
 
-    TODO: replace user_id with current user from authentication middleware.
-
     For the 'category' attribute, create your own or copy and paste from the following:
     1. Animal Welfare  
     2. Hunger and Food Security  
@@ -91,26 +89,19 @@ def create_organization(
     19. Job Training & Employment  
     20. Technology & Digital Literacy  
 
-    :param payload: organization details and user ID for the creator
+    :param payload: organization details (name, description, category)
     :type payload: OrganizationCreate
     :param conn: the connection to the database
     :type conn: sqlite3.Connection
     """
-    user_row = conn.execute(
-        "SELECT user_id FROM users WHERE user_id = ?",
-        (payload.user_id,),
-    ).fetchone()
-    if user_row is None:
-        raise HTTPException(
-            status_code=status.HTTP_404_NOT_FOUND, detail="User not found"
-        )
+    user_id = _current_user["user_id"]
 
     cursor = conn.execute(
         """
         INSERT INTO organizations (name, description, category, created_by_user_id)
         VALUES (?, ?, ?, ?)
         """,
-        (payload.name, payload.description, payload.category, payload.user_id),
+        (payload.name, payload.description, payload.category, user_id),
     )
     organization_id = cursor.lastrowid
 
@@ -119,7 +110,7 @@ def create_organization(
         INSERT INTO roles (user_id, organization_id, permission_level)
         VALUES (?, ?, ?)
         """,
-        (payload.user_id, organization_id, "admin"),
+        (user_id, organization_id, "admin"),
     )
     conn.commit()
 
@@ -128,7 +119,7 @@ def create_organization(
         name=payload.name,
         description=payload.description,
         category=payload.category,
-        created_by_user_id=payload.user_id,
+        created_by_user_id=user_id,
     )
 
 
@@ -166,19 +157,14 @@ def get_organization(
 @router.delete("/{organization_id}", response_model=Organization)
 def delete_organization(
     organization_id: int,
-    user_id: int,
     conn: sqlite3.Connection = Depends(get_connection),
     _current_user: dict = Depends(get_current_user),
 ):
     """
     Delete an organization if the requesting user is the creator.
 
-    TODO: replace user_id with current user from authentication middleware.
-
     :param organization_id: the organization to delete
     :type organization_id: int
-    :param user_id: the user attempting deletion
-    :type user_id: int
     :param conn: the connection to the database
     :type conn: sqlite3.Connection
     """
@@ -195,7 +181,7 @@ def delete_organization(
             status_code=status.HTTP_404_NOT_FOUND, detail="Organization not found"
         )
 
-    if row["created_by_user_id"] != user_id:
+    if row["created_by_user_id"] != _current_user["user_id"]:
         raise HTTPException(
             status_code=status.HTTP_403_FORBIDDEN,
             detail="Only the organization creator can delete this organization",
@@ -226,11 +212,9 @@ def update_organization(
     """
     Update organization name/description if the user is an admin.
 
-    TODO: replace user_id with current user from authentication middleware.
-
     :param organization_id: the organization to update
     :type organization_id: int
-    :param payload: updated organization data and user ID
+    :param payload: updated organization data
     :type payload: OrganizationUpdate
     :param conn: the connection to the database
     :type conn: sqlite3.Connection
@@ -254,7 +238,7 @@ def update_organization(
         FROM roles
         WHERE organization_id = ? AND user_id = ?
         """,
-        (organization_id, payload.user_id),
+        (organization_id, _current_user["user_id"]),
     ).fetchone()
     if role_row is None or role_row["permission_level"] != "admin":
         raise HTTPException(

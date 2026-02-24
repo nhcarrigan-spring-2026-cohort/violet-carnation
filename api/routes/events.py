@@ -247,12 +247,23 @@ def add_event(
 ):
     """
     Create a new event and add it to the database.
+    Only admins of the target organization may create events.
 
     :param payload: the event data to create
     :type payload: EventIn
     :param conn: the connection to the database
     :type conn: sqlite3.Connection
     """
+    role_row = conn.execute(
+        "SELECT permission_level FROM roles WHERE organization_id = ? AND user_id = ?",
+        (payload.organization_id, _current_user["user_id"]),
+    ).fetchone()
+    if role_row is None or role_row["permission_level"] != "admin":
+        raise HTTPException(
+            status_code=status.HTTP_403_FORBIDDEN,
+            detail="Only organization admins can create events",
+        )
+
     cursor = conn.execute(
         "INSERT INTO events (name, description, location, date_time, organization_id, category) VALUES (?, ?, ?, ?, ?, ?)",
         (
@@ -285,6 +296,7 @@ def update_event(
 ):
     """
     Update an existing event with new data. Only fields provided in the payload will be updated.
+    Only admins of the event's organization may update it.
 
     :param event_id: the ID of the event to update
     :type event_id: int
@@ -304,6 +316,16 @@ def update_event(
     if row is None:
         raise HTTPException(
             status_code=status.HTTP_404_NOT_FOUND, detail="Event not found"
+        )
+
+    role_row = conn.execute(
+        "SELECT permission_level FROM roles WHERE organization_id = ? AND user_id = ?",
+        (row["organization_id"], _current_user["user_id"]),
+    ).fetchone()
+    if role_row is None or role_row["permission_level"] != "admin":
+        raise HTTPException(
+            status_code=status.HTTP_403_FORBIDDEN,
+            detail="Only organization admins can update events",
         )
 
     updated_name = payload.name if payload.name is not None else row["name"]
@@ -361,7 +383,7 @@ def delete_event(
     _current_user: dict = Depends(get_current_user),
 ):
     """
-    Delete an event from the database.
+    Delete an event from the database. Only admins of the event's organization may delete it.
 
     :param event_id: the ID of the event to delete
     :type event_id: int
@@ -379,6 +401,16 @@ def delete_event(
     if row is None:
         raise HTTPException(
             status_code=status.HTTP_404_NOT_FOUND, detail="Event not found"
+        )
+
+    role_row = conn.execute(
+        "SELECT permission_level FROM roles WHERE organization_id = ? AND user_id = ?",
+        (row["organization_id"], _current_user["user_id"]),
+    ).fetchone()
+    if role_row is None or role_row["permission_level"] != "admin":
+        raise HTTPException(
+            status_code=status.HTTP_403_FORBIDDEN,
+            detail="Only organization admins can delete events",
         )
 
     conn.execute(

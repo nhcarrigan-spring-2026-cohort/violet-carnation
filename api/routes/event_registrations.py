@@ -183,7 +183,7 @@ def create_event_registration(
 			VALUES (?, ?, ?, ?)
 			""",
             (
-                payload.user_id,
+                _current_user["user_id"],
                 payload.event_id,
                 payload.organization_id,
                 payload.registration_time,
@@ -196,7 +196,12 @@ def create_event_registration(
             detail="Registration already exists",
         )
 
-    return payload
+    return EventRegistrationIn(
+        user_id=_current_user["user_id"],
+        event_id=payload.event_id,
+        organization_id=payload.organization_id,
+        registration_time=payload.registration_time,
+    )
 
 
 @router.delete(
@@ -221,6 +226,12 @@ def delete_event_registration(
     :param conn: the connection to the database
     :type conn: sqlite3.Connection
     """
+    if user_id != _current_user["user_id"]:
+        raise HTTPException(
+            status_code=status.HTTP_403_FORBIDDEN,
+            detail="You can only delete your own registrations",
+        )
+
     row = conn.execute(
         """
 		SELECT user_id, event_id, organization_id, registration_time

@@ -15,11 +15,9 @@ class OrganizationCreate(BaseModel):
     name: str
     description: Optional[str] = None
     category: categoriesEnum
-    user_id: PositiveInt
 
 
 class OrganizationUpdate(BaseModel):
     name: Optional[str] = None
     description: Optional[str] = None
     category: categoriesEnum
-    user_id: PositiveInt
