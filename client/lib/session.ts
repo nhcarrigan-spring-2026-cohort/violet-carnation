@@ -15,9 +15,7 @@ export interface SessionPayload {
  *
  * @returns The parsed payload object, or `null` if decoding fails.
  */
-export function decodeJwtPayload(
-  segment: string,
-): Record<string, unknown> | null {
+export function decodeJwtPayload(segment: string): Record<string, unknown> | null {
   try {
     // Convert base64url → base64 (replace URL-safe chars)
     const base64 = segment.replace(/-/g, "+").replace(/_/g, "/");

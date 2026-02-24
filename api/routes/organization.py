@@ -68,26 +68,26 @@ def create_organization(
     Create an organization and grant the creator admin permissions.
 
     For the 'category' attribute, create your own or copy and paste from the following:
-    1. Animal Welfare  
-    2. Hunger and Food Security  
-    3. Homelessness and Housing  
-    4. Education & Tutoring  
-    5. Youth and Children  
-    6. Senior Care and Support  
-    7. Health & Medical  
-    8. Environmental Conservation  
-    9. Community Development  
-    10. Arts & Culture  
-    11. Disaster Relief  
-    12. Veterans & Military Families  
-    13. Immigrants & Refugees  
-    14. Disability Services  
-    15. Mental Health & Crisis Support  
-    16. Advocacy & Human Rights  
-    17. Faith-Based Services  
-    18. Sports & Recreation  
-    19. Job Training & Employment  
-    20. Technology & Digital Literacy  
+    1. Animal Welfare
+    2. Hunger and Food Security
+    3. Homelessness and Housing
+    4. Education & Tutoring
+    5. Youth and Children
+    6. Senior Care and Support
+    7. Health & Medical
+    8. Environmental Conservation
+    9. Community Development
+    10. Arts & Culture
+    11. Disaster Relief
+    12. Veterans & Military Families
+    13. Immigrants & Refugees
+    14. Disability Services
+    15. Mental Health & Crisis Support
+    16. Advocacy & Human Rights
+    17. Faith-Based Services
+    18. Sports & Recreation
+    19. Job Training & Employment
+    20. Technology & Digital Literacy
 
     :param payload: organization details (name, description, category)
     :type payload: OrganizationCreate

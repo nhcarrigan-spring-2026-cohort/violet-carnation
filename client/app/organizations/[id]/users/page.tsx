@@ -135,10 +135,10 @@ const OrgUsersPage = (props: PageProps) => {
 
   const handleRemoveUser = async (memberId: number) => {
     try {
-      const res = await fetch(
-        `/api/organization/${orgId}/users/${memberId}`,
-        { method: "DELETE", credentials: "include" },
-      );
+      const res = await fetch(`/api/organization/${orgId}/users/${memberId}`, {
+        method: "DELETE",
+        credentials: "include",
+      });
       if (!res.ok) {
         const data = await res.json().catch(() => null);
         toast.error(data?.detail ?? "Failed to remove user.");

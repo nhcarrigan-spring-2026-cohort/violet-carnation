@@ -1,6 +1,8 @@
 from typing import Optional
-from utils.categories import categoriesEnum
+
 from pydantic import BaseModel, PositiveInt
+
+from utils.categories import categoriesEnum
 
 
 class Organization(BaseModel):
