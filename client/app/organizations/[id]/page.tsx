@@ -7,6 +7,7 @@ import { Card, CardHeader, CardTitle } from "@/components/ui/card";
 import { Separator } from "@/components/ui/separator";
 import { Skeleton } from "@/components/ui/skeleton";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
+import { useCurrentUserId } from "@/lib/useCurrentUserId";
 import { Event } from "@/models/event";
 import { Organization, RoleAndUser } from "@/models/organizations";
 import Link from "next/link";
@@ -27,6 +28,7 @@ const IndividualOrganizationPage = (props: PageProps) => {
   const [error, setError] = useState<string | null>(null);
   const [joining, setJoining] = useState(false);
   const [joinSuccess, setJoinSuccess] = useState(false);
+  const currentUserId = useCurrentUserId();
 
   useEffect(() => {
     const fetchAll = async () => {
@@ -114,10 +116,9 @@ const IndividualOrganizationPage = (props: PageProps) => {
     );
   }
 
-  // TODO: replace with real auth check once auth context is available
-  const isAdmin = members.some(
-    (m) => m.user_id === 1 && m.permission_level === "admin",
-  );
+  const isAdmin =
+    currentUserId != null &&
+    members.some((m) => m.user_id === currentUserId && m.permission_level === "admin");
   const isMember = members.some((m) => m.user_id === 1);
 
   return (

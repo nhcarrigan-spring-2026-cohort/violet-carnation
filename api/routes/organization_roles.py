@@ -1,9 +1,17 @@
 import sqlite3
+from typing import Literal, Optional
 
 from fastapi import APIRouter, Depends, HTTPException, status
+from pydantic import BaseModel, PositiveInt
 
 from db import get_connection
 from models import RoleAndUser, RoleCreate, RoleUpdate
+from utils.auth import get_current_user
+
+
+class RoleCreateRequest(BaseModel):
+    user_id: Optional[PositiveInt] = None
+    permission_level: Literal["admin", "volunteer"]
 
 router = APIRouter(prefix="")
 
@@ -46,8 +54,9 @@ def list_organization_users(
 @router.post("", response_model=RoleAndUser, status_code=status.HTTP_201_CREATED)
 def add_organization_user(
     organization_id: int,
-    payload: RoleCreate,
+    payload: RoleCreateRequest,
     conn: sqlite3.Connection = Depends(get_connection),
+    _current_user: dict = Depends(get_current_user),
 ):
     """
     Add a user to an organization by creating a role record. This can currently be done by anyone, even those not in the organization.
@@ -61,9 +70,11 @@ def add_organization_user(
     :param conn: the connection to the database
     :type conn: sqlite3.Connection
     """
+    effective_user_id = payload.user_id if payload.user_id is not None else _current_user["user_id"]
+
     user_row = conn.execute(
         "SELECT user_id, first_name, last_name FROM users WHERE user_id = ?",
-        (payload.user_id,),
+        (effective_user_id,),
     ).fetchone()
     if user_row is None:
         raise HTTPException(
@@ -76,7 +87,7 @@ def add_organization_user(
             INSERT INTO roles (user_id, organization_id, permission_level)
             VALUES (?, ?, ?)
             """,
-            (payload.user_id, organization_id, payload.permission_level),
+            (effective_user_id, organization_id, payload.permission_level),
         )
         conn.commit()
     except sqlite3.IntegrityError:
@@ -86,7 +97,7 @@ def add_organization_user(
         )
 
     return RoleAndUser(
-        user_id=payload.user_id,
+        user_id=effective_user_id,
         organization_id=organization_id,
         name=f"{user_row['first_name']} {user_row['last_name']}",
         permission_level=payload.permission_level,
@@ -102,6 +113,7 @@ def remove_organization_user(
     organization_id: int,
     user_id: int,
     conn: sqlite3.Connection = Depends(get_connection),
+    _current_user: dict = Depends(get_current_user),
 ):
     """
     Remove a user from an organization by deleting their role connecting the user and the organization. This can only be performed by users within the organization with the role of admin, or
@@ -115,7 +127,17 @@ def remove_organization_user(
     :type conn: sqlite3.Connection
     """
 
-    # TODO: verify the user making the request has permissions to remove this user, either by being an admin or the user themselves. This will require auth, which is not yet implemented, so for now this endpoint is unprotected.
+    # Check permission: must be the target user or an org admin
+    if user_id != _current_user["user_id"]:
+        admin_row = conn.execute(
+            "SELECT permission_level FROM roles WHERE organization_id = ? AND user_id = ? AND permission_level = 'admin'",
+            (organization_id, _current_user["user_id"]),
+        ).fetchone()
+        if admin_row is None:
+            raise HTTPException(
+                status_code=status.HTTP_403_FORBIDDEN,
+                detail="Only admins or the user themselves can remove a member",
+            )
 
     row = conn.execute(
         """
@@ -156,6 +178,7 @@ def update_organization_user_role(
     user_id: int,
     payload: RoleUpdate,
     conn: sqlite3.Connection = Depends(get_connection),
+    _current_user: dict = Depends(get_current_user),
 ):
     """
     Update a user's permission level in an organization.
@@ -169,6 +192,16 @@ def update_organization_user_role(
     :param conn: the connection to the database
     :type conn: sqlite3.Connection
     """
+    admin_row = conn.execute(
+        "SELECT permission_level FROM roles WHERE organization_id = ? AND user_id = ? AND permission_level = 'admin'",
+        (organization_id, _current_user["user_id"]),
+    ).fetchone()
+    if admin_row is None:
+        raise HTTPException(
+            status_code=status.HTTP_403_FORBIDDEN,
+            detail="Only organization admins can update member roles",
+        )
+
     row = conn.execute(
         """
         SELECT r.user_id, r.organization_id, r.permission_level, u.first_name, u.last_name

@@ -46,7 +46,7 @@ const EventDetailPage = (props: PageProps) => {
         setEvent(eventData);
 
         // Check existing registration status for the authenticated user
-        if (userId !== null) {
+        if (typeof userId === "number") {
           const regRes = await fetch(
             `/api/event-registrations?event_id=${eventId}&user_id=${userId}`,
           );
@@ -63,12 +63,12 @@ const EventDetailPage = (props: PageProps) => {
     };
 
     fetchAll();
-  }, [eventId]);
+  }, [eventId, userId]);
 
   const handleRegister = async () => {
     if (!event) return;
-    if (userId === null) {
-      router.push("/signin");
+    if (typeof userId !== "number") {
+      if (userId === null) router.push("/signin");
       return;
     }
     setRegistering(true);
@@ -80,7 +80,7 @@ const EventDetailPage = (props: PageProps) => {
         body: JSON.stringify({
           organization_id: event.organization_id,
           event_id: event.id,
-          user_id: userId ?? 1,
+          user_id: userId,
           registration_time: new Date().toISOString().replace(/\.\d{3}Z$/, ""),
         }),
       });
@@ -100,8 +100,8 @@ const EventDetailPage = (props: PageProps) => {
 
   const handleUnregister = async () => {
     if (!event) return;
-    if (userId === null) {
-      router.push("/signin");
+    if (typeof userId !== "number") {
+      if (userId === null) router.push("/signin");
       return;
     }
     setRegistering(true);
