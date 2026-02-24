@@ -1,8 +1,9 @@
 import sqlite3
 from generate_events_data import generate_events_data
 
+
 def insert_events_data(conn, cursor, events_data):
-    # insert data into events table 
+    # insert data into events table
     insert_query = """
     INSERT INTO events (
         name, description, location, date_time, organization_id
@@ -33,7 +34,9 @@ def verify_data(cursor):
 
     print("\nShowing 5 records: ")
     for record in sample_records:
-        print(f"id: {record[0]},\nname: {record[1]},\ndescription: {record[2]},\nlocation: {record[3]},\ntime: {record[4]},\norganization_id {record[5]}")
+        print(
+            f"id: {record[0]},\nname: {record[1]},\ndescription: {record[2]},\nlocation: {record[3]},\ntime: {record[4]},\norganization_id {record[5]}"
+        )
 
 
 # main configuration

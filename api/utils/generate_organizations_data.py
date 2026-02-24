@@ -23,7 +23,6 @@ def get_admin_users(conn: sqlite3.Connection):
     return rows
 
 
-
 def generate_organizations_data(org_list_file, conn: sqlite3.Connection):
     """Generate fake data for Organizations table"""
     admin_users = get_admin_users(conn)  # user_id, organization_id, permission_level

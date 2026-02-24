@@ -5,13 +5,14 @@ from fastapi import APIRouter, Depends, HTTPException, status
 from pydantic import BaseModel, PositiveInt
 
 from db import get_connection
-from models import RoleAndUser, RoleCreate, RoleUpdate
+from models import RoleAndUser, RoleUpdate
 from utils.auth import get_current_user
 
 
 class RoleCreateRequest(BaseModel):
     user_id: Optional[PositiveInt] = None
     permission_level: Literal["admin", "volunteer"]
+
 
 router = APIRouter(prefix="")
 
@@ -70,7 +71,9 @@ def add_organization_user(
     :param conn: the connection to the database
     :type conn: sqlite3.Connection
     """
-    effective_user_id = payload.user_id if payload.user_id is not None else _current_user["user_id"]
+    effective_user_id = (
+        payload.user_id if payload.user_id is not None else _current_user["user_id"]
+    )
 
     user_row = conn.execute(
         "SELECT user_id, first_name, last_name FROM users WHERE user_id = ?",
