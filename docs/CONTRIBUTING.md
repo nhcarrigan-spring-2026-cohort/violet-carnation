@@ -159,7 +159,7 @@ You _should_ see `(.venv)` appear in your terminal prompt, to see how to verify 
   cp .env.example .env
 ```
 
-Open `api/.env` and set values as needed. For local development the defaults
+Open `.env` and set values as needed. For local development the defaults
 work out of the box. For any non-development environment you **must** set
 `SECRET_KEY` to a long random secret and `ENV` to something other than
 `"development"` — the server will refuse to start otherwise.

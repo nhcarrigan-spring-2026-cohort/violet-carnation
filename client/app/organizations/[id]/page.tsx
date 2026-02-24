@@ -74,7 +74,7 @@ const IndividualOrganizationPage = (props: PageProps) => {
         method: "POST",
         headers: { "Content-Type": "application/json" },
         credentials: "include",
-        body: JSON.stringify({ user_id: 1, permission_level: "volunteer" }),
+        body: JSON.stringify({ permission_level: "volunteer" }),
       });
       if (res.ok) {
         setJoinSuccess(true);
