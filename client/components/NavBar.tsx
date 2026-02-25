@@ -2,7 +2,7 @@
 
 import Link from "next/link";
 import { ModeToggle } from "@/components/ui/mode-toggle";
-import { useEffect, useState } from "react";
+import { useState } from "react";
 import { useRouter } from "next/navigation";
 
 export default function Navbar() {
