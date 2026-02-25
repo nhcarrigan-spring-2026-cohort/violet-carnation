@@ -2,8 +2,24 @@
 
 import Link from "next/link";
 import { ModeToggle } from "@/components/ui/mode-toggle";
+import { useEffect, useState } from "react";
+import { useRouter } from "next/navigation";
 
 export default function Navbar() {
+  const router = useRouter();
+  const [isLoggedIn, setIsLoggedIn] = useState(() => {
+    if (typeof window !== "undefined") {
+      return !!sessionStorage.getItem("token");
+    }
+    return false;
+  });
+
+  const handleSignOut = () => {
+    sessionStorage.removeItem("token");
+    setIsLoggedIn(false);
+    router.push("/");
+  };
+
   return (
     <nav className="flex items-center justify-between p-4 border-b">
       <Link href="/" className="font-semibold text-sm">
@@ -16,15 +32,17 @@ export default function Navbar() {
         <Link href="/organizations" className="text-sm hover:underline">
           Organizations
         </Link>
-        <Link href="/profile" className="text-sm hover:underline">
-          Profile
-        </Link>
-        <Link href="/signin" className="text-sm hover:underline">
-          Sign In
-        </Link>
-        <Link href="/signup" className="text-sm hover:underline">
-          Sign Up
-        </Link>
+        {isLoggedIn ? (
+          <>
+            <Link href="/profile">Profile</Link>
+            <button onClick={handleSignOut}>Sign Out</button>
+          </>
+        ) : (
+          <>
+            <Link href="/signin">Sign In</Link>
+            <Link href="/signup">Sign Up</Link>
+          </>
+        )}
         <ModeToggle />
       </div>
     </nav>
