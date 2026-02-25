@@ -1,5 +1,7 @@
 import random
 from enum import Enum
+
+
 class categoriesEnum(str, Enum):
     # Set constants in order to validate API requests
     animal_welfare = "animal_welfare"
@@ -24,7 +26,7 @@ class categoriesEnum(str, Enum):
     technology_and_digital_literacy = "technology_and_digital_literacy"
 
 
-def generate_category(): 
+def generate_category():
     # Return a category for database seeding
     org_categories = [
         "animal_welfare",
@@ -46,7 +48,7 @@ def generate_category():
         "faith_based_services",
         "sports_and_recreation",
         "job_training_and_employment",
-        "technology_and_digital_literacy"
+        "technology_and_digital_literacy",
     ]
-    
+
     return random.choice(org_categories)

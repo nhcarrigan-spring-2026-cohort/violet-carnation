@@ -1,16 +1,17 @@
 "use client";
 
-import { use, useEffect, useState } from "react";
-import Link from "next/link";
+import EventCarousel from "@/components/EventCarousel";
 import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
 import { Card, CardHeader, CardTitle } from "@/components/ui/card";
 import { Separator } from "@/components/ui/separator";
 import { Skeleton } from "@/components/ui/skeleton";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
-import EventCarousel from "@/components/EventCarousel";
+import { useCurrentUserId } from "@/lib/useCurrentUserId";
 import { Event } from "@/models/event";
 import { Organization, RoleAndUser } from "@/models/organizations";
+import Link from "next/link";
+import { use, useEffect, useState } from "react";
 
 interface PageProps {
   params: Promise<{ id: string }>;
@@ -27,6 +28,7 @@ const IndividualOrganizationPage = (props: PageProps) => {
   const [error, setError] = useState<string | null>(null);
   const [joining, setJoining] = useState(false);
   const [joinSuccess, setJoinSuccess] = useState(false);
+  const currentUserId = useCurrentUserId();
 
   useEffect(() => {
     const fetchAll = async () => {
@@ -70,11 +72,11 @@ const IndividualOrganizationPage = (props: PageProps) => {
   const handleJoin = async () => {
     setJoining(true);
     try {
-      // TODO: replace hardcoded user_id=1 with authenticated user
       const res = await fetch(`/api/organization/${orgId}/users`, {
         method: "POST",
         headers: { "Content-Type": "application/json" },
-        body: JSON.stringify({ user_id: 1, permission_level: "volunteer" }),
+        credentials: "include",
+        body: JSON.stringify({ permission_level: "volunteer" }),
       });
       if (res.ok) {
         setJoinSuccess(true);
@@ -114,10 +116,9 @@ const IndividualOrganizationPage = (props: PageProps) => {
     );
   }
 
-  // TODO: replace with real auth check once auth context is available
-  const isAdmin = members.some(
-    (m) => m.user_id === 1 && m.permission_level === "admin",
-  );
+  const isAdmin =
+    currentUserId != null &&
+    members.some((m) => m.user_id === currentUserId && m.permission_level === "admin");
   const isMember = members.some((m) => m.user_id === 1);
 
   return (

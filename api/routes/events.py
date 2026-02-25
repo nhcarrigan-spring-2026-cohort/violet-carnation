@@ -5,6 +5,7 @@ from fastapi import APIRouter, Depends, HTTPException, Query, status
 
 from db import get_connection
 from models import Event, EventIn, EventUpdate
+from utils.auth import get_current_user
 
 router = APIRouter(prefix="/events", tags=["events"])
 
@@ -154,12 +155,12 @@ def list_events(
 
 @router.get("/recommended", response_model=list[Event])
 def recommended_events(
-    user_id: int,
     limit: int = 10,
     conn: sqlite3.Connection = Depends(get_connection),
+    current_user: dict = Depends(get_current_user),
 ):
     """
-    Get a list of events recommended for a specific user.
+    Get a list of events recommended for the currently authenticated user.
 
     Recommendations are based on the user's interests (stored in the ``user_interests``
     table). Events the user has already registered for are excluded. Results are
@@ -167,13 +168,12 @@ def recommended_events(
     appear first, followed by all other events, both groups sorted by
     ``date_time`` ascending.
 
-    :param user_id: the ID of the user to fetch recommendations for
-    :type user_id: int
     :param limit: maximum number of events to return (default 10)
     :type limit: int
     :param conn: the connection to the database
     :type conn: sqlite3.Connection
     """
+    user_id = current_user["user_id"]
     # Load the user's interest categories
     interest_rows = conn.execute(
         "SELECT category FROM user_interests WHERE user_id = ?", (user_id,)
@@ -239,15 +239,30 @@ def get_event(event_id: int, conn=Depends(get_connection)):
 
 
 @router.post("", status_code=status.HTTP_201_CREATED)
-def add_event(payload: EventIn, conn=Depends(get_connection)):
+def add_event(
+    payload: EventIn,
+    conn=Depends(get_connection),
+    _current_user: dict = Depends(get_current_user),
+):
     """
     Create a new event and add it to the database.
+    Only admins of the target organization may create events.
 
     :param payload: the event data to create
     :type payload: EventIn
     :param conn: the connection to the database
     :type conn: sqlite3.Connection
     """
+    role_row = conn.execute(
+        "SELECT permission_level FROM roles WHERE organization_id = ? AND user_id = ?",
+        (payload.organization_id, _current_user["user_id"]),
+    ).fetchone()
+    if role_row is None or role_row["permission_level"] != "admin":
+        raise HTTPException(
+            status_code=status.HTTP_403_FORBIDDEN,
+            detail="Only organization admins can create events",
+        )
+
     cursor = conn.execute(
         "INSERT INTO events (name, description, location, date_time, organization_id, category) VALUES (?, ?, ?, ?, ?, ?)",
         (
@@ -276,9 +291,11 @@ def update_event(
     event_id: int,
     payload: EventUpdate,
     conn: sqlite3.Connection = Depends(get_connection),
+    _current_user: dict = Depends(get_current_user),
 ):
     """
     Update an existing event with new data. Only fields provided in the payload will be updated.
+    Only admins of the event's organization may update it.
 
     :param event_id: the ID of the event to update
     :type event_id: int
@@ -298,6 +315,16 @@ def update_event(
     if row is None:
         raise HTTPException(
             status_code=status.HTTP_404_NOT_FOUND, detail="Event not found"
+        )
+
+    role_row = conn.execute(
+        "SELECT permission_level FROM roles WHERE organization_id = ? AND user_id = ?",
+        (row["organization_id"], _current_user["user_id"]),
+    ).fetchone()
+    if role_row is None or role_row["permission_level"] != "admin":
+        raise HTTPException(
+            status_code=status.HTTP_403_FORBIDDEN,
+            detail="Only organization admins can update events",
         )
 
     updated_name = payload.name if payload.name is not None else row["name"]
@@ -349,9 +376,13 @@ def update_event(
 
 
 @router.delete("/{event_id}", status_code=status.HTTP_204_NO_CONTENT)
-def delete_event(event_id: int, conn=Depends(get_connection)):
+def delete_event(
+    event_id: int,
+    conn=Depends(get_connection),
+    _current_user: dict = Depends(get_current_user),
+):
     """
-    Delete an event from the database.
+    Delete an event from the database. Only admins of the event's organization may delete it.
 
     :param event_id: the ID of the event to delete
     :type event_id: int
@@ -369,6 +400,16 @@ def delete_event(event_id: int, conn=Depends(get_connection)):
     if row is None:
         raise HTTPException(
             status_code=status.HTTP_404_NOT_FOUND, detail="Event not found"
+        )
+
+    role_row = conn.execute(
+        "SELECT permission_level FROM roles WHERE organization_id = ? AND user_id = ?",
+        (row["organization_id"], _current_user["user_id"]),
+    ).fetchone()
+    if role_row is None or role_row["permission_level"] != "admin":
+        raise HTTPException(
+            status_code=status.HTTP_403_FORBIDDEN,
+            detail="Only organization admins can delete events",
         )
 
     conn.execute(

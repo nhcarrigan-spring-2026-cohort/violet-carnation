@@ -1,10 +1,10 @@
 import SignInForm from "@/components/SignInForm";
+import { Suspense } from "react";
 
 export default function SignInPage() {
   return (
-    <div className="min-h-screen items-center ">
-      <h1 className="text-2xl font-bold text-center m-6">Welcome Back</h1>
+    <Suspense>
       <SignInForm />
-    </div>
+    </Suspense>
   );
 }

@@ -38,6 +38,7 @@
     "sqlite3": true,
     "npx jest": true,
     "npm": true,
+    "npx": true,
     "git": true,
     "gh": true
   }

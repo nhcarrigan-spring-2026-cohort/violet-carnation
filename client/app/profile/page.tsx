@@ -18,8 +18,6 @@ import { EVENT_CATEGORIES } from "@/models/eventCategories";
 import { AVAILABILITY_OPTIONS, type User } from "@/models/user";
 
 export default function ProfilePage() {
-  // TODO: Replace cookie-based userId lookup with a proper auth session once
-  // authentication is fully implemented (tracked as a separate task).
   const userId = useCurrentUserId();
 
   const [loading, setLoading] = useState(true);
@@ -41,7 +39,9 @@ export default function ProfilePage() {
 
     const fetchUser = async () => {
       try {
-        const res = await fetch(`/api/users/${userId}`);
+        const res = await fetch(`/api/users/${userId}`, {
+          credentials: "include",
+        });
         if (!res.ok) throw new Error("Failed to fetch user");
         const data: User = await res.json();
         setUser(data);
@@ -70,15 +70,12 @@ export default function ProfilePage() {
     e.preventDefault();
     if (userId === null) return;
 
-    // NOTE: PUT /api/users/{user_id} now requires a Bearer token (auth guard added).
-    // Until the frontend sends a JWT in the Authorization header, this request will
-    // return 401. This is a known blocker — tracked as a TODO until auth context is
-    // fully implemented.
     setSaving(true);
     try {
       const res = await fetch(`/api/users/${userId}`, {
         method: "PUT",
         headers: { "Content-Type": "application/json" },
+        credentials: "include",
         body: JSON.stringify({
           first_name: firstName,
           last_name: lastName,

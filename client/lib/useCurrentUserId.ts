@@ -1,22 +1,15 @@
 "use client";
 
-import { useMemo } from "react";
+import { useAuth } from "@/context/AuthContext";
 
 /**
- * Returns the current user's `user_id` parsed from the `user_id` cookie.
+ * Returns the current user's `user_id` from the auth context.
  *
- * Returns `null` when the cookie is absent or cannot be parsed as an integer.
- *
- * TODO: Replace cookie-based lookup with a proper auth session once
- * authentication is fully implemented.
+ * Returns `undefined` while the auth check is still in progress,
+ * `null` when the user is not authenticated, and the user ID when authenticated.
  */
-export function useCurrentUserId(): number | null {
-  return useMemo(() => {
-    if (typeof document === "undefined") return null;
-    const match = document.cookie.split("; ").find((row) => row.startsWith("user_id="));
-    if (!match) return null;
-    const value = match.split("=")[1];
-    const parsed = parseInt(value, 10);
-    return isNaN(parsed) ? null : parsed;
-  }, []);
+export function useCurrentUserId(): number | null | undefined {
+  const { user, loading } = useAuth();
+  if (loading) return undefined;
+  return user?.user_id ?? null;
 }

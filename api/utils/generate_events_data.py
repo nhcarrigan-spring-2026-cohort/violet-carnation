@@ -1,6 +1,7 @@
 from faker import Faker
 import sqlite3
 import random
+
 # Faker init
 fake = Faker()
 
@@ -146,10 +147,12 @@ def generate_event_name():
 
     return random.choice(event_names)
 
-# Make catch phrase faker module shorter 
+
+# Make catch phrase faker module shorter
 def short_event_name(max_words=2):
     name = (fake.catch_phrase().title()).split()
     return " ".join(name[:max_words])
+
 
 def generate_events_data(conn: sqlite3.Connection, num_records):
     # get list of organization id's
@@ -163,20 +166,13 @@ def generate_events_data(conn: sqlite3.Connection, num_records):
         # create fake data
         event_name = short_event_name()
         event_description = fake.paragraph(3)
-        location = fake.street_name() 
-        date_time = fake.date_time_between(start_date="now", end_date='+1y')
+        location = fake.street_name()
+        date_time = fake.date_time_between(start_date="now", end_date="+1y")
 
         # convert tuple into an integer
-        org_id = int(''.join(map(str, random.choice(org_ids)))) 
-        
+        org_id = int("".join(map(str, random.choice(org_ids))))
 
         # add events data to events_data list
-        events_data.append(
-            (event_name, 
-            event_description, 
-            location, 
-            date_time, 
-            org_id)
-        )
+        events_data.append((event_name, event_description, location, date_time, org_id))
 
     return events_data

@@ -3,13 +3,16 @@
 import { AuthCard } from "@/components/AuthCard";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
-import { useRouter } from "next/navigation";
+import { useAuth } from "@/context/AuthContext";
+import { useRouter, useSearchParams } from "next/navigation";
 import { toast } from "sonner";
 
 const SignInForm = () => {
   const router = useRouter();
+  const searchParams = useSearchParams();
+  const { refresh } = useAuth();
 
-  const handleSubmit = async (e: React.SubmitEvent<HTMLFormElement>) => {
+  const handleSubmit = async (e: React.FormEvent<HTMLFormElement>) => {
     e.preventDefault();
 
     const formData = new FormData(e.currentTarget);
@@ -20,28 +23,27 @@ const SignInForm = () => {
 
     // Check for empty fields
     if (!email.trim() || !password.trim()) {
-      toast.error(`All fields are required.`);
+      toast.error("All fields are required.");
       return;
     }
 
     const response = await fetch("/api/auth/login", {
       method: "POST",
+      credentials: "include",
       body: formData,
     });
 
-    //Check for non-200 status code
     if (!response.ok) {
       toast.error("Invalid email or password. Please try again.");
       return;
     }
 
-    // If login is successful, store the token and redirect
-    const { access_token } = await response.json();
-    console.log("Got token:", access_token); // Debug
-    sessionStorage.setItem("token", access_token);
-    console.log("Stored token:", sessionStorage.getItem("token")); // Verify
+    await refresh();
     toast.success("Logged in successfully!");
-    router.push("/");
+    const raw = searchParams.get("next") ?? "/";
+    // Only redirect to safe relative paths to prevent open-redirect attacks
+    const isSafeRelative = raw.startsWith("/") && !raw.startsWith("//");
+    router.push(isSafeRelative ? raw : "/");
   };
   return (
     <AuthCard

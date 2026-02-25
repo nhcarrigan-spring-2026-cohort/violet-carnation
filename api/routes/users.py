@@ -4,7 +4,7 @@ from fastapi import APIRouter, Depends, HTTPException, status
 
 from db import get_connection
 from models import User
-from models.user import UserIn, UserUpdate
+from models.user import UserUpdate
 from utils.auth import get_current_user
 
 router = APIRouter(prefix="/users", tags=["users"])
@@ -108,46 +108,6 @@ def get_user(user_id: int, conn: sqlite3.Connection = Depends(get_connection)):
         interests=interests,
     )
 
-
-@router.post("", response_model=User, status_code=status.HTTP_201_CREATED)
-def create_user(payload: UserIn, conn: sqlite3.Connection = Depends(get_connection)):
-    """
-    TEMPORARY endpoint to create a new user in the database.
-    This will change completely/get deleted once auth is implemented, as part of a registration flow, as
-    that will create a user in the database
-
-    TODO: document how to handle duplicate emails, which will result in an error currently.
-    :param payload: Description
-    :type payload: UserIn
-    :param conn: Description
-    :type conn: sqlite3.Connection
-    """
-    cursor = conn.execute(
-        "INSERT INTO users (email, first_name, last_name, availability, skills) VALUES (?, ?, ?, ?, ?)",
-        (
-            payload.email,
-            payload.first_name,
-            payload.last_name,
-            payload.availability,
-            payload.skills,
-        ),
-    )
-    user_id = cursor.lastrowid
-    for category in payload.interests:
-        conn.execute(
-            "INSERT OR IGNORE INTO user_interests (user_id, category) VALUES (?, ?)",
-            (user_id, category),
-        )
-    conn.commit()
-    return User(
-        user_id=user_id,
-        email=payload.email,
-        first_name=payload.first_name,
-        last_name=payload.last_name,
-        availability=payload.availability,
-        skills=payload.skills,
-        interests=payload.interests,
-    )
 
 
 ## All the users can modify the data. No permission level check is implemented yet

@@ -1,14 +1,16 @@
 "use client";
 
-import { use, useEffect, useState } from "react";
-import Link from "next/link";
-import { toast } from "sonner";
 import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Separator } from "@/components/ui/separator";
 import { Skeleton } from "@/components/ui/skeleton";
+import { useCurrentUserId } from "@/lib/useCurrentUserId";
 import { Event } from "@/models/event";
+import Link from "next/link";
+import { useRouter } from "next/navigation";
+import { use, useEffect, useState } from "react";
+import { toast } from "sonner";
 
 interface PageProps {
   params: Promise<{ id: string }>;
@@ -17,6 +19,8 @@ interface PageProps {
 const EventDetailPage = (props: PageProps) => {
   const params = use(props.params);
   const eventId = Number(params.id);
+  const userId = useCurrentUserId();
+  const router = useRouter();
 
   const [event, setEvent] = useState<Event | null>(null);
   const [isRegistered, setIsRegistered] = useState(false);
@@ -41,13 +45,15 @@ const EventDetailPage = (props: PageProps) => {
         const eventData: Event = await eventRes.json();
         setEvent(eventData);
 
-        // TODO: replace hardcoded user_id=1 with authenticated user
-        const regRes = await fetch(
-          `/api/event-registrations?event_id=${eventId}&user_id=1`,
-        );
-        if (regRes.ok) {
-          const regData: unknown[] = await regRes.json();
-          setIsRegistered(regData.length > 0);
+        // Check existing registration status for the authenticated user
+        if (typeof userId === "number") {
+          const regRes = await fetch(
+            `/api/event-registrations?event_id=${eventId}&user_id=${userId}`,
+          );
+          if (regRes.ok) {
+            const regData: unknown[] = await regRes.json();
+            setIsRegistered(regData.length > 0);
+          }
         }
       } catch {
         setError("An unexpected error occurred.");
@@ -57,20 +63,24 @@ const EventDetailPage = (props: PageProps) => {
     };
 
     fetchAll();
-  }, [eventId]);
+  }, [eventId, userId]);
 
   const handleRegister = async () => {
     if (!event) return;
+    if (typeof userId !== "number") {
+      if (userId === null) router.push("/signin");
+      return;
+    }
     setRegistering(true);
     try {
-      // TODO: replace hardcoded user_id=1 with authenticated user
       const res = await fetch("/api/event-registrations", {
         method: "POST",
         headers: { "Content-Type": "application/json" },
+        credentials: "include",
         body: JSON.stringify({
           organization_id: event.organization_id,
           event_id: event.id,
-          user_id: 1,
+          user_id: userId,
           registration_time: new Date().toISOString().replace(/\.\d{3}Z$/, ""),
         }),
       });
@@ -90,12 +100,15 @@ const EventDetailPage = (props: PageProps) => {
 
   const handleUnregister = async () => {
     if (!event) return;
+    if (typeof userId !== "number") {
+      if (userId === null) router.push("/signin");
+      return;
+    }
     setRegistering(true);
     try {
-      // TODO: replace hardcoded user_id=1 with authenticated user
       const res = await fetch(
-        `/api/event-registrations/${event.organization_id}/${event.id}/1`,
-        { method: "DELETE" },
+        `/api/event-registrations/${event.organization_id}/${event.id}/${userId}`,
+        { method: "DELETE", credentials: "include" },
       );
       if (res.ok) {
         setIsRegistered(false);

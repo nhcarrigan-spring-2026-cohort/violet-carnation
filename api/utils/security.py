@@ -3,9 +3,18 @@ from datetime import datetime, timedelta, timezone
 import bcrypt
 import jwt
 
-SECRET_KEY = os.environ.get("SECRET_KEY", "dev-secret-key-change-in-production")
+_DEV_SECRET = "dev-secret-key-change-in-production"
+SECRET_KEY = os.environ.get("SECRET_KEY", _DEV_SECRET)
 ALGORITHM = "HS256"
 ACCESS_TOKEN_EXPIRE_MINUTES = 30
+
+# Refuse to start with the default secret in non-development environments.
+_ENV = os.environ.get("ENV", "development")
+if _ENV != "development" and SECRET_KEY == _DEV_SECRET:
+    raise RuntimeError(
+        "SECRET_KEY must be set to a secure value in non-development environments. "
+        "Set the SECRET_KEY environment variable before starting the server."
+    )
 
 
 def hash_password(plain_password: str) -> str:
