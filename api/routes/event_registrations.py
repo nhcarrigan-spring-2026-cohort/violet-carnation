@@ -15,21 +15,20 @@ router = APIRouter(prefix="/event-registrations", tags=["event_registrations"])
 def list_event_registrations(
     organization_id: int | None = None,
     event_id: int | None = None,
-    user_id: int | None = None,
     skip: int = 0,
     limit: int = 10,
     include_event_details: bool = False,
     conn: sqlite3.Connection = Depends(get_connection),
+    current_user: dict = Depends(get_current_user),
 ):
     """
-    List event registrations, optionally filtered by organization, event, or user.
+    List event registrations, optionally filtered by organization or event.
+    The user is derived from the current session.
 
     :param organization_id: filter by organization ID
     :type organization_id: int | None
     :param event_id: filter by event ID
     :type event_id: int | None
-    :param user_id: filter by user ID
-    :type user_id: int | None
     :param skip: number of rows to skip before returning results
     :type skip: int
     :param limit: max number of rows to return
@@ -39,6 +38,7 @@ def list_event_registrations(
     :param conn: the connection to the database
     :type conn: sqlite3.Connection
     """
+    user_id = current_user["user_id"]
     if skip < 0:
         raise HTTPException(
             status_code=status.HTTP_400_BAD_REQUEST, detail="Skip cannot be negative"
@@ -126,9 +126,11 @@ def get_event_registration(
     event_id: int,
     user_id: int,
     conn: sqlite3.Connection = Depends(get_connection),
+    current_user: dict = Depends(get_current_user),
 ):
     """
     Get a specific event registration by its composite identifiers.
+    Returns 403 Forbidden if the registration does not belong to the current user.
 
     :param organization_id: the organization ID for the registration
     :type organization_id: int
@@ -150,6 +152,10 @@ def get_event_registration(
     if row is None:
         raise HTTPException(
             status_code=status.HTTP_404_NOT_FOUND, detail="Registration not found"
+        )
+    if row["user_id"] != current_user["user_id"]:
+        raise HTTPException(
+            status_code=status.HTTP_403_FORBIDDEN, detail="Forbidden"
         )
 
     return EventRegistrationIn(

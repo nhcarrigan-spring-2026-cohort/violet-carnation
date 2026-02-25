@@ -19,7 +19,7 @@ router = APIRouter(prefix="")
 
 @router.get("", response_model=list[RoleAndUser])
 def list_organization_users(
-    organization_id: int, conn: sqlite3.Connection = Depends(get_connection)
+    organization_id: int, conn: sqlite3.Connection = Depends(get_connection), _current_user: dict = Depends(get_current_user)
 ):
     """
     List all users in an organization, along with their role. This is used to manage users in an organization, and to display the list of users in an organization.

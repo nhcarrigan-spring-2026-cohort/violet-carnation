@@ -155,12 +155,12 @@ def list_events(
 
 @router.get("/recommended", response_model=list[Event])
 def recommended_events(
-    user_id: int,
     limit: int = 10,
     conn: sqlite3.Connection = Depends(get_connection),
+    current_user: dict = Depends(get_current_user),
 ):
     """
-    Get a list of events recommended for a specific user.
+    Get a list of events recommended for the currently authenticated user.
 
     Recommendations are based on the user's interests (stored in the ``user_interests``
     table). Events the user has already registered for are excluded. Results are
@@ -168,13 +168,12 @@ def recommended_events(
     appear first, followed by all other events, both groups sorted by
     ``date_time`` ascending.
 
-    :param user_id: the ID of the user to fetch recommendations for
-    :type user_id: int
     :param limit: maximum number of events to return (default 10)
     :type limit: int
     :param conn: the connection to the database
     :type conn: sqlite3.Connection
     """
+    user_id = current_user["user_id"]
     # Load the user's interest categories
     interest_rows = conn.execute(
         "SELECT category FROM user_interests WHERE user_id = ?", (user_id,)
