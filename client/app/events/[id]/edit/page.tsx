@@ -19,7 +19,7 @@ import {
 import { useRoles } from "@/context/RolesContext";
 import { getEventById, updateEvent } from "@/lib/events";
 import { getOrganizations } from "@/lib/organizations";
-import { EVENT_CATEGORIES } from "@/models/eventCategories";
+import { EVENT_CATEGORIES, type EventCategory } from "@/models/eventCategories";
 import type { Event } from "@/models/event";
 import type { Organization } from "@/models/organizations";
 
@@ -56,7 +56,7 @@ const EditEventPage = (props: EditEventPageProps) => {
   const [date, setDate] = useState("");
   const [time, setTime] = useState("");
   const [organizationId, setOrganizationId] = useState("");
-  const [category, setCategory] = useState(NO_CATEGORY);
+  const [category, setCategory] = useState<EventCategory | typeof NO_CATEGORY>(NO_CATEGORY);
   const [loading, setLoading] = useState(true);
   const [submitting, setSubmitting] = useState(false);
   const [error, setError] = useState<string | null>(null);
@@ -238,7 +238,7 @@ const EditEventPage = (props: EditEventPageProps) => {
             {/* Category */}
             <div className="flex flex-col gap-2">
               <Label htmlFor="category">Category</Label>
-              <Select value={category} onValueChange={setCategory}>
+              <Select value={category} onValueChange={(val) => setCategory(val as EventCategory | typeof NO_CATEGORY)}>
                 <SelectTrigger id="category">
                   <SelectValue placeholder="Select a category (optional)" />
                 </SelectTrigger>
