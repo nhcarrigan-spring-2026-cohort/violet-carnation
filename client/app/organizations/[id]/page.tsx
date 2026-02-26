@@ -9,6 +9,7 @@ import { Skeleton } from "@/components/ui/skeleton";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import { useCurrentUserId } from "@/lib/useCurrentUserId";
 import { Event } from "@/models/event";
+import { getOrganizationCategoryLabel } from "@/models/organizationCategories";
 import { Organization, RoleAndUser } from "@/models/organizations";
 import Link from "next/link";
 import { use, useEffect, useState } from "react";
@@ -127,6 +128,11 @@ const IndividualOrganizationPage = (props: PageProps) => {
       <div className="flex items-start justify-between gap-4 flex-wrap mb-2">
         <h1 className="text-3xl font-bold">{org.name}</h1>
         <div className="flex gap-2">
+          {org.category && (
+            <Badge variant="secondary">
+              {getOrganizationCategoryLabel(org.category)}
+            </Badge>
+          )}
           {isAdmin && (
             <Button asChild variant="outline" size="sm">
               <Link href={`/organizations/${orgId}/edit`}>Edit</Link>

@@ -138,7 +138,7 @@ def get_organization(
     """
     row = conn.execute(
         """
-        SELECT organization_id, name, description, created_by_user_id
+        SELECT organization_id, name, description, category, created_by_user_id
         FROM organizations
         WHERE organization_id = ?
         """,
@@ -150,6 +150,7 @@ def get_organization(
         organization_id=row["organization_id"],
         name=row["name"],
         description=row["description"],
+        category=row["category"],
         created_by_user_id=row["created_by_user_id"],
     )
 
@@ -221,7 +222,7 @@ def update_organization(
     """
     row = conn.execute(
         """
-        SELECT organization_id, name, description, created_by_user_id
+        SELECT organization_id, name, description, category, created_by_user_id
         FROM organizations
         WHERE organization_id = ?
         """,
