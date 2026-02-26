@@ -4,16 +4,20 @@ import {
   createContext,
   useCallback,
   useContext,
+  useEffect,
   useState,
   type ReactNode,
 } from "react";
 
+import { useAuth } from "@/context/AuthContext";
 import { fetchRoles } from "@/lib/roles";
 import type { Role } from "@/models/roles";
 
 interface RolesContextValue {
   /** The current list of roles for the authenticated user. */
   roles: Role[];
+  /** True while roles are being fetched. */
+  rolesLoading: boolean;
   /**
    * Re-fetches and updates the roles for the given user.
    * Call this after login, role changes, or anywhere a fresh role list is needed.
@@ -39,6 +43,30 @@ interface RolesProviderProps {
  */
 export function RolesProvider({ initialRoles, children }: RolesProviderProps) {
   const [roles, setRoles] = useState<Role[]>(initialRoles);
+  const [rolesLoading, setRolesLoading] = useState(initialRoles.length === 0);
+  const { user, loading: authLoading } = useAuth();
+
+  const loadRoles = useCallback(async () => {
+    if (!user) {
+      setRoles([]);
+      setRolesLoading(false);
+      return;
+    }
+    setRolesLoading(true);
+    try {
+      const updated = await fetchRoles(user.user_id);
+      setRoles(updated);
+    } catch {
+      setRoles([]);
+    } finally {
+      setRolesLoading(false);
+    }
+  }, [user]);
+
+  useEffect(() => {
+    if (authLoading) return;
+    loadRoles();
+  }, [authLoading, loadRoles]);
 
   const refreshRoles = useCallback(async (userId: number) => {
     const updated = await fetchRoles(userId);
@@ -46,7 +74,7 @@ export function RolesProvider({ initialRoles, children }: RolesProviderProps) {
   }, []);
 
   return (
-    <RolesContext.Provider value={{ roles, refreshRoles }}>
+    <RolesContext.Provider value={{ roles, rolesLoading, refreshRoles }}>
       {children}
     </RolesContext.Provider>
   );

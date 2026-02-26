@@ -8,6 +8,7 @@ import { Button } from "@/components/ui/button";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
+import { Skeleton } from "@/components/ui/skeleton";
 import { Textarea } from "@/components/ui/textarea";
 import {
   Select,
@@ -26,9 +27,7 @@ const NO_CATEGORY = "__none__";
 
 const CreateEventPage = () => {
   const router = useRouter();
-  // TODO: Once auth is implemented, useRoles() will derive user_id from session.
-  // Currently relies on the user_id cookie set by the app (defaulting to user 1).
-  const { roles } = useRoles();
+  const { roles, rolesLoading } = useRoles();
 
   const [organizations, setOrganizations] = useState<Organization[]>([]);
   const [name, setName] = useState("");
@@ -82,6 +81,21 @@ const CreateEventPage = () => {
       setSubmitting(false);
     }
   };
+
+  if (rolesLoading) {
+    return (
+      <main className="container mx-auto px-4 py-8 max-w-lg">
+        <Card>
+          <CardHeader>
+            <CardTitle>Create Event</CardTitle>
+          </CardHeader>
+          <CardContent>
+            <Skeleton className="h-4 w-48" />
+          </CardContent>
+        </Card>
+      </main>
+    );
+  }
 
   if (adminOrgIds.size === 0) {
     return (
