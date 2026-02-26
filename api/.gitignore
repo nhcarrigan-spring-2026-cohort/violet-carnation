@@ -5,3 +5,7 @@ __pycache__
 app.db
 
 .ruff_cache
+
+# log files
+*.log
+*.log.*
