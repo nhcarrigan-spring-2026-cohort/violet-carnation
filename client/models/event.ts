@@ -87,7 +87,7 @@ export interface EventIn {
   /** ISO 8601 datetime string (e.g., "2026-03-15T14:00:00") */
   date_time: string;
   organization_id: number;
-  category?: string | null;
+  category?: EventCategory | null;
 }
 
 export type EventUpdate = Partial<EventIn>;
