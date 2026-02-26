@@ -12,7 +12,7 @@ router = APIRouter(prefix="/organization", tags=["organization"])
 
 @router.get("", response_model=list[Organization])
 def list_organizations(
-    conn: sqlite3.Connection = Depends(get_connection),
+    _conn: sqlite3.Connection = Depends(get_connection),
     skip: int = 0,
     limit: int = 10,
     query: str | None = None,
@@ -20,8 +20,8 @@ def list_organizations(
     """
     List organizations with pagination and optional search query.
 
-    :param conn: the connection to the database
-    :type conn: sqlite3.Connection
+    :param _conn: the connection to the database
+    :type _conn: sqlite3.Connection
     :param skip: number of records to skip for pagination, defaults to 0
     :type skip: int, optional
     :param limit: maximum number of records to return, defaults to 10
@@ -45,7 +45,7 @@ def list_organizations(
     base_sql += " ORDER BY organization_id LIMIT ? OFFSET ?"
     params.extend([limit, skip])
 
-    rows = conn.execute(base_sql, params).fetchall()
+    rows = _conn.execute(base_sql, params).fetchall()
     return [
         Organization(
             organization_id=row["organization_id"],
@@ -61,7 +61,7 @@ def list_organizations(
 @router.post("", response_model=Organization, status_code=status.HTTP_201_CREATED)
 def create_organization(
     payload: OrganizationCreate,
-    conn: sqlite3.Connection = Depends(get_connection),
+    _conn: sqlite3.Connection = Depends(get_connection),
     _current_user: dict = Depends(get_current_user),
 ):
     """
@@ -91,12 +91,12 @@ def create_organization(
 
     :param payload: organization details (name, description, category)
     :type payload: OrganizationCreate
-    :param conn: the connection to the database
-    :type conn: sqlite3.Connection
+    :param _conn: the connection to the database
+    :type _conn: sqlite3.Connection
     """
     user_id = _current_user["user_id"]
 
-    cursor = conn.execute(
+    cursor = _conn.execute(
         """
         INSERT INTO organizations (name, description, category, created_by_user_id)
         VALUES (?, ?, ?, ?)
@@ -105,14 +105,14 @@ def create_organization(
     )
     organization_id = cursor.lastrowid
 
-    conn.execute(
+    _conn.execute(
         """
         INSERT INTO roles (user_id, organization_id, permission_level)
         VALUES (?, ?, ?)
         """,
         (user_id, organization_id, "admin"),
     )
-    conn.commit()
+    _conn.commit()
 
     return Organization(
         organization_id=organization_id,
@@ -126,17 +126,17 @@ def create_organization(
 @router.get("/{organization_id}", response_model=Organization)
 def get_organization(
     organization_id: int,
-    conn: sqlite3.Connection = Depends(get_connection),
+    _conn: sqlite3.Connection = Depends(get_connection),
 ):
     """
     Get a single organization by ID.
 
     :param organization_id: the ID of the organization to retrieve
     :type organization_id: int
-    :param conn: the connection to the database
-    :type conn: sqlite3.Connection
+    :param _conn: the connection to the database
+    :type _conn: sqlite3.Connection
     """
-    row = conn.execute(
+    row = _conn.execute(
         """
         SELECT organization_id, name, description, created_by_user_id
         FROM organizations
@@ -157,7 +157,7 @@ def get_organization(
 @router.delete("/{organization_id}", response_model=Organization)
 def delete_organization(
     organization_id: int,
-    conn: sqlite3.Connection = Depends(get_connection),
+    _conn: sqlite3.Connection = Depends(get_connection),
     _current_user: dict = Depends(get_current_user),
 ):
     """
@@ -165,10 +165,10 @@ def delete_organization(
 
     :param organization_id: the organization to delete
     :type organization_id: int
-    :param conn: the connection to the database
-    :type conn: sqlite3.Connection
+    :param _conn: the connection to the database
+    :type _conn: sqlite3.Connection
     """
-    row = conn.execute(
+    row = _conn.execute(
         """
         SELECT organization_id, name, description, category, created_by_user_id
         FROM organizations
@@ -187,11 +187,11 @@ def delete_organization(
             detail="Only the organization creator can delete this organization",
         )
 
-    conn.execute(
+    _conn.execute(
         "DELETE FROM organizations WHERE organization_id = ?",
         (organization_id,),
     )
-    conn.commit()
+    _conn.commit()
 
     return Organization(
         organization_id=row["organization_id"],
@@ -206,7 +206,7 @@ def delete_organization(
 def update_organization(
     organization_id: int,
     payload: OrganizationUpdate,
-    conn: sqlite3.Connection = Depends(get_connection),
+    _conn: sqlite3.Connection = Depends(get_connection),
     _current_user: dict = Depends(get_current_user),
 ):
     """
@@ -216,10 +216,10 @@ def update_organization(
     :type organization_id: int
     :param payload: updated organization data
     :type payload: OrganizationUpdate
-    :param conn: the connection to the database
-    :type conn: sqlite3.Connection
+    :param _conn: the connection to the database
+    :type _conn: sqlite3.Connection
     """
-    row = conn.execute(
+    row = _conn.execute(
         """
         SELECT organization_id, name, description, created_by_user_id
         FROM organizations
@@ -232,7 +232,7 @@ def update_organization(
             status_code=status.HTTP_404_NOT_FOUND, detail="Organization not found"
         )
 
-    role_row = conn.execute(
+    role_row = _conn.execute(
         """
         SELECT permission_level
         FROM roles
@@ -254,7 +254,7 @@ def update_organization(
         payload.category if payload.category is not None else row["category"]
     )
 
-    conn.execute(
+    _conn.execute(
         """
         UPDATE organizations
         SET name = ?, description = ?, category = ?
@@ -262,7 +262,7 @@ def update_organization(
         """,
         (updated_name, updated_description, updated_category, organization_id),
     )
-    conn.commit()
+    _conn.commit()
 
     return Organization(
         organization_id=row["organization_id"],

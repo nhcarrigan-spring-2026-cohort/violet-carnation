@@ -31,12 +31,12 @@ _IS_PRODUCTION = os.environ.get("ENV", "development") != "development"
 @router.post(
     "/signup", response_model=SignupResponse, status_code=status.HTTP_201_CREATED
 )
-def signup(payload: SignupRequest, conn: sqlite3.Connection = Depends(get_connection)):
+def signup(payload: SignupRequest, _conn: sqlite3.Connection = Depends(get_connection)):
     """
     Register a new user.
     """
     # Check for duplicate email
-    existing = conn.execute(
+    existing = _conn.execute(
         "SELECT user_id FROM users WHERE email = ?",
         (payload.email,),
     ).fetchone()
@@ -47,7 +47,7 @@ def signup(payload: SignupRequest, conn: sqlite3.Connection = Depends(get_connec
         )
 
     # Create the user
-    user_cursor = conn.execute(
+    user_cursor = _conn.execute(
         "INSERT INTO users (email, first_name, last_name, skills) VALUES (?, ?, ?, ?)",
         (payload.email, payload.first_name, payload.last_name, payload.skills),
     )
@@ -55,18 +55,18 @@ def signup(payload: SignupRequest, conn: sqlite3.Connection = Depends(get_connec
 
     # Insert user interests
     for category in payload.interests:
-        conn.execute(
+        _conn.execute(
             "INSERT OR IGNORE INTO user_interests (user_id, category) VALUES (?, ?)",
             (user_id, category),
         )
 
     # Store hashed password in credentials table
-    conn.execute(
+    _conn.execute(
         "INSERT INTO credentials (user_id, hashed_password) VALUES (?, ?)",
         (user_id, hash_password(payload.password)),
     )
 
-    conn.commit()
+    _conn.commit()
 
     return SignupResponse(
         user_id=user_id,
@@ -79,7 +79,7 @@ def signup(payload: SignupRequest, conn: sqlite3.Connection = Depends(get_connec
 @router.post("/login")
 def login(
     form_data: OAuth2PasswordRequestForm = Depends(),
-    conn: sqlite3.Connection = Depends(get_connection),
+    _conn: sqlite3.Connection = Depends(get_connection),
 ):
     """
     Authenticate a user and return a JWT access token.
@@ -88,7 +88,7 @@ def login(
     """
     # Look up user by email
     # Note: Auth2 spec uses "username" field
-    user = conn.execute(
+    user = _conn.execute(
         "SELECT user_id, email FROM users WHERE email = ?",
         (form_data.username,),
     ).fetchone()
@@ -100,7 +100,7 @@ def login(
         )
 
     # Verify password from credentials table
-    cred = conn.execute(
+    cred = _conn.execute(
         "SELECT hashed_password FROM credentials WHERE user_id = ?",
         (user["user_id"],),
     ).fetchone()
@@ -141,7 +141,7 @@ logger = logging.getLogger(__name__)
 
 @router.post("/request-reset")
 def request_reset(
-    payload: RequestResetBody, conn: sqlite3.Connection = Depends(get_connection)
+    payload: RequestResetBody, _conn: sqlite3.Connection = Depends(get_connection)
 ):
     """
     Request a password reset. If the email exists, a short-lived reset token is
@@ -149,7 +149,7 @@ def request_reset(
 
     Always returns 200 with a generic message to prevent email enumeration.
     """
-    user = conn.execute(
+    user = _conn.execute(
         "SELECT user_id FROM users WHERE email = ?",
         (payload.email,),
     ).fetchone()
@@ -166,7 +166,7 @@ def request_reset(
 
 @router.post("/reset-password")
 def reset_password(
-    payload: ResetPasswordBody, conn: sqlite3.Connection = Depends(get_connection)
+    payload: ResetPasswordBody, _conn: sqlite3.Connection = Depends(get_connection)
 ):
     """
     Reset a user's password using a valid reset token.
@@ -189,7 +189,7 @@ def reset_password(
     user_id = claims.get("sub")
 
     # Update the hashed password in credentials
-    result = conn.execute(
+    result = _conn.execute(
         "UPDATE credentials SET hashed_password = ? WHERE user_id = ?",
         (hash_password(payload.new_password), user_id),
     )
@@ -198,7 +198,7 @@ def reset_password(
             status_code=status.HTTP_404_NOT_FOUND,
             detail="User not found",
         )
-    conn.commit()
+    _conn.commit()
 
     return {"message": "Password has been reset successfully"}
 
@@ -218,7 +218,7 @@ def get_me(
 @router.delete("/delete-account")
 def delete_account(
     current_user: dict = Depends(get_current_user),
-    conn: sqlite3.Connection = Depends(get_connection),
+    _conn: sqlite3.Connection = Depends(get_connection),
 ):
     """
     Delete the currently authenticated user's account.
@@ -228,11 +228,11 @@ def delete_account(
     user_id = current_user["user_id"]
 
     # Delete credentials (password hash)
-    conn.execute("DELETE FROM credentials WHERE user_id = ?", (user_id,))
+    _conn.execute("DELETE FROM credentials WHERE user_id = ?", (user_id,))
 
     # Delete the user record
-    conn.execute("DELETE FROM users WHERE user_id = ?", (user_id,))
+    _conn.execute("DELETE FROM users WHERE user_id = ?", (user_id,))
 
-    conn.commit()
+    _conn.commit()
 
     return {"message": "Account deleted successfully"}

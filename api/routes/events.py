@@ -24,7 +24,7 @@ def list_events(
     # TODO: Option B — split location into city/state columns for structured filtering
     location: Optional[str] = None,
     limit: Optional[int] = None,
-    conn=Depends(get_connection),
+    _conn=Depends(get_connection),
 ):
     """
     Get a list of all events with optional filtering by date/time and availability matching.
@@ -50,8 +50,8 @@ def list_events(
     :type category: Optional[List[str]]
     :param limit: the maximum number of events to return. If omitted, all matching events are returned
     :type limit: Optional[int]
-    :param conn: the connection to the database
-    :type conn: sqlite3.Connection
+    :param _conn: the connection to the database
+    :type _conn: sqlite3.Connection
     """
     query = "SELECT id, name, description, location, date_time, organization_id, category FROM events WHERE 1=1"
     params = []
@@ -138,7 +138,7 @@ def list_events(
         query += " LIMIT ?"
         params.append(limit)
 
-    rows = conn.execute(query, params).fetchall()
+    rows = _conn.execute(query, params).fetchall()
     return [
         Event(
             id=row["id"],
@@ -156,7 +156,7 @@ def list_events(
 @router.get("/recommended", response_model=list[Event])
 def recommended_events(
     limit: int = 10,
-    conn: sqlite3.Connection = Depends(get_connection),
+    _conn: sqlite3.Connection = Depends(get_connection),
     current_user: dict = Depends(get_current_user),
 ):
     """
@@ -170,12 +170,12 @@ def recommended_events(
 
     :param limit: maximum number of events to return (default 10)
     :type limit: int
-    :param conn: the connection to the database
-    :type conn: sqlite3.Connection
+    :param _conn: the connection to the database
+    :type _conn: sqlite3.Connection
     """
     user_id = current_user["user_id"]
     # Load the user's interest categories
-    interest_rows = conn.execute(
+    interest_rows = _conn.execute(
         "SELECT category FROM user_interests WHERE user_id = ?", (user_id,)
     ).fetchall()
     interests = [r["category"] for r in interest_rows]
@@ -205,21 +205,21 @@ def recommended_events(
         """
         params = [user_id, limit]
 
-    rows = conn.execute(query, params).fetchall()
+    rows = _conn.execute(query, params).fetchall()
     return [Event(**dict(row)) for row in rows]
 
 
 @router.get("/{event_id}", response_model=Event)
-def get_event(event_id: int, conn=Depends(get_connection)):
+def get_event(event_id: int, _conn=Depends(get_connection)):
     """
     Get a single event by its ID.
 
     :param event_id: the ID of the event to retrieve
     :type event_id: int
-    :param conn: the connection to the database
-    :type conn: sqlite3.Connection
+    :param _conn: the connection to the database
+    :type _conn: sqlite3.Connection
     """
-    row = conn.execute(
+    row = _conn.execute(
         "SELECT id, name, description, location, date_time, organization_id, category FROM events WHERE id = ?",
         (event_id,),
     ).fetchone()
@@ -241,7 +241,7 @@ def get_event(event_id: int, conn=Depends(get_connection)):
 @router.post("", status_code=status.HTTP_201_CREATED)
 def add_event(
     payload: EventIn,
-    conn=Depends(get_connection),
+    _conn=Depends(get_connection),
     _current_user: dict = Depends(get_current_user),
 ):
     """
@@ -250,10 +250,10 @@ def add_event(
 
     :param payload: the event data to create
     :type payload: EventIn
-    :param conn: the connection to the database
-    :type conn: sqlite3.Connection
+    :param _conn: the connection to the database
+    :type _conn: sqlite3.Connection
     """
-    role_row = conn.execute(
+    role_row = _conn.execute(
         "SELECT permission_level FROM roles WHERE organization_id = ? AND user_id = ?",
         (payload.organization_id, _current_user["user_id"]),
     ).fetchone()
@@ -263,7 +263,7 @@ def add_event(
             detail="Only organization admins can create events",
         )
 
-    cursor = conn.execute(
+    cursor = _conn.execute(
         "INSERT INTO events (name, description, location, date_time, organization_id, category) VALUES (?, ?, ?, ?, ?, ?)",
         (
             payload.name,
@@ -274,7 +274,7 @@ def add_event(
             payload.category,
         ),
     )
-    conn.commit()
+    _conn.commit()
     return Event(
         id=cursor.lastrowid,
         name=payload.name,
@@ -290,7 +290,7 @@ def add_event(
 def update_event(
     event_id: int,
     payload: EventUpdate,
-    conn: sqlite3.Connection = Depends(get_connection),
+    _conn: sqlite3.Connection = Depends(get_connection),
     _current_user: dict = Depends(get_current_user),
 ):
     """
@@ -301,10 +301,10 @@ def update_event(
     :type event_id: int
     :param payload: the event data to update
     :type payload: EventUpdate
-    :param conn: the connection to the database
-    :type conn: sqlite3.Connection
+    :param _conn: the connection to the database
+    :type _conn: sqlite3.Connection
     """
-    row = conn.execute(
+    row = _conn.execute(
         """
         SELECT id, name, description, location, date_time, organization_id, category
         FROM events
@@ -317,7 +317,7 @@ def update_event(
             status_code=status.HTTP_404_NOT_FOUND, detail="Event not found"
         )
 
-    role_row = conn.execute(
+    role_row = _conn.execute(
         "SELECT permission_level FROM roles WHERE organization_id = ? AND user_id = ?",
         (row["organization_id"], _current_user["user_id"]),
     ).fetchone()
@@ -346,7 +346,7 @@ def update_event(
         payload.category if payload.category is not None else row["category"]
     )
 
-    conn.execute(
+    _conn.execute(
         """
         UPDATE events
         SET name = ?, description = ?, location = ?, date_time = ?, organization_id = ?, category = ?
@@ -362,7 +362,7 @@ def update_event(
             event_id,
         ),
     )
-    conn.commit()
+    _conn.commit()
 
     return Event(
         id=event_id,
@@ -378,7 +378,7 @@ def update_event(
 @router.delete("/{event_id}", status_code=status.HTTP_204_NO_CONTENT)
 def delete_event(
     event_id: int,
-    conn=Depends(get_connection),
+    _conn=Depends(get_connection),
     _current_user: dict = Depends(get_current_user),
 ):
     """
@@ -386,10 +386,10 @@ def delete_event(
 
     :param event_id: the ID of the event to delete
     :type event_id: int
-    :param conn: the connection to the database
-    :type conn: sqlite3.Connection
+    :param _conn: the connection to the database
+    :type _conn: sqlite3.Connection
     """
-    row = conn.execute(
+    row = _conn.execute(
         """
         SELECT id, name, description, location, date_time, organization_id
         FROM events
@@ -402,7 +402,7 @@ def delete_event(
             status_code=status.HTTP_404_NOT_FOUND, detail="Event not found"
         )
 
-    role_row = conn.execute(
+    role_row = _conn.execute(
         "SELECT permission_level FROM roles WHERE organization_id = ? AND user_id = ?",
         (row["organization_id"], _current_user["user_id"]),
     ).fetchone()
@@ -412,8 +412,8 @@ def delete_event(
             detail="Only organization admins can delete events",
         )
 
-    conn.execute(
+    _conn.execute(
         "DELETE FROM events WHERE id = ?",
         (event_id,),
     )
-    conn.commit()
+    _conn.commit()

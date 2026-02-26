@@ -19,7 +19,7 @@ router = APIRouter(prefix="")
 
 @router.get("", response_model=list[RoleAndUser])
 def list_organization_users(
-    organization_id: int, conn: sqlite3.Connection = Depends(get_connection), _current_user: dict = Depends(get_current_user)
+    organization_id: int, _conn: sqlite3.Connection = Depends(get_connection), _current_user: dict = Depends(get_current_user)
 ):
     """
     List all users in an organization, along with their role. This is used to manage users in an organization, and to display the list of users in an organization.
@@ -28,10 +28,10 @@ def list_organization_users(
 
     :param organization_id: the ID of the organization to list users for
     :type organization_id: int
-    :param conn: the connection to the database
-    :type conn: sqlite3.Connection
+    :param _conn: the connection to the database
+    :type _conn: sqlite3.Connection
     """
-    rows = conn.execute(
+    rows = _conn.execute(
         """
         SELECT r.user_id, r.organization_id,  r.permission_level, u.first_name, u.last_name
         FROM roles r
@@ -56,7 +56,7 @@ def list_organization_users(
 def add_organization_user(
     organization_id: int,
     payload: RoleCreateRequest,
-    conn: sqlite3.Connection = Depends(get_connection),
+    _conn: sqlite3.Connection = Depends(get_connection),
     _current_user: dict = Depends(get_current_user),
 ):
     """
@@ -68,14 +68,14 @@ def add_organization_user(
     :type organization_id: int
     :param payload: the user ID and permission level for the role
     :type payload: RoleCreate
-    :param conn: the connection to the database
-    :type conn: sqlite3.Connection
+    :param _conn: the connection to the database
+    :type _conn: sqlite3.Connection
     """
     effective_user_id = (
         payload.user_id if payload.user_id is not None else _current_user["user_id"]
     )
 
-    user_row = conn.execute(
+    user_row = _conn.execute(
         "SELECT user_id, first_name, last_name FROM users WHERE user_id = ?",
         (effective_user_id,),
     ).fetchone()
@@ -85,14 +85,14 @@ def add_organization_user(
         )
 
     try:
-        conn.execute(
+        _conn.execute(
             """
             INSERT INTO roles (user_id, organization_id, permission_level)
             VALUES (?, ?, ?)
             """,
             (effective_user_id, organization_id, payload.permission_level),
         )
-        conn.commit()
+        _conn.commit()
     except sqlite3.IntegrityError:
         raise HTTPException(
             status_code=status.HTTP_409_CONFLICT,
@@ -115,7 +115,7 @@ def add_organization_user(
 def remove_organization_user(
     organization_id: int,
     user_id: int,
-    conn: sqlite3.Connection = Depends(get_connection),
+    _conn: sqlite3.Connection = Depends(get_connection),
     _current_user: dict = Depends(get_current_user),
 ):
     """
@@ -126,13 +126,13 @@ def remove_organization_user(
     :type organization_id: int
     :param user_id: the user to remove
     :type user_id: int
-    :param conn: the connection to the database
-    :type conn: sqlite3.Connection
+    :param _conn: the connection to the database
+    :type _conn: sqlite3.Connection
     """
 
     # Check permission: must be the target user or an org admin
     if user_id != _current_user["user_id"]:
-        admin_row = conn.execute(
+        admin_row = _conn.execute(
             "SELECT permission_level FROM roles WHERE organization_id = ? AND user_id = ? AND permission_level = 'admin'",
             (organization_id, _current_user["user_id"]),
         ).fetchone()
@@ -142,7 +142,7 @@ def remove_organization_user(
                 detail="Only admins or the user themselves can remove a member",
             )
 
-    row = conn.execute(
+    row = _conn.execute(
         """
         SELECT r.user_id, r.organization_id, r.permission_level, u.first_name, last_name
         FROM roles r
@@ -157,11 +157,11 @@ def remove_organization_user(
         )
 
     # TODO: verify the organization creator cannot be removed.
-    conn.execute(
+    _conn.execute(
         "DELETE FROM roles WHERE organization_id = ? AND user_id = ?",
         (organization_id, user_id),
     )
-    conn.commit()
+    _conn.commit()
 
     return RoleAndUser(
         user_id=row["user_id"],
@@ -180,7 +180,7 @@ def update_organization_user_role(
     organization_id: int,
     user_id: int,
     payload: RoleUpdate,
-    conn: sqlite3.Connection = Depends(get_connection),
+    _conn: sqlite3.Connection = Depends(get_connection),
     _current_user: dict = Depends(get_current_user),
 ):
     """
@@ -192,10 +192,10 @@ def update_organization_user_role(
     :type user_id: int
     :param payload: the new permission level
     :type payload: RoleUpdate
-    :param conn: the connection to the database
-    :type conn: sqlite3.Connection
+    :param _conn: the connection to the database
+    :type _conn: sqlite3.Connection
     """
-    admin_row = conn.execute(
+    admin_row = _conn.execute(
         "SELECT permission_level FROM roles WHERE organization_id = ? AND user_id = ? AND permission_level = 'admin'",
         (organization_id, _current_user["user_id"]),
     ).fetchone()
@@ -205,7 +205,7 @@ def update_organization_user_role(
             detail="Only organization admins can update member roles",
         )
 
-    row = conn.execute(
+    row = _conn.execute(
         """
         SELECT r.user_id, r.organization_id, r.permission_level, u.first_name, u.last_name
         FROM roles r
@@ -219,7 +219,7 @@ def update_organization_user_role(
             status_code=status.HTTP_404_NOT_FOUND, detail="User not found"
         )
 
-    conn.execute(
+    _conn.execute(
         """
         UPDATE roles
         SET permission_level = ?
@@ -227,7 +227,7 @@ def update_organization_user_role(
         """,
         (payload.permission_level, organization_id, user_id),
     )
-    conn.commit()
+    _conn.commit()
 
     return RoleAndUser(
         user_id=row["user_id"],
