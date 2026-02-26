@@ -14,7 +14,10 @@ import {
 import { Textarea } from "@/components/ui/textarea";
 import { useRoles } from "@/context/RolesContext";
 import { useCurrentUserId } from "@/lib/useCurrentUserId";
-import { ORGANIZATION_CATEGORIES } from "@/models/organizationCategories";
+import {
+  ORGANIZATION_CATEGORIES,
+  OrganizationCategoryValue,
+} from "@/models/organizationCategories";
 import type { Organization } from "@/models/organizations";
 import { useRouter } from "next/navigation";
 import { use, useEffect, useState } from "react";
@@ -32,7 +35,7 @@ const EditOrgPage = (props: PageProps) => {
 
   const [name, setName] = useState("");
   const [description, setDescription] = useState("");
-  const [category, setCategory] = useState("");
+  const [category, setCategory] = useState<OrganizationCategoryValue | "">("");
   const [loading, setLoading] = useState(true);
   const [submitting, setSubmitting] = useState(false);
   const [error, setError] = useState<string | null>(null);
@@ -164,7 +167,7 @@ const EditOrgPage = (props: PageProps) => {
 
             <div className="flex flex-col gap-2">
               <Label htmlFor="category">Category *</Label>
-              <Select value={category} onValueChange={setCategory} required>
+              <Select value={category} onValueChange={(v) => setCategory(v as OrganizationCategoryValue)} required>
                 <SelectTrigger id="category">
                   <SelectValue placeholder="Select a category" />
                 </SelectTrigger>

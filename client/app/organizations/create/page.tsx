@@ -13,7 +13,10 @@ import {
 } from "@/components/ui/select";
 import { Textarea } from "@/components/ui/textarea";
 import { useCurrentUserId } from "@/lib/useCurrentUserId";
-import { ORGANIZATION_CATEGORIES } from "@/models/organizationCategories";
+import {
+  ORGANIZATION_CATEGORIES,
+  OrganizationCategoryValue,
+} from "@/models/organizationCategories";
 import { useRouter } from "next/navigation";
 import { useState } from "react";
 
@@ -23,7 +26,7 @@ const CreateOrgPage = () => {
 
   const [name, setName] = useState("");
   const [description, setDescription] = useState("");
-  const [category, setCategory] = useState("");
+  const [category, setCategory] = useState<OrganizationCategoryValue | "">("");
   const [submitting, setSubmitting] = useState(false);
   const [error, setError] = useState<string | null>(null);
 
@@ -97,7 +100,7 @@ const CreateOrgPage = () => {
 
             <div className="flex flex-col gap-2">
               <Label htmlFor="category">Category *</Label>
-              <Select value={category} onValueChange={setCategory} required>
+              <Select value={category} onValueChange={(v) => setCategory(v as OrganizationCategoryValue)} required>
                 <SelectTrigger id="category">
                   <SelectValue placeholder="Select a category" />
                 </SelectTrigger>
