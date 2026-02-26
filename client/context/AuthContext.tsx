@@ -59,6 +59,14 @@ export function AuthProvider({ children }: AuthProviderProps) {
         const data = await res.json().catch(() => null);
         setUser(null);
         if (data?.detail === "Invalid or expired token") {
+          try {
+            await fetch("/api/auth/logout", {
+              method: "POST",
+              credentials: "include",
+            });
+          } catch {
+            // Ignore logout errors; proceed with redirect.
+          }
           toast.error("Your session has expired. Please sign in again.");
           router.push("/");
         }
