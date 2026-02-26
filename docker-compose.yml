@@ -1,0 +1,20 @@
+services:
+  api:
+    build:
+      context: ./api
+    ports:
+      - "8000:8000"
+    environment:
+      - SECRET_KEY=${SECRET_KEY:-dev-secret-key-change-in-production}
+      - ENV=${ENV:-development}
+      - ALLOWED_ORIGINS=http://localhost:3000
+
+  client:
+    build:
+      context: ./client
+      args:
+        API_URL: http://api:8000
+    ports:
+      - "3000:3000"
+    depends_on:
+      - api
