@@ -1,4 +1,5 @@
 import sqlite3
+
 from generate_events_data import generate_events_data
 
 
@@ -6,8 +7,8 @@ def insert_events_data(conn, cursor, events_data):
     # insert data into events table
     insert_query = """
     INSERT INTO events (
-        name, description, location, date_time, organization_id
-    ) VALUES (?, ?, ?, ?, ?)
+        name, description, location, date_time, organization_id, category
+    ) VALUES (?, ?, ?, ?, ?, ?)
     """
     # insert data in parameters into database
     # print error message if unsuccessful

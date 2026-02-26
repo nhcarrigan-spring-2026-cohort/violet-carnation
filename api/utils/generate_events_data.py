@@ -1,9 +1,33 @@
-from faker import Faker
-import sqlite3
 import random
+import sqlite3
+
+from faker import Faker
 
 # Faker init
 fake = Faker()
+
+EVENT_CATEGORIES = [
+    "Animal Welfare",
+    "Hunger and Food Security",
+    "Homelessness and Housing",
+    "Education & Tutoring",
+    "Youth and Children",
+    "Senior Care and Support",
+    "Health & Medical",
+    "Environmental Conservation",
+    "Community Development",
+    "Arts & Culture",
+    "Disaster Relief",
+    "Veterans & Military Families",
+    "Immigrants & Refugees",
+    "Disability Services",
+    "Mental Health & Crisis Support",
+    "Advocacy & Human Rights",
+    "Faith-Based Services",
+    "Sports & Recreation",
+    "Job Training & Employment",
+    "Technology & Digital Literacy",
+]
 
 
 def get_org_ids(conn: sqlite3.Connection):
@@ -172,7 +196,11 @@ def generate_events_data(conn: sqlite3.Connection, num_records):
         # convert tuple into an integer
         org_id = int("".join(map(str, random.choice(org_ids))))
 
+        category = random.choice(EVENT_CATEGORIES)
+
         # add events data to events_data list
-        events_data.append((event_name, event_description, location, date_time, org_id))
+        events_data.append(
+            (event_name, event_description, location, date_time, org_id, category)
+        )
 
     return events_data
