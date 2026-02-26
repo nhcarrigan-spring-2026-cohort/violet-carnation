@@ -18,7 +18,7 @@ def list_event_registrations(
     skip: int = 0,
     limit: int = 10,
     include_event_details: bool = False,
-    conn: sqlite3.Connection = Depends(get_connection),
+    _conn: sqlite3.Connection = Depends(get_connection),
     current_user: dict = Depends(get_current_user),
 ):
     """
@@ -35,8 +35,8 @@ def list_event_registrations(
     :type limit: int
     :param include_event_details: when True, JOIN with events table and return enriched rows
     :type include_event_details: bool
-    :param conn: the connection to the database
-    :type conn: sqlite3.Connection
+    :param _conn: the connection to the database
+    :type _conn: sqlite3.Connection
     """
     user_id = current_user["user_id"]
     if skip < 0:
@@ -91,7 +91,7 @@ def list_event_registrations(
     query += " LIMIT ? OFFSET ?"
     params.extend([limit, skip])
 
-    rows = conn.execute(query, params).fetchall()
+    rows = _conn.execute(query, params).fetchall()
 
     if include_event_details:
         return [
@@ -125,7 +125,7 @@ def get_event_registration(
     organization_id: int,
     event_id: int,
     user_id: int,
-    conn: sqlite3.Connection = Depends(get_connection),
+    _conn: sqlite3.Connection = Depends(get_connection),
     current_user: dict = Depends(get_current_user),
 ):
     """
@@ -138,10 +138,10 @@ def get_event_registration(
     :type event_id: int
     :param user_id: the user ID for the registration
     :type user_id: int
-    :param conn: the connection to the database
-    :type conn: sqlite3.Connection
+    :param _conn: the connection to the database
+    :type _conn: sqlite3.Connection
     """
-    row = conn.execute(
+    row = _conn.execute(
         """
 		SELECT user_id, event_id, organization_id, registration_time
 		FROM event_registrations
@@ -171,7 +171,7 @@ def get_event_registration(
 )
 def create_event_registration(
     payload: EventRegistrationIn,
-    conn: sqlite3.Connection = Depends(get_connection),
+    _conn: sqlite3.Connection = Depends(get_connection),
     _current_user: dict = Depends(get_current_user),
 ):
     """
@@ -179,11 +179,11 @@ def create_event_registration(
 
     :param payload: the event registration details
     :type payload: EventRegistrationIn
-    :param conn: the connection to the database
-    :type conn: sqlite3.Connection
+    :param _conn: the connection to the database
+    :type _conn: sqlite3.Connection
     """
     try:
-        conn.execute(
+        _conn.execute(
             """
 			INSERT INTO event_registrations (user_id, event_id, organization_id, registration_time)
 			VALUES (?, ?, ?, ?)
@@ -195,7 +195,7 @@ def create_event_registration(
                 payload.registration_time,
             ),
         )
-        conn.commit()
+        _conn.commit()
     except sqlite3.IntegrityError:
         raise HTTPException(
             status_code=status.HTTP_409_CONFLICT,
@@ -217,7 +217,7 @@ def delete_event_registration(
     organization_id: int,
     event_id: int,
     user_id: int,
-    conn: sqlite3.Connection = Depends(get_connection),
+    _conn: sqlite3.Connection = Depends(get_connection),
     _current_user: dict = Depends(get_current_user),
 ):
     """
@@ -229,8 +229,8 @@ def delete_event_registration(
     :type event_id: int
     :param user_id: the user ID for the registration
     :type user_id: int
-    :param conn: the connection to the database
-    :type conn: sqlite3.Connection
+    :param _conn: the connection to the database
+    :type _conn: sqlite3.Connection
     """
     if user_id != _current_user["user_id"]:
         raise HTTPException(
@@ -238,7 +238,7 @@ def delete_event_registration(
             detail="You can only delete your own registrations",
         )
 
-    row = conn.execute(
+    row = _conn.execute(
         """
 		SELECT user_id, event_id, organization_id, registration_time
 		FROM event_registrations
@@ -251,14 +251,14 @@ def delete_event_registration(
             status_code=status.HTTP_404_NOT_FOUND, detail="Registration not found"
         )
 
-    conn.execute(
+    _conn.execute(
         """
 		DELETE FROM event_registrations
 		WHERE organization_id = ? AND event_id = ? AND user_id = ?
 		""",
         (organization_id, event_id, user_id),
     )
-    conn.commit()
+    _conn.commit()
 
     return EventRegistrationIn(
         user_id=row["user_id"],

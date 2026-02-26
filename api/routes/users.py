@@ -12,7 +12,7 @@ router = APIRouter(prefix="/users", tags=["users"])
 
 @router.get("", response_model=list[User])
 def list_users(
-    conn: sqlite3.Connection = Depends(get_connection),
+    _conn: sqlite3.Connection = Depends(get_connection),
     skip: int = 0,
     limit: int = 10,
     query: str | None = None,
@@ -23,8 +23,8 @@ def list_users(
 
     - availability
 
-    :param conn: the connection to the database
-    :type conn: sqlite3.Connection
+    :param _conn: the connection to the database
+    :type _conn: sqlite3.Connection
     :param skip: number of records to skip for pagination, defaults to 0
     :type skip: int, optional
     :param limit: maximum number of records to return, defaults to 10
@@ -59,7 +59,7 @@ def list_users(
     base_sql += " GROUP BY u.user_id ORDER BY u.user_id LIMIT ? OFFSET ?"
     params.extend([limit, skip])
 
-    rows = conn.execute(base_sql, params).fetchall()
+    rows = _conn.execute(base_sql, params).fetchall()
     return [
         User(
             user_id=row["user_id"],
@@ -75,17 +75,17 @@ def list_users(
 
 
 @router.get("/{user_id}", response_model=User)
-def get_user(user_id: int, conn: sqlite3.Connection = Depends(get_connection)):
+def get_user(user_id: int, _conn: sqlite3.Connection = Depends(get_connection)):
     """
     Get a single user by their user ID. This should be mostly used for the current logged in user to get
     their own information, but again might change.
 
     :param user_id: Description
     :type user_id: int
-    :param conn: the connection to the database
-    :type conn: sqlite3.Connection
+    :param _conn: the connection to the database
+    :type _conn: sqlite3.Connection
     """
-    row = conn.execute(
+    row = _conn.execute(
         "SELECT user_id, email, first_name, last_name, availability, skills FROM users WHERE user_id = ?",
         (user_id,),
     ).fetchone()
@@ -93,7 +93,7 @@ def get_user(user_id: int, conn: sqlite3.Connection = Depends(get_connection)):
         raise HTTPException(
             status_code=status.HTTP_404_NOT_FOUND, detail="User not found"
         )
-    interest_rows = conn.execute(
+    interest_rows = _conn.execute(
         "SELECT category FROM user_interests WHERE user_id = ?",
         (user_id,),
     ).fetchall()
@@ -119,7 +119,7 @@ def get_user(user_id: int, conn: sqlite3.Connection = Depends(get_connection)):
 def update_user(
     user_id: int,
     payload: UserUpdate,
-    conn: sqlite3.Connection = Depends(get_connection),
+    _conn: sqlite3.Connection = Depends(get_connection),
     current_user: dict = Depends(get_current_user),
 ):
     """
@@ -131,12 +131,12 @@ def update_user(
     :type **user_id**: *int* \n
     :param **payload**: updated user data \n
     :type **payload**: *UserUpdate* \n
-    :param **conn**: the connection to the database \n
-    :type **conn**: *sqlite3.Connection* \n
+    :param **_conn**: the connection to the database \n
+    :type **_conn**: *sqlite3.Connection* \n
     """
     if current_user.get("user_id") != user_id:
         raise HTTPException(status_code=403, detail="Forbidden")
-    row = conn.execute(
+    row = _conn.execute(
         """
         SELECT user_id, email, first_name, last_name, availability, skills
         FROM users
@@ -165,7 +165,7 @@ def update_user(
         payload.skills if payload.skills is not None else row["skills"] or ""
     )
 
-    conn.execute(
+    _conn.execute(
         """
         UPDATE users
         SET first_name = ?, last_name = ?, availability = ?, skills = ?
@@ -182,20 +182,20 @@ def update_user(
 
     # Upsert user_interests if provided
     if payload.interests is not None:
-        conn.execute(
+        _conn.execute(
             "DELETE FROM user_interests WHERE user_id = ?",
             (user_id,),
         )
         for category in payload.interests:
-            conn.execute(
+            _conn.execute(
                 "INSERT OR IGNORE INTO user_interests (user_id, category) VALUES (?, ?)",
                 (user_id, category),
             )
 
-    conn.commit()
+    _conn.commit()
 
     # Fetch updated interests
-    interest_rows = conn.execute(
+    interest_rows = _conn.execute(
         "SELECT category FROM user_interests WHERE user_id = ?",
         (user_id,),
     ).fetchall()

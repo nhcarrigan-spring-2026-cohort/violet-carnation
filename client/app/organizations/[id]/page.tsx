@@ -10,6 +10,7 @@ import { Skeleton } from "@/components/ui/skeleton";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import { useCurrentUserId } from "@/lib/useCurrentUserId";
 import { Event } from "@/models/event";
+import { getOrganizationCategoryLabel } from "@/models/organizationCategories";
 import { Organization, RoleAndUser } from "@/models/organizations";
 import Link from "next/link";
 import { use, useEffect, useState } from "react";
@@ -114,7 +115,9 @@ const IndividualOrganizationPage = (props: PageProps) => {
       <div>
         <NavBar />
         <main className="container mx-auto px-4 py-8 max-w-4xl">
-          <p className="text-destructive text-lg">{error ?? "Organization not found."}</p>
+          <p className="text-destructive text-lg">
+            {error ?? "Organization not found."}
+          </p>
           <Button asChild className="mt-4" variant="outline">
             <Link href="/organizations">Back to Organizations</Link>
           </Button>
@@ -136,9 +139,16 @@ const IndividualOrganizationPage = (props: PageProps) => {
         <div className="flex items-start justify-between gap-4 flex-wrap mb-2">
           <h1 className="text-3xl font-bold">{org.name}</h1>
           <div className="flex gap-2">
+            {org.category && (
+              <Badge variant="secondary">
+                {getOrganizationCategoryLabel(org.category)}
+              </Badge>
+            )}
             {isAdmin && (
               <Button asChild variant="outline" size="sm">
-                <Link href={`/events/create?organization_id=${orgId}`}>Create Event</Link>
+                <Link href={`/events/create?organization_id=${orgId}`}>
+                  Create Event
+                </Link>
               </Button>
             )}
             {isAdmin && (
@@ -154,50 +164,50 @@ const IndividualOrganizationPage = (props: PageProps) => {
           </div>
         </div>
 
-      {org.description && (
-        <p className="text-muted-foreground mb-6">{org.description}</p>
-      )}
+        {org.description && (
+          <p className="text-muted-foreground mb-6">{org.description}</p>
+        )}
 
-      <Separator className="mb-6" />
+        <Separator className="mb-6" />
 
-      <Tabs defaultValue="members">
-        <TabsList className="mb-6">
-          <TabsTrigger value="members">Members ({members.length})</TabsTrigger>
-          <TabsTrigger value="events">Events ({events.length})</TabsTrigger>
-        </TabsList>
+        <Tabs defaultValue="members">
+          <TabsList className="mb-6">
+            <TabsTrigger value="members">Members ({members.length})</TabsTrigger>
+            <TabsTrigger value="events">Events ({events.length})</TabsTrigger>
+          </TabsList>
 
-        {/* Members tab */}
-        <TabsContent value="members">
-          {members.length === 0 ? (
-            <p className="text-muted-foreground text-sm">No members yet.</p>
-          ) : (
-            <div className="flex flex-col gap-2">
-              {members.map((member) => (
-                <Card key={member.user_id} className="py-0">
-                  <CardHeader className="flex flex-row items-center justify-between py-3 px-4">
-                    <CardTitle className="text-base font-medium">
-                      {member.name}
-                    </CardTitle>
-                    <Badge
-                      variant={
-                        member.permission_level === "admin" ? "default" : "secondary"
-                      }
-                    >
-                      {member.permission_level}
-                    </Badge>
-                  </CardHeader>
-                </Card>
-              ))}
-            </div>
-          )}
-        </TabsContent>
+          {/* Members tab */}
+          <TabsContent value="members">
+            {members.length === 0 ? (
+              <p className="text-muted-foreground text-sm">No members yet.</p>
+            ) : (
+              <div className="flex flex-col gap-2">
+                {members.map((member) => (
+                  <Card key={member.user_id} className="py-0">
+                    <CardHeader className="flex flex-row items-center justify-between py-3 px-4">
+                      <CardTitle className="text-base font-medium">
+                        {member.name}
+                      </CardTitle>
+                      <Badge
+                        variant={
+                          member.permission_level === "admin" ? "default" : "secondary"
+                        }
+                      >
+                        {member.permission_level}
+                      </Badge>
+                    </CardHeader>
+                  </Card>
+                ))}
+              </div>
+            )}
+          </TabsContent>
 
-        {/* Events tab */}
-        <TabsContent value="events">
-          <EventCarousel events={events} />
-        </TabsContent>
-      </Tabs>
-    </main>
+          {/* Events tab */}
+          <TabsContent value="events">
+            <EventCarousel events={events} />
+          </TabsContent>
+        </Tabs>
+      </main>
     </div>
   );
 };

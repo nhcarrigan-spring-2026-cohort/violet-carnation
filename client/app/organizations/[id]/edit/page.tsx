@@ -4,9 +4,20 @@ import { Button } from "@/components/ui/button";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
+import {
+  Select,
+  SelectContent,
+  SelectItem,
+  SelectTrigger,
+  SelectValue,
+} from "@/components/ui/select";
 import { Textarea } from "@/components/ui/textarea";
 import { useRoles } from "@/context/RolesContext";
 import { useCurrentUserId } from "@/lib/useCurrentUserId";
+import {
+  ORGANIZATION_CATEGORIES,
+  OrganizationCategoryValue,
+} from "@/models/organizationCategories";
 import type { Organization } from "@/models/organizations";
 import { useRouter } from "next/navigation";
 import { use, useEffect, useState } from "react";
@@ -24,6 +35,7 @@ const EditOrgPage = (props: PageProps) => {
 
   const [name, setName] = useState("");
   const [description, setDescription] = useState("");
+  const [category, setCategory] = useState<OrganizationCategoryValue | "">("");
   const [loading, setLoading] = useState(true);
   const [submitting, setSubmitting] = useState(false);
   const [error, setError] = useState<string | null>(null);
@@ -49,6 +61,7 @@ const EditOrgPage = (props: PageProps) => {
         const data: Organization = await res.json();
         setName(data.name);
         setDescription(data.description ?? "");
+        setCategory(data.category ?? "");
       } catch {
         setError("An unexpected error occurred.");
       } finally {
@@ -78,6 +91,7 @@ const EditOrgPage = (props: PageProps) => {
         body: JSON.stringify({
           name,
           description: description || null,
+          category,
         }),
       });
 
@@ -151,6 +165,22 @@ const EditOrgPage = (props: PageProps) => {
               />
             </div>
 
+            <div className="flex flex-col gap-2">
+              <Label htmlFor="category">Category *</Label>
+              <Select value={category} onValueChange={(v) => setCategory(v as OrganizationCategoryValue)} required>
+                <SelectTrigger id="category">
+                  <SelectValue placeholder="Select a category" />
+                </SelectTrigger>
+                <SelectContent>
+                  {ORGANIZATION_CATEGORIES.map((cat) => (
+                    <SelectItem key={cat.value} value={cat.value}>
+                      {cat.label}
+                    </SelectItem>
+                  ))}
+                </SelectContent>
+              </Select>
+            </div>
+
             {error && (
               <p className="text-sm text-destructive" role="alert">
                 {error}
@@ -158,7 +188,7 @@ const EditOrgPage = (props: PageProps) => {
             )}
 
             <div className="flex gap-2">
-              <Button type="submit" disabled={submitting}>
+              <Button type="submit" disabled={submitting || !category}>
                 {submitting ? "Saving…" : "Save Changes"}
               </Button>
               <Button
