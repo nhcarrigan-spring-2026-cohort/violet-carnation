@@ -1,6 +1,7 @@
 "use client";
 
 import EventCarousel from "@/components/EventCarousel";
+import NavBar from "@/components/NavBar";
 import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
 import { Card, CardHeader, CardTitle } from "@/components/ui/card";
@@ -91,28 +92,34 @@ const IndividualOrganizationPage = (props: PageProps) => {
 
   if (loading) {
     return (
-      <main className="container mx-auto px-4 py-8 max-w-4xl">
-        <Skeleton className="h-10 w-2/3 mb-4" />
-        <Skeleton className="h-5 w-full mb-2" />
-        <Skeleton className="h-5 w-4/5 mb-8" />
-        <Skeleton className="h-8 w-32 mb-6" />
-        <div className="flex flex-col gap-3">
-          {[1, 2, 3].map((i) => (
-            <Skeleton key={i} className="h-12 w-full" />
-          ))}
-        </div>
-      </main>
+      <div>
+        <NavBar />
+        <main className="container mx-auto px-4 py-8 max-w-4xl">
+          <Skeleton className="h-10 w-2/3 mb-4" />
+          <Skeleton className="h-5 w-full mb-2" />
+          <Skeleton className="h-5 w-4/5 mb-8" />
+          <Skeleton className="h-8 w-32 mb-6" />
+          <div className="flex flex-col gap-3">
+            {[1, 2, 3].map((i) => (
+              <Skeleton key={i} className="h-12 w-full" />
+            ))}
+          </div>
+        </main>
+      </div>
     );
   }
 
   if (error || !org) {
     return (
-      <main className="container mx-auto px-4 py-8 max-w-4xl">
-        <p className="text-destructive text-lg">{error ?? "Organization not found."}</p>
-        <Button asChild className="mt-4" variant="outline">
-          <Link href="/organizations">Back to Organizations</Link>
-        </Button>
-      </main>
+      <div>
+        <NavBar />
+        <main className="container mx-auto px-4 py-8 max-w-4xl">
+          <p className="text-destructive text-lg">{error ?? "Organization not found."}</p>
+          <Button asChild className="mt-4" variant="outline">
+            <Link href="/organizations">Back to Organizations</Link>
+          </Button>
+        </main>
+      </div>
     );
   }
 
@@ -122,23 +129,30 @@ const IndividualOrganizationPage = (props: PageProps) => {
   const isMember = members.some((m) => m.user_id === 1);
 
   return (
-    <main className="container mx-auto px-4 py-8 max-w-4xl">
-      {/* Header */}
-      <div className="flex items-start justify-between gap-4 flex-wrap mb-2">
-        <h1 className="text-3xl font-bold">{org.name}</h1>
-        <div className="flex gap-2">
-          {isAdmin && (
-            <Button asChild variant="outline" size="sm">
-              <Link href={`/organizations/${orgId}/edit`}>Edit</Link>
-            </Button>
-          )}
-          {!isMember && (
-            <Button size="sm" onClick={handleJoin} disabled={joining || joinSuccess}>
-              {joinSuccess ? "Joined!" : joining ? "Joining…" : "Join"}
-            </Button>
-          )}
+    <div>
+      <NavBar />
+      <main className="container mx-auto px-4 py-8 max-w-4xl">
+        {/* Header */}
+        <div className="flex items-start justify-between gap-4 flex-wrap mb-2">
+          <h1 className="text-3xl font-bold">{org.name}</h1>
+          <div className="flex gap-2">
+            {isAdmin && (
+              <Button asChild variant="outline" size="sm">
+                <Link href={`/events/create?organization_id=${orgId}`}>Create Event</Link>
+              </Button>
+            )}
+            {isAdmin && (
+              <Button asChild variant="outline" size="sm">
+                <Link href={`/organizations/${orgId}/edit`}>Edit</Link>
+              </Button>
+            )}
+            {!isMember && (
+              <Button size="sm" onClick={handleJoin} disabled={joining || joinSuccess}>
+                {joinSuccess ? "Joined!" : joining ? "Joining…" : "Join"}
+              </Button>
+            )}
+          </div>
         </div>
-      </div>
 
       {org.description && (
         <p className="text-muted-foreground mb-6">{org.description}</p>
@@ -184,6 +198,7 @@ const IndividualOrganizationPage = (props: PageProps) => {
         </TabsContent>
       </Tabs>
     </main>
+    </div>
   );
 };
 
