@@ -8,6 +8,7 @@ import RecommendedEvents from "@/components/RecommendedEvents";
 import { Button } from "@/components/ui/button";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Separator } from "@/components/ui/separator";
+import { getServerSession } from "@/lib/session";
 import type { Event } from "@/models/event";
 
 async function UpcomingEvents() {
@@ -51,31 +52,37 @@ async function UpcomingEvents() {
   );
 }
 
-export default function Home() {
+export default async function Home() {
+  const session = await getServerSession();
+
   return (
     <div>
       <NavBar />
       <main className="mx-auto max-w-5xl px-4">
-        {/* Hero Section */}
-        <section className="py-20 text-center">
-          <h1 className="text-4xl font-bold tracking-tight mb-4">
-            Make a Difference in Your Community
-          </h1>
-          <p className="text-lg text-muted-foreground mb-8 max-w-2xl mx-auto">
-            Discover volunteer opportunities, connect with organisations, and track your
-            impact — all in one place.
-          </p>
-          <div className="flex gap-4 justify-center flex-wrap">
-            <Button asChild size="lg">
-              <Link href="/events">Browse Events</Link>
-            </Button>
-            <Button asChild size="lg" variant="outline">
-              <Link href="/signup">Sign Up</Link>
-            </Button>
-          </div>
-        </section>
+        {/* Hero Section — only shown to unauthenticated visitors */}
+        {!session && (
+          <>
+            <section className="py-20 text-center">
+              <h1 className="text-4xl font-bold tracking-tight mb-4">
+                Make a Difference in Your Community
+              </h1>
+              <p className="text-lg text-muted-foreground mb-8 max-w-2xl mx-auto">
+                Discover volunteer opportunities, connect with organisations, and track your
+                impact — all in one place.
+              </p>
+              <div className="flex gap-4 justify-center flex-wrap">
+                <Button asChild size="lg">
+                  <Link href="/events">Browse Events</Link>
+                </Button>
+                <Button asChild size="lg" variant="outline">
+                  <Link href="/signup">Sign Up</Link>
+                </Button>
+              </div>
+            </section>
 
-        <Separator />
+            <Separator />
+          </>
+        )}
 
         {/* Upcoming Events Section */}
         <Suspense
