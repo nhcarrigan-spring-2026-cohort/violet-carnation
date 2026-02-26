@@ -39,7 +39,7 @@ export default function ProfilePage() {
 
     const fetchUser = async () => {
       try {
-        const res = await fetch(`/api/users/${userId}`, {
+        const res = await fetch(`/api/auth/me`, {
           credentials: "include",
         });
         if (!res.ok) throw new Error("Failed to fetch user");

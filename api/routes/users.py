@@ -74,42 +74,6 @@ def list_users(
     ]
 
 
-@router.get("/{user_id}", response_model=User)
-def get_user(user_id: int, _conn: sqlite3.Connection = Depends(get_connection)):
-    """
-    Get a single user by their user ID. This should be mostly used for the current logged in user to get
-    their own information, but again might change.
-
-    :param user_id: Description
-    :type user_id: int
-    :param _conn: the connection to the database
-    :type _conn: sqlite3.Connection
-    """
-    row = _conn.execute(
-        "SELECT user_id, email, first_name, last_name, availability, skills FROM users WHERE user_id = ?",
-        (user_id,),
-    ).fetchone()
-    if row is None:
-        raise HTTPException(
-            status_code=status.HTTP_404_NOT_FOUND, detail="User not found"
-        )
-    interest_rows = _conn.execute(
-        "SELECT category FROM user_interests WHERE user_id = ?",
-        (user_id,),
-    ).fetchall()
-    interests = [r["category"] for r in interest_rows]
-    return User(
-        user_id=row["user_id"],
-        email=row["email"],
-        first_name=row["first_name"],
-        last_name=row["last_name"],
-        availability=row["availability"],
-        skills=row["skills"] or "",
-        interests=interests,
-    )
-
-
-
 ## All the users can modify the data. No permission level check is implemented yet
 @router.put(
     "/{user_id}",

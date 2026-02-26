@@ -206,13 +206,36 @@ def reset_password(
 @router.get("/me")
 def get_me(
     current_user: dict = Depends(get_current_user),
+    _conn: sqlite3.Connection = Depends(get_connection),
 ):
     """
-    Return the currently authenticated user's profile.
+    Return the currently authenticated user's full profile.
 
     Requires a valid session cookie or Bearer token.
     """
-    return current_user
+    user_id = current_user["user_id"]
+    row = _conn.execute(
+        "SELECT user_id, email, first_name, last_name, availability, skills FROM users WHERE user_id = ?",
+        (user_id,),
+    ).fetchone()
+    if row is None:
+        raise HTTPException(
+            status_code=status.HTTP_404_NOT_FOUND, detail="User not found"
+        )
+    interest_rows = _conn.execute(
+        "SELECT category FROM user_interests WHERE user_id = ?",
+        (user_id,),
+    ).fetchall()
+    interests = [r["category"] for r in interest_rows]
+    return {
+        "user_id": row["user_id"],
+        "email": row["email"],
+        "first_name": row["first_name"],
+        "last_name": row["last_name"],
+        "availability": row["availability"],
+        "skills": row["skills"] or "",
+        "interests": interests,
+    }
 
 
 @router.delete("/delete-account")
