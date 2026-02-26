@@ -1,7 +1,7 @@
 "use client";
 
 import { useEffect, useState } from "react";
-import { useRouter } from "next/navigation";
+import { useRouter, useSearchParams } from "next/navigation";
 import { toast } from "sonner";
 
 import { Button } from "@/components/ui/button";
@@ -26,6 +26,7 @@ const NO_CATEGORY = "__none__";
 
 const CreateEventPage = () => {
   const router = useRouter();
+  const searchParams = useSearchParams();
   // TODO: Once auth is implemented, useRoles() will derive user_id from session.
   // Currently relies on the user_id cookie set by the app (defaulting to user 1).
   const { roles } = useRoles();
@@ -49,14 +50,19 @@ const CreateEventPage = () => {
   useEffect(() => {
     if (adminOrgIds.size === 0) return;
 
+    const preselectedOrgId = searchParams.get("organization_id");
+
     getOrganizations(100)
       .then((orgs) => {
         const adminOrgs = orgs.filter((o) => adminOrgIds.has(o.organization_id));
         setOrganizations(adminOrgs);
+        if (preselectedOrgId && adminOrgs.some((o) => String(o.organization_id) === preselectedOrgId)) {
+          setOrganizationId(preselectedOrgId);
+        }
       })
       .catch(() => setError("Failed to load organizations."));
     // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [roles]);
+  }, [roles, searchParams]);
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
