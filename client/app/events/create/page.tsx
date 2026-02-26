@@ -1,7 +1,7 @@
 "use client";
 
 import { useEffect, useState } from "react";
-import { useRouter } from "next/navigation";
+import { useRouter, useSearchParams } from "next/navigation";
 import { toast } from "sonner";
 
 import { Button } from "@/components/ui/button";
@@ -20,13 +20,14 @@ import {
 import { useRoles } from "@/context/RolesContext";
 import { createEvent } from "@/lib/events";
 import { getOrganizations } from "@/lib/organizations";
-import { EVENT_CATEGORIES } from "@/models/eventCategories";
+import { EVENT_CATEGORIES, type EventCategory } from "@/models/eventCategories";
 import type { Organization } from "@/models/organizations";
 
 const NO_CATEGORY = "__none__";
 
 const CreateEventPage = () => {
   const router = useRouter();
+  const searchParams = useSearchParams();
   const { roles, rolesLoading } = useRoles();
 
   const [organizations, setOrganizations] = useState<Organization[]>([]);
@@ -36,7 +37,7 @@ const CreateEventPage = () => {
   const [date, setDate] = useState("");
   const [time, setTime] = useState("");
   const [organizationId, setOrganizationId] = useState("");
-  const [category, setCategory] = useState(NO_CATEGORY);
+  const [category, setCategory] = useState<EventCategory | typeof NO_CATEGORY>(NO_CATEGORY);
   const [submitting, setSubmitting] = useState(false);
   const [error, setError] = useState<string | null>(null);
 
@@ -48,14 +49,19 @@ const CreateEventPage = () => {
   useEffect(() => {
     if (adminOrgIds.size === 0) return;
 
+    const preselectedOrgId = searchParams.get("organization_id");
+
     getOrganizations(100)
       .then((orgs) => {
         const adminOrgs = orgs.filter((o) => adminOrgIds.has(o.organization_id));
         setOrganizations(adminOrgs);
+        if (preselectedOrgId && adminOrgs.some((o) => String(o.organization_id) === preselectedOrgId)) {
+          setOrganizationId(preselectedOrgId);
+        }
       })
       .catch(() => setError("Failed to load organizations."));
     // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [roles]);
+  }, [roles, searchParams]);
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
@@ -208,7 +214,7 @@ const CreateEventPage = () => {
             {/* Category */}
             <div className="flex flex-col gap-2">
               <Label htmlFor="category">Category</Label>
-              <Select value={category} onValueChange={setCategory}>
+              <Select value={category} onValueChange={(val) => setCategory(val as EventCategory | typeof NO_CATEGORY)}>
                 <SelectTrigger id="category">
                   <SelectValue placeholder="Select a category (optional)" />
                 </SelectTrigger>
