@@ -3,10 +3,18 @@
 import {
   Card,
   CardContent,
-  CardDescription,
   CardHeader,
   CardTitle,
 } from "@/components/ui/card";
+import {
+  Dialog,
+  DialogContent,
+  DialogHeader,
+  DialogTitle,
+  DialogDescription,
+  DialogFooter,
+} from "@/components/ui/dialog";
+import { Button } from "@/components/ui/button";
 import { Event } from "@/models/event";
 import { CalendarDays, MapPin } from "lucide-react";
 import { useState } from "react";
@@ -80,6 +88,36 @@ const EventCarousel = ({ events, groupByCategory = false }: EventCarouselProps) 
     );
   }
 
+  const eventModal = (
+    <Dialog open={selectedEvent !== null} onOpenChange={(open) => !open && setSelectedEvent(null)}>
+      <DialogContent>
+        <DialogHeader>
+          <DialogTitle>{selectedEvent?.name}</DialogTitle>
+          <DialogDescription className="flex items-center gap-4 flex-wrap pt-1">
+            <span className="flex items-center gap-1">
+              <CalendarDays className="h-4 w-4" />
+              {selectedEvent ? formatDateTime(selectedEvent.date_time) : ""}
+            </span>
+            {selectedEvent?.location && (
+              <span className="flex items-center gap-1">
+                <MapPin className="h-4 w-4" />
+                {selectedEvent.location}
+              </span>
+            )}
+          </DialogDescription>
+        </DialogHeader>
+        <p className="text-sm text-muted-foreground whitespace-pre-wrap">
+          {selectedEvent?.description || "No description provided."}
+        </p>
+        <DialogFooter>
+          <Button onClick={() => router.push(`/events/${selectedEvent!.id}`)}>
+            View Details
+          </Button>
+        </DialogFooter>
+      </DialogContent>
+    </Dialog>
+  );
+
   if (groupByCategory) {
     const categoryMap = new Map<string, Event[]>();
     for (const event of events) {
@@ -107,35 +145,7 @@ const EventCarousel = ({ events, groupByCategory = false }: EventCarouselProps) 
             />
           </section>
         ))}
-
-        {/* Featured / selected event detail */}
-        {selectedEvent && (
-          <Card
-            onClick={() => router.push(`/events/${selectedEvent.id}`)}
-            className="cursor-pointer hover:shadow-lg"
-          >
-            <CardHeader>
-              <CardTitle>{selectedEvent.name}</CardTitle>
-              <CardDescription className="flex items-center gap-4 flex-wrap">
-                <span className="flex items-center gap-1">
-                  <CalendarDays className="h-4 w-4" />
-                  {formatDateTime(selectedEvent.date_time)}
-                </span>
-                {selectedEvent.location && (
-                  <span className="flex items-center gap-1">
-                    <MapPin className="h-4 w-4" />
-                    {selectedEvent.location}
-                  </span>
-                )}
-              </CardDescription>
-            </CardHeader>
-            <CardContent>
-              <p className="text-sm text-muted-foreground whitespace-pre-wrap">
-                {selectedEvent.description || "No description provided."}
-              </p>
-            </CardContent>
-          </Card>
-        )}
+        {eventModal}
       </div>
     );
   }
@@ -148,35 +158,7 @@ const EventCarousel = ({ events, groupByCategory = false }: EventCarouselProps) 
         selectedEvent={selectedEvent}
         onSelect={setSelectedEvent}
       />
-
-      {/* Featured / selected event detail */}
-      {selectedEvent && (
-        <Card
-          onClick={() => router.push(`/events/${selectedEvent.id}`)}
-          className="cursor-pointer hover:shadow-lg"
-        >
-          <CardHeader>
-            <CardTitle>{selectedEvent.name}</CardTitle>
-            <CardDescription className="flex items-center gap-4 flex-wrap">
-              <span className="flex items-center gap-1">
-                <CalendarDays className="h-4 w-4" />
-                {formatDateTime(selectedEvent.date_time)}
-              </span>
-              {selectedEvent.location && (
-                <span className="flex items-center gap-1">
-                  <MapPin className="h-4 w-4" />
-                  {selectedEvent.location}
-                </span>
-              )}
-            </CardDescription>
-          </CardHeader>
-          <CardContent>
-            <p className="text-sm text-muted-foreground whitespace-pre-wrap">
-              {selectedEvent.description || "No description provided."}
-            </p>
-          </CardContent>
-        </Card>
-      )}
+      {eventModal}
     </div>
   );
 };
