@@ -5,7 +5,7 @@ import { Event } from "@/models/event";
 import { Filters } from "@/models/filters";
 import { useCallback, useEffect, useState } from "react";
 import EventCarousel from "../../components/EventCarousel";
-import FilterModal from "../../components/FilterModal";
+import FilterBar from "../../components/FilterBar";
 import NavBar from "../../components/NavBar";
 import { filtersToQueryParams } from "./filters-to-query-params";
 
@@ -43,7 +43,7 @@ const EventsPage = () => {
       <NavBar />
       <main className="mx-auto max-w-5xl px-4 py-6 flex flex-col gap-4">
         <h1 className="text-2xl font-bold">Events</h1>
-        <FilterModal filters={filters} onChange={setFilters} />
+        <FilterBar filters={filters} onChange={setFilters} />
         <EventCarousel events={events} groupByCategory />
       </main>
     </div>

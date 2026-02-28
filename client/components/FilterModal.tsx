@@ -26,7 +26,7 @@ interface FilterBarProps {
   onChange: (filters: Filters) => void;
 }
 
-const FilterModal = ({ filters, onChange }: FilterBarProps) => {
+const FilterBar = ({ filters, onChange }: FilterBarProps) => {
   const handleAvailabilityToggle = (availability: Availability) => {
     const current = filters.availability || [];
     const updated = current.includes(availability)
@@ -129,4 +129,4 @@ const FilterModal = ({ filters, onChange }: FilterBarProps) => {
   );
 };
 
-export default FilterModal;
+export default FilterBar;

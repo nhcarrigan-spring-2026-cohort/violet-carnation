@@ -285,7 +285,7 @@ violet-carnation/
 │   │
 │   ├── components/       # Reusable React components
 │   │   ├── ui/           # shadcn UI components
-│   │   ├── FilterModal.tsx
+│   │   ├── FilterBar.tsx
 │   │   ├── ect
 │   ├── models/           # TypeScript interfaces & types
 │   │   ├── event.ts
