@@ -36,8 +36,11 @@ export default async function RootLayout({
   const sessionCookie = cookieStore.get("session");
   const cookieHeader = sessionCookie ? `session=${sessionCookie.value}` : undefined;
 
-  const initialRoles: Role[] | null = await fetchRoles(cookieHeader);
+  let initialRoles: Role[] = [];
 
+  if (cookieHeader) {
+    initialRoles = await fetchRoles(cookieHeader);
+  }
   return (
     <html lang="en" suppressHydrationWarning>
       <body className={`${geistSans.variable} ${geistMono.variable} antialiased`}>
