@@ -4,7 +4,7 @@ import sqlite3
 from datetime import timedelta
 
 import jwt
-from fastapi import APIRouter, Depends, HTTPException, status
+from fastapi import APIRouter, Depends, HTTPException, Request, status
 from fastapi.responses import JSONResponse
 from fastapi.security import OAuth2PasswordRequestForm
 
@@ -117,6 +117,46 @@ def login(
     response.set_cookie(
         key="session",
         value=token,
+        httponly=True,
+        samesite="lax",
+        secure=_IS_PRODUCTION,
+        path="/",
+    )
+    return response
+
+
+@router.post("/refresh")
+def refresh_session(request: Request):
+    """
+    Issue a fresh JWT using the existing valid session cookie.
+
+    This should be called from the client-side periodically to keep the session alive, technically
+    forever/as long as the page is active.
+
+    If the current session cookie is present and has not expired, a new token
+    is generated with a reset expiry window and written back as the session
+    cookie. Returns 401 if the cookie is absent or the token is invalid/expired.
+    """
+    token = request.cookies.get("session")
+    if not token:
+        raise HTTPException(
+            status_code=status.HTTP_401_UNAUTHORIZED,
+            detail="No session",
+        )
+
+    try:
+        claims = decode_access_token(token)
+    except (jwt.ExpiredSignatureError, jwt.InvalidTokenError):
+        raise HTTPException(
+            status_code=status.HTTP_401_UNAUTHORIZED,
+            detail="Invalid or expired token",
+        )
+
+    new_token = create_access_token({"sub": claims["sub"]})
+    response = JSONResponse(content={"ok": True})
+    response.set_cookie(
+        key="session",
+        value=new_token,
         httponly=True,
         samesite="lax",
         secure=_IS_PRODUCTION,

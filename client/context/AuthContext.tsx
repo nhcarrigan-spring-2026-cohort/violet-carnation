@@ -1,5 +1,6 @@
 "use client";
 
+import { useRouter } from "next/navigation";
 import {
   createContext,
   useCallback,
@@ -8,7 +9,6 @@ import {
   useState,
   type ReactNode,
 } from "react";
-import { useRouter } from "next/navigation";
 import { toast } from "sonner";
 
 export interface AuthUser {
@@ -81,6 +81,29 @@ export function AuthProvider({ children }: AuthProviderProps) {
   useEffect(() => {
     fetchCurrentUser();
   }, [fetchCurrentUser]);
+
+  // While the user is logged in, silently renew the session cookie every
+  // 20 minutes so it never expires during an active session.
+  useEffect(() => {
+    if (!user) return;
+    const id = setInterval(
+      () => {
+        fetch("/api/auth/refresh", { method: "POST", credentials: "include" })
+          .then((r) => {
+            if (!r.ok) {
+              // Token has already expired or was invalidated — re-check auth
+              // state so the expired-token handler in fetchCurrentUser can run.
+              fetchCurrentUser();
+            }
+          })
+          .catch(() => {
+            // Network error; do nothing and let the next interval try again.
+          });
+      },
+      20 * 60 * 1000,
+    ); // every 20 minutes
+    return () => clearInterval(id);
+  }, [user, fetchCurrentUser]);
 
   const refresh = useCallback(async () => {
     setLoading(true);
