@@ -81,8 +81,11 @@ const FilterModal = ({ filters, onChange }: FilterBarProps) => {
             {AVAILABILITY_OPTIONS.map((option) => (
               <div key={option} className="flex items-center gap-1.5">
                 <Checkbox
+                  // force them to look more like checkboxes, as you can pick multiple
+                  // idk why they look like radial buttons which is confusing.
+                  style={{ borderRadius: "2px" }}
                   id={`avail-${option}`}
-                  checked={filters.availability?.includes(option) || false}
+                  checked={filters.availability?.includes(option) ?? false}
                   onCheckedChange={() => handleAvailabilityToggle(option)}
                 />
                 <Label htmlFor={`avail-${option}`} className="cursor-pointer">
