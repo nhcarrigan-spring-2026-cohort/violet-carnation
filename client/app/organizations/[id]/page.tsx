@@ -8,6 +8,7 @@ import { Card, CardHeader, CardTitle } from "@/components/ui/card";
 import { Separator } from "@/components/ui/separator";
 import { Skeleton } from "@/components/ui/skeleton";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
+import { useRoles } from "@/context/RolesContext";
 import { useCurrentUserId } from "@/lib/useCurrentUserId";
 import { Event } from "@/models/event";
 import { getOrganizationCategoryLabel } from "@/models/organizationCategories";
@@ -30,6 +31,7 @@ const IndividualOrganizationPage = (props: PageProps) => {
   const [error, setError] = useState<string | null>(null);
   const [joining, setJoining] = useState(false);
   const [joinSuccess, setJoinSuccess] = useState(false);
+  const { refreshRoles } = useRoles();
   const currentUserId = useCurrentUserId();
 
   useEffect(() => {
@@ -82,6 +84,7 @@ const IndividualOrganizationPage = (props: PageProps) => {
       });
       if (res.ok) {
         setJoinSuccess(true);
+        await refreshRoles();
         // Refresh member list
         const updated = await fetch(`/api/organization/${orgId}/users`);
         if (updated.ok) setMembers(await updated.json());
