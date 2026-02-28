@@ -1,5 +1,5 @@
-from pathlib import Path
 import sqlite3
+from pathlib import Path
 
 from utils.db_schema import DB_SCHEMA
 
@@ -12,14 +12,17 @@ def init_db() -> None:
 
     At the time of writing, this only creates the 'users' table as an example schema.
     """
-    with sqlite3.connect(DATABASE_PATH) as conn:
+    with sqlite3.connect(DATABASE_PATH, check_same_thread=False) as conn:
         conn.execute("PRAGMA foreign_keys = ON;")
         conn.executescript(DB_SCHEMA)
         conn.commit()
 
 
 def get_connection():
-    conn = sqlite3.connect(DATABASE_PATH)
+    # the check_same_thread prevents a common issue where sqlite flags the fact
+    # that the connection is being used across multiple threads
+    # (which can happen in a web server context)
+    conn = sqlite3.connect(DATABASE_PATH, check_same_thread=False)
     conn.execute("PRAGMA foreign_keys = ON;")
     conn.row_factory = sqlite3.Row
     try:
