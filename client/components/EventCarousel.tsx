@@ -10,6 +10,7 @@ import {
 import { Event } from "@/models/event";
 import { CalendarDays, MapPin } from "lucide-react";
 import { useState } from "react";
+import { useRouter } from "next/navigation";
 
 interface EventCarouselProps {
   events: Event[];
@@ -69,6 +70,7 @@ function EventRow({
 
 const EventCarousel = ({ events, groupByCategory = false }: EventCarouselProps) => {
   const [selectedEvent, setSelectedEvent] = useState<Event | null>(null);
+  const router = useRouter();
 
   if (events.length === 0) {
     return (
@@ -108,7 +110,10 @@ const EventCarousel = ({ events, groupByCategory = false }: EventCarouselProps) 
 
         {/* Featured / selected event detail */}
         {selectedEvent && (
-          <Card>
+          <Card
+            onClick={() => router.push(`/events/${selectedEvent.id}`)}
+            className="cursor-pointer hover:shadow-lg"
+          >
             <CardHeader>
               <CardTitle>{selectedEvent.name}</CardTitle>
               <CardDescription className="flex items-center gap-4 flex-wrap">
@@ -138,11 +143,18 @@ const EventCarousel = ({ events, groupByCategory = false }: EventCarouselProps) 
   return (
     <div className="flex flex-col gap-6">
       {/* Scrollable event card list */}
-      <EventRow events={events} selectedEvent={selectedEvent} onSelect={setSelectedEvent} />
+      <EventRow
+        events={events}
+        selectedEvent={selectedEvent}
+        onSelect={setSelectedEvent}
+      />
 
       {/* Featured / selected event detail */}
       {selectedEvent && (
-        <Card>
+        <Card
+          onClick={() => router.push(`/events/${selectedEvent.id}`)}
+          className="cursor-pointer hover:shadow-lg"
+        >
           <CardHeader>
             <CardTitle>{selectedEvent.name}</CardTitle>
             <CardDescription className="flex items-center gap-4 flex-wrap">
