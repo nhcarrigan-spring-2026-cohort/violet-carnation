@@ -15,12 +15,10 @@ interface RolesContextValue {
   /** The current list of roles for the authenticated user. */
   roles: Role[];
   /**
-   * Re-fetches and updates the roles for the given user.
+   * Re-fetches and updates the roles for the current user.
    * Call this after login, role changes, or anywhere a fresh role list is needed.
-   *
-   * @param userId - The ID of the user whose roles to reload.
    */
-  refreshRoles: (userId: number) => Promise<void>;
+  refreshRoles: () => Promise<void>;
 }
 
 const RolesContext = createContext<RolesContextValue | null>(null);
@@ -40,8 +38,8 @@ interface RolesProviderProps {
 export function RolesProvider({ initialRoles, children }: RolesProviderProps) {
   const [roles, setRoles] = useState<Role[]>(initialRoles);
 
-  const refreshRoles = useCallback(async (userId: number) => {
-    const updated = await fetchRoles(userId);
+  const refreshRoles = useCallback(async () => {
+    const updated = await fetchRoles();
     setRoles(updated);
   }, []);
 

@@ -167,7 +167,11 @@ const EditOrgPage = (props: PageProps) => {
 
             <div className="flex flex-col gap-2">
               <Label htmlFor="category">Category *</Label>
-              <Select value={category} onValueChange={(v) => setCategory(v as OrganizationCategoryValue)} required>
+              <Select
+                value={category}
+                onValueChange={(v) => setCategory(v as OrganizationCategoryValue)}
+                required
+              >
                 <SelectTrigger id="category">
                   <SelectValue placeholder="Select a category" />
                 </SelectTrigger>

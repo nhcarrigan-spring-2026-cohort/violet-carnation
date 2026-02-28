@@ -8,18 +8,14 @@ import type { Role } from "@/models/roles";
 const API_BASE_URL = process.env.NEXT_PUBLIC_API_URL ?? "http://localhost:8000";
 
 /**
- * Fetches all roles for a given user from the API.
+ * Fetches all roles for the current user
  *
  * This function works in both server (SSR) and client contexts.
  *
- * TODO: Once authentication is implemented, the user_id should be derived
- * from the session token rather than being passed explicitly.
- *
- * @param userId - The ID of the user whose roles to fetch.
  * @returns A promise resolving to the user's roles, or an empty array on failure.
  */
-export async function fetchRoles(userId: number): Promise<Role[]> {
-  const res = await fetch(`${API_BASE_URL}/api/roles?user_id=${userId}`, {
+export async function fetchRoles(): Promise<Role[]> {
+  const res = await fetch(`${API_BASE_URL}/api/roles`, {
     cache: "no-store",
   });
 

@@ -7,7 +7,6 @@ import { Toaster } from "@/components/ui/sonner";
 import { AuthProvider } from "@/context/AuthContext";
 import { RolesProvider } from "@/context/RolesContext";
 import { fetchRoles } from "@/lib/roles";
-import { getServerSession } from "@/lib/session";
 import type { Role } from "@/models/roles";
 
 const geistSans = Geist({
@@ -31,10 +30,7 @@ export default async function RootLayout({
 }: Readonly<{
   children: React.ReactNode;
 }>) {
-  const session = await getServerSession();
-  const userId = session?.userId ?? null;
-
-  const initialRoles: Role[] = userId !== null ? await fetchRoles(userId) : [];
+  const initialRoles: Role[] | null = await fetchRoles();
 
   return (
     <html lang="en" suppressHydrationWarning>
