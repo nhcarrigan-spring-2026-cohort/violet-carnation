@@ -27,8 +27,80 @@ describe("filtersToQueryParams", () => {
     });
   });
 
-  // category filter removed from the Filters model until API support is added.
-  // describe("category is ignored (not supported by API)", () => { ... });
+  describe("category maps to category params", () => {
+    it("should produce a category param for a single selected category", () => {
+      const filters: Filters = {
+        scope: "all",
+        availability: null,
+        categories: ["Education & Tutoring"],
+      };
+
+      const params = filtersToQueryParams(filters);
+
+      expect(params.getAll("category")).toEqual(["Education & Tutoring"]);
+    });
+
+    it("should produce a category param for each selected category", () => {
+      const filters: Filters = {
+        scope: "all",
+        availability: null,
+        categories: ["Animal Welfare", "Health & Medical", "Arts & Culture"],
+      };
+
+      const params = filtersToQueryParams(filters);
+
+      expect(params.getAll("category")).toEqual([
+        "Animal Welfare",
+        "Health & Medical",
+        "Arts & Culture",
+      ]);
+    });
+
+    it("should produce no category params when categories is null", () => {
+      const filters: Filters = {
+        scope: "all",
+        availability: null,
+        categories: null,
+      };
+
+      const params = filtersToQueryParams(filters);
+
+      expect(params.has("category")).toBe(false);
+    });
+
+    it("should produce no category params when categories is empty", () => {
+      const filters: Filters = {
+        scope: "all",
+        availability: null,
+        categories: [],
+      };
+
+      const params = filtersToQueryParams(filters);
+
+      expect(params.has("category")).toBe(false);
+    });
+
+    it("should combine category params with scope and availability params", () => {
+      const roles: Role[] = [
+        { user_id: 1, organization_id: 10, permission_level: "admin" },
+      ];
+      const filters: Filters = {
+        scope: "admin",
+        availability: ["Mornings"],
+        categories: ["Disaster Relief", "Veterans & Military Families"],
+      };
+
+      const params = filtersToQueryParams(filters, roles);
+
+      expect(params.getAll("organization_id")).toEqual(["10"]);
+      expect(params.get("begin_time")).toBe("06:00");
+      expect(params.get("end_time")).toBe("11:59");
+      expect(params.getAll("category")).toEqual([
+        "Disaster Relief",
+        "Veterans & Military Families",
+      ]);
+    });
+  });
 
   describe("scope maps to organization_id params", () => {
     const roles: Role[] = [
