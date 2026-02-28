@@ -1,10 +1,12 @@
 "use client";
 
+import NavBar from "@/components/NavBar";
 import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Separator } from "@/components/ui/separator";
 import { Skeleton } from "@/components/ui/skeleton";
+import { useRoles } from "@/context/RolesContext";
 import { useCurrentUserId } from "@/lib/useCurrentUserId";
 import { Event } from "@/models/event";
 import Link from "next/link";
@@ -20,6 +22,7 @@ const EventDetailPage = (props: PageProps) => {
   const params = use(props.params);
   const eventId = Number(params.id);
   const userId = useCurrentUserId();
+  const { roles } = useRoles();
   const router = useRouter();
 
   const [event, setEvent] = useState<Event | null>(null);
@@ -126,25 +129,31 @@ const EventDetailPage = (props: PageProps) => {
 
   if (loading) {
     return (
-      <main className="container mx-auto px-4 py-8 max-w-3xl">
-        <Skeleton className="h-5 w-32 mb-6" />
-        <Skeleton className="h-10 w-2/3 mb-3" />
-        <Skeleton className="h-5 w-48 mb-2" />
-        <Skeleton className="h-5 w-40 mb-6" />
-        <Skeleton className="h-24 w-full mb-6" />
-        <Skeleton className="h-10 w-32" />
-      </main>
+      <>
+        <NavBar />
+        <main className="container mx-auto px-4 py-8 max-w-3xl">
+          <Skeleton className="h-5 w-32 mb-6" />
+          <Skeleton className="h-10 w-2/3 mb-3" />
+          <Skeleton className="h-5 w-48 mb-2" />
+          <Skeleton className="h-5 w-40 mb-6" />
+          <Skeleton className="h-24 w-full mb-6" />
+          <Skeleton className="h-10 w-32" />
+        </main>
+      </>
     );
   }
 
   if (error || !event) {
     return (
-      <main className="container mx-auto px-4 py-8 max-w-3xl">
-        <p className="text-destructive text-lg">{error ?? "Event not found."}</p>
-        <Button asChild className="mt-4" variant="outline">
-          <Link href="/events">Back to Events</Link>
-        </Button>
-      </main>
+      <>
+        <NavBar />
+        <main className="container mx-auto px-4 py-8 max-w-3xl">
+          <p className="text-destructive text-lg">{error ?? "Event not found."}</p>
+          <Button asChild className="mt-4" variant="outline">
+            <Link href="/events">Back to Events</Link>
+          </Button>
+        </main>
+      </>
     );
   }
 
@@ -153,73 +162,83 @@ const EventDetailPage = (props: PageProps) => {
     timeStyle: "short",
   });
 
+  const isOrgAdmin = roles.some(
+    (role) =>
+      role.organization_id === event.organization_id &&
+      role.permission_level === "admin",
+  );
+
   return (
-    <main className="container mx-auto px-4 py-8 max-w-3xl">
-      {/* Back navigation */}
-      <Link
-        href="/events"
-        className="text-sm text-muted-foreground hover:text-foreground mb-6 inline-block"
-      >
-        ← Back to Events
-      </Link>
+    <>
+      <NavBar />
+      <main className="container mx-auto px-4 py-8 max-w-3xl">
+        {/* Back navigation */}
+        <Link
+          href="/events"
+          className="text-sm text-muted-foreground hover:text-foreground mb-6 inline-block"
+        >
+          ← Back to Events
+        </Link>
 
-      <Card>
-        <CardHeader>
-          <div className="flex items-start justify-between gap-4 flex-wrap">
-            <CardTitle className="text-3xl">{event.name}</CardTitle>
-            <div className="flex gap-2 flex-wrap">
-              {event.category && <Badge variant="secondary">{event.category}</Badge>}
+        <Card>
+          <CardHeader>
+            <div className="flex items-start justify-between gap-4 flex-wrap">
+              <CardTitle className="text-3xl">{event.name}</CardTitle>
+              <div className="flex gap-2 flex-wrap">
+                {event.category && <Badge variant="secondary">{event.category}</Badge>}
+              </div>
             </div>
-          </div>
 
-          <p className="text-muted-foreground text-sm mt-1">{formattedDate}</p>
-          <p className="text-muted-foreground text-sm">{event.location}</p>
-        </CardHeader>
-
-        <Separator />
-
-        <CardContent className="pt-6 space-y-6">
-          {/* Description */}
-          <p className="text-base leading-relaxed">{event.description}</p>
-
-          {/* Organization link */}
-          <div>
-            <span className="text-sm text-muted-foreground">Organized by: </span>
-            <Link
-              href={`/organizations/${event.organization_id}`}
-              className="text-sm font-medium underline underline-offset-4 hover:text-muted-foreground"
-            >
-              View Organization
-            </Link>
-          </div>
+            <p className="text-muted-foreground text-sm mt-1">{formattedDate}</p>
+            <p className="text-muted-foreground text-sm">{event.location}</p>
+          </CardHeader>
 
           <Separator />
 
-          {/* Actions */}
-          <div className="flex gap-3 flex-wrap">
-            {isRegistered ? (
-              <Button
-                variant="outline"
-                onClick={handleUnregister}
-                disabled={registering}
-              >
-                {registering ? "Unregistering…" : "Unregister"}
-              </Button>
-            ) : (
-              <Button onClick={handleRegister} disabled={registering}>
-                {registering ? "Registering…" : "Register"}
-              </Button>
-            )}
+          <CardContent className="pt-6 space-y-6">
+            {/* Description */}
+            <p className="text-base leading-relaxed">{event.description}</p>
 
-            {/* Edit link — shown to all users for now */}
-            {/* TODO: gate this to org admins once auth context is available */}
-            <Button asChild variant="ghost" size="sm">
-              <Link href={`/events/${eventId}/edit`}>Edit Event</Link>
-            </Button>
-          </div>
-        </CardContent>
-      </Card>
-    </main>
+            {/* Organization link */}
+            <div>
+              <span className="text-sm text-muted-foreground">Organized by: </span>
+              <Link
+                href={`/organizations/${event.organization_id}`}
+                className="text-sm font-medium underline underline-offset-4 hover:text-muted-foreground"
+              >
+                View Organization
+              </Link>
+            </div>
+
+            <Separator />
+
+            {/* Actions */}
+            <div className="flex gap-3 flex-wrap">
+              {typeof userId === "number" &&
+                (isRegistered ? (
+                  <Button
+                    variant="outline"
+                    onClick={handleUnregister}
+                    disabled={registering}
+                  >
+                    {registering ? "Unregistering…" : "Unregister"}
+                  </Button>
+                ) : (
+                  <Button onClick={handleRegister} disabled={registering}>
+                    {registering ? "Registering…" : "Register"}
+                  </Button>
+                ))}
+
+              {isOrgAdmin && (
+                <Button asChild variant="ghost" size="sm">
+                  <Link href={`/events/${eventId}/edit`}>Edit Event</Link>
+                </Button>
+              )}
+            </div>
+          </CardContent>
+        </Card>
+      </main>
+    </>
   );
 };
 
