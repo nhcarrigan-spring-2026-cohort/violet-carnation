@@ -14,6 +14,7 @@ import {
   DialogDescription,
   DialogFooter,
 } from "@/components/ui/dialog";
+import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
 import { Event } from "@/models/event";
 import { CalendarDays, MapPin } from "lucide-react";
@@ -68,6 +69,11 @@ function EventRow({
                 <MapPin className="h-3.5 w-3.5 shrink-0" />
                 <span className="truncate">{event.location}</span>
               </span>
+            )}
+            {event.category && (
+              <Badge variant="secondary" className="w-fit mt-1">
+                {event.category}
+              </Badge>
             )}
           </CardContent>
         </Card>

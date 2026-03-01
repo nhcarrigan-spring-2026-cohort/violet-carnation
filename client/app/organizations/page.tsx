@@ -4,10 +4,12 @@ import { Organization } from "@/models/organizations";
 import { useCallback, useEffect, useState } from "react";
 import Link from "next/link";
 import NavBar from "@/components/NavBar";
+import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Input } from "@/components/ui/input";
 import { Skeleton } from "@/components/ui/skeleton";
+import { getOrganizationCategoryLabel } from "@/models/organizationCategories";
 
 const LIMIT = 10;
 
@@ -131,6 +133,11 @@ const OrganizationsPage = () => {
                 <Card className="h-full hover:shadow-md transition-shadow cursor-pointer">
                   <CardHeader>
                     <CardTitle className="text-lg">{org.name}</CardTitle>
+                    {org.category && (
+                      <Badge variant="secondary" className="w-fit">
+                        {getOrganizationCategoryLabel(org.category)}
+                      </Badge>
+                    )}
                   </CardHeader>
                   <CardContent>
                     <p className="text-sm text-muted-foreground line-clamp-3">
