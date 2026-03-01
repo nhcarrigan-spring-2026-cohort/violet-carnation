@@ -133,13 +133,13 @@ describe("filtersToQueryParams", () => {
       expect(params.getAll("organization_id")).toEqual(["20", "30"]);
     });
 
-    it("should produce no organization_id params when scope is 'myOrgs' but user has no roles", () => {
+    it("should add organization_id=-1 when scope is 'myOrgs' but user has no roles", () => {
       const filters: Filters = { scope: "myOrgs", availability: null };
 
       const params = filtersToQueryParams(filters, []);
 
-      expect(params.has("organization_id")).toBe(false);
-      expect(params.toString()).toBe("");
+      expect(params.getAll("organization_id")).toEqual(["-1"]);
+      expect(params.toString()).toBe("organization_id=-1 ");
     });
 
     it("should combine organization_id with availability params", () => {
