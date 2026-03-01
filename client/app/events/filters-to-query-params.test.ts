@@ -139,7 +139,7 @@ describe("filtersToQueryParams", () => {
       const params = filtersToQueryParams(filters, []);
 
       expect(params.getAll("organization_id")).toEqual(["-1"]);
-      expect(params.toString()).toBe("organization_id=-1 ");
+      expect(params.toString()).toBe("organization_id=-1");
     });
 
     it("should combine organization_id with availability params", () => {
