@@ -26,14 +26,24 @@ export function filtersToQueryParams(
 
   // Map scope to organization_id query params
   if (filters.scope === "myOrgs") {
-    userRoles
-      .map((r) => r.organization_id)
-      .forEach((id) => params.append("organization_id", String(id)));
+    if (userRoles.length === 0) {
+      // No roles means no orgs, so add a param that will yield zero results
+      params.append("organization_id", "-1");
+    } else {
+      userRoles
+        .map((r) => r.organization_id)
+        .forEach((id) => params.append("organization_id", String(id)));
+    }
   } else if (filters.scope === "admin") {
-    userRoles
-      .filter((r) => r.permission_level === "admin")
-      .map((r) => r.organization_id)
-      .forEach((id) => params.append("organization_id", String(id)));
+    const adminRoles = userRoles.filter((r) => r.permission_level === "admin");
+    if (adminRoles.length === 0) {
+      // No admin roles means no orgs, so add a param that will yield zero results
+      params.append("organization_id", "-1");
+    } else {
+      adminRoles
+        .map((r) => r.organization_id)
+        .forEach((id) => params.append("organization_id", String(id)));
+    }
   }
 
   // Map selected categories to category query params
