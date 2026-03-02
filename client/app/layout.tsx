@@ -1,11 +1,11 @@
-<<<<<<< HEAD
+
 import { ThemeProvider } from "next-themes"
 
 export default function RootLayout({ children }: RootLayoutProps) {
   return (
     <html lang="en" suppressHydrationWarning>
       <body>
-=======
+
 import type { Metadata } from "next";
 import { ThemeProvider } from "next-themes";
 import { Geist, Geist_Mono } from "next/font/google";
@@ -52,21 +52,21 @@ export default async function RootLayout({
   return (
     <html lang="en" suppressHydrationWarning>
       <body className={`${geistSans.variable} ${geistMono.variable} antialiased`}>
->>>>>>> d5f745185c33495821c4567fbc60ff8d0bdda30b
+
         <ThemeProvider
           attribute="class"
           defaultTheme="system"
           enableSystem
           disableTransitionOnChange
         >
-<<<<<<< HEAD
+
           {children}
-=======
+
           <AuthProvider>
             <RolesProvider initialRoles={initialRoles}>{children}</RolesProvider>
           </AuthProvider>
           <Toaster />
->>>>>>> d5f745185c33495821c4567fbc60ff8d0bdda30b
+>
         </ThemeProvider>
       </body>
     </html>
