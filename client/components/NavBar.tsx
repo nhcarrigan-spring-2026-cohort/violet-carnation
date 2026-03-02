@@ -1,10 +1,18 @@
 "use client";
+import React from "react";
+import logo from "../assets/logo.png"; // <- default import
 
 import { Button } from "@/components/ui/button";
 import { ModeToggle } from "@/components/ui/mode-toggle";
 import { useAuth } from "@/context/AuthContext";
 import Link from "next/link";
 import { useRouter } from "next/navigation";
+
+const NavBar: React.FC = () => (
+  <nav>
+    <img src={logo} alt="Logo" />
+  </nav>
+);
 
 export default function Navbar() {
   const { user, logout } = useAuth();
