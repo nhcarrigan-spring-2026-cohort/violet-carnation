@@ -19,10 +19,13 @@
     }
   ],
   "cSpell.words": [
+    "bradtaniguchi",
     "executescript",
     "fastapi",
     "frankgomezdev",
     "masudulalam",
+    "nhcarrigan",
+    "nvmrc",
     "ofthewildfire",
     "pycache",
     "sylkylacole",
@@ -30,9 +33,13 @@
     "uvicorn",
     "venv"
   ],
-
   // auto approve these commands, this covers common usecases.
   "chat.tools.terminal.autoApprove": {
-    "sqlite3": true
+    "sqlite3": true,
+    "npx jest": true,
+    "npm": true,
+    "npx": true,
+    "git": true,
+    "gh": true
   }
 }

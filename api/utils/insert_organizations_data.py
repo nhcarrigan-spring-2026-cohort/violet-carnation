@@ -8,8 +8,8 @@ def insert_orgs_data(conn, cursor, orgs_data):
 
     insert_query = """
     INSERT INTO organizations (
-        created_by_user_id, name, description
-    ) VALUES (?, ?, ?)
+        created_by_user_id, name, description, category
+    ) VALUES (?, ?, ?, ?)
     """
 
     try:

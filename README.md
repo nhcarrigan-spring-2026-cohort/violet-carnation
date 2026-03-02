@@ -52,11 +52,10 @@ See [CONTRIBUTING.md](./docs/CONTRIBUTING.md) for setup instructions.
 - [@D-Johnson89](https://github.com/D-Johnson89)
 - [@ofthewildfire](https://github.com/ofthewildfire)
 - [@tenaciousLoki](https://github.com/tenaciousLoki)
-- [@masudulalam](https://github.com/masudulalam)
-- [@urmilbhatt](https://github.com/urmilbhatt)
 - [@gerardoRmrz](https://github.com/gerardoRmrz)
 - [@TiffanyClark](https://github.com/TiffanyClark)
 - [@felicity](https://github.com/felixicity)
+- [@amandaw800](https://github.com/amandaw800)
 
 ## Project Timeline
 

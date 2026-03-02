@@ -6,12 +6,14 @@ CREATE TABLE IF NOT EXISTS users (
     email TEXT NOT NULL UNIQUE,
     first_name TEXT NOT NULL,
     last_name TEXT NOT NULL,
-    availability TEXT CHECK(availability IN ('Full-time', 'Part-time', 'Weekends', 'Evenings')) DEFAULT 'Part-time'
+    availability TEXT DEFAULT NULL CHECK (availability IS NULL OR availability IN ('Mornings', 'Afternoons', 'Evenings', 'Weekends', 'Flexible')),
+    skills TEXT DEFAULT ''
 );
 CREATE TABLE IF NOT EXISTS organizations (
     organization_id INTEGER PRIMARY KEY AUTOINCREMENT,
     name TEXT NOT NULL,
     description TEXT,
+    category TEXT,
     created_by_user_id INTEGER NOT NULL,
     FOREIGN KEY (created_by_user_id) REFERENCES users(user_id)
         ON UPDATE CASCADE
@@ -30,9 +32,17 @@ CREATE TABLE IF NOT EXISTS roles (
         ON UPDATE CASCADE
         ON DELETE CASCADE
 );
+CREATE TABLE IF NOT EXISTS credentials (
+    id INTEGER PRIMARY KEY AUTOINCREMENT,
+    user_id INTEGER NOT NULL UNIQUE,
+    hashed_password TEXT NOT NULL,
+    FOREIGN KEY (user_id) REFERENCES users(user_id)
+        ON UPDATE CASCADE
+        ON DELETE CASCADE
+);
 CREATE TABLE IF NOT EXISTS event_registrations (
     user_id INTEGER NOT NULL,
-    event_id INTEGER NOT NULL, 
+    event_id INTEGER NOT NULL,
     organization_id INTEGER NOT NULL,
     registration_time TEXT NOT NULL,
     PRIMARY KEY (user_id, organization_id, event_id)
@@ -42,18 +52,27 @@ CREATE TABLE IF NOT EXISTS events (
     name TEXT NOT NULL, 
     description TEXT NOT NULL, 
     location TEXT NOT NULL, 
-    time TEXT NOT NULL,
+    date_time TEXT NOT NULL,
     organization_id INTEGER NOT NULL,
+    category TEXT DEFAULT NULL,
     FOREIGN KEY (organization_id) REFERENCES organizations(organization_id)
+);
+CREATE TABLE IF NOT EXISTS user_interests (
+    user_id   INTEGER NOT NULL,
+    category  TEXT NOT NULL,
+    PRIMARY KEY (user_id, category),
+    FOREIGN KEY (user_id) REFERENCES users(user_id) ON DELETE CASCADE
 );
 """
 
 
 # DB schema for nuking the database, useful for testing and development when you want to reset the database
 DROP_DB_SQL = """
+DROP TABLE IF EXISTS user_interests;
 DROP TABLE IF EXISTS users;
 DROP TABLE IF EXISTS organizations;
 DROP TABLE IF EXISTS roles;
 DROP TABLE IF EXISTS event_registrations;
+DROP TABLE IF EXISTS credentials;
 DROP TABLE IF EXISTS events;
 """

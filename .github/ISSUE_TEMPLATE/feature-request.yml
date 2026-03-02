@@ -1,0 +1,34 @@
+name: "💡 Feature Request"
+description: Request a new feature or component
+title: "feat: <brief description>"
+labels: ["enhancement"]
+body:
+  - type: textarea
+    id: summary
+    attributes:
+      label: "Description"
+      description: What feature/component needs to be built?
+      placeholder: "We need a user profile page that displays..."
+    validations:
+      required: true
+
+  - type: textarea
+    id: requirements
+    attributes:
+      label: "Requirements"
+      description: What should this feature do?
+      placeholder: |
+        - Display user name and email
+        - Allow editing preferences
+        - Show volunteer history
+    validations:
+      required: true
+
+  - type: textarea
+    id: context
+    attributes:
+      label: "Additional Context"
+      description: Mockups, examples, related issues?
+      placeholder: "Related to #123, see Figma design at..."
+    validations:
+      required: false

@@ -1,6 +1,6 @@
 import json
 import sqlite3
-
+from categories import generate_category
 from faker import Faker
 
 # Faker init
@@ -35,11 +35,10 @@ def generate_organizations_data(org_list_file, conn: sqlite3.Connection):
     print(f"Generating data for {len(admin_users)} admins...")
 
     for k in range(len(admin_users)):
-
         created_by_user_id = admin_users[k][0]
         name = orgs_list[k]["name"]
         description = fake.text(max_nb_chars=100)
 
-        orgs_data.append((created_by_user_id, name, description))
+        orgs_data.append((created_by_user_id, name, description, generate_category()))
 
     return orgs_data

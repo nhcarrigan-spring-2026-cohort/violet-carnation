@@ -13,8 +13,6 @@ def generate_roles_data(num_records=100):
     user_number = 100  # This number will be use to generate random user ids
     org_number = 20  # This is the number of organizations
 
-    permission_level_list = ["admin", "volunteer"]
-
     org_ids_with_admin = []  # save orgs with an admin user
 
     for _ in range(num_records):
