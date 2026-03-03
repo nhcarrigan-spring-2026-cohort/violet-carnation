@@ -1,3 +1,6 @@
+<<<<<<< HEAD
+import { ModeToggle } from "@/components/ui/mode-toggle"
+=======
 import { Building2, Calendar, ClipboardList } from "lucide-react";
 import Link from "next/link";
 import { Suspense } from "react";
@@ -54,8 +57,20 @@ async function UpcomingEvents() {
 
 export default async function Home() {
   const session = await getServerSession();
+>>>>>>> d5f745185c33495821c4567fbc60ff8d0bdda30b
 
   return (
+<<<<<<< HEAD
+    <main className="min-h-screen bg-white text-slate-900 dark:bg-slate-900 dark:text-white p-6">
+      <div className="flex justify-end">
+        <ModeToggle />
+      </div>
+
+      <h1 className="mt-6 text-2xl font-bold">Theme Test</h1>
+      <p>If background changes, dark mode works.</p>
+    </main>
+  )
+=======
     <div>
       <NavBar />
       <main className="mx-auto max-w-5xl px-4">
@@ -166,4 +181,6 @@ export default async function Home() {
       </main>
     </div>
   );
+>>>>>>> d5f745185c33495821c4567fbc60ff8d0bdda30b
 }
+
