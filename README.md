@@ -12,6 +12,14 @@ People want to volunteer but don't know where to start. Nonprofits need help but
 **Our Solution:**  
 A matching platform that makes finding the _right_ volunteer opportunity feel personal, not like a generic job board. Someone who loves animals sees animal-focused opportunities first. Someone available only on weekends can filter accordingly.
 
+## Screenshots
+
+### Dashboard
+![Main Dashboard](./docs/screenshots/main-dashboard.png)
+
+### Profile Signup
+![Profile Signup](./docs/screenshots/profile-signup.png)
+
 ## Tech Stack
 
 **Frontend:**
